@@ -2,7 +2,7 @@ from fabric.contrib.files import append, exists, sed
 from fabric.api import env, local, run
 import random
 
-REPO_URL = 'https://github.com/tilacog/ottg.git'
+REPO_URL = 'https://github.com/tilacog/paranoid.git'
 
 def deploy():
     site_folder = '/home/%s/sites/%s' % (env.user, env.host)
