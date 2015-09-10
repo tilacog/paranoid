@@ -1,13 +1,10 @@
 '''
-Created on 26 Sep 2012
-
-@author: eeaston
-
 Website testing Page Objects
 '''
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
-
+from selenium.webdriver.remote.webdriver import WebDriver
+from unittest import TestCase
 
 class PageObject(object):
     """ Page Object pattern.
@@ -15,40 +12,37 @@ class PageObject(object):
         Parameters
         ----------
 
-        webdriver: `selenium.webdriver.WebDriver`
-            Selenium webdriver instance
-        root_uri: `str`
-            Root URI, set by the pyramid_server funcarg if available
+        test:       TestCase instance, with a predefined selenium webdriver
+                    instance.
 
         Examples
         --------
         With page elements::
 
-            from pkglib_testing.page_objects import PageObject, page_element
+            from page_objects import PageObject, page_element
 
             class LoginPage(PageObject):
-                username = page_element(id_='username')
+                username = page_element(id='username')
                 password = page_element(name='username')
                 login = page_element(css='input[type="submit"]')
 
-            login_page = LoginPage(webdriver, locators)
+            login_page = LoginPage()
             login_page.username = 'foo'
             assert login_page.username.text == 'foo'
             login_page.login.click()
 
     """
-    def __init__(self, webdriver, root_uri=None):
-        self.w = webdriver
-        self.root_uri = root_uri if root_uri else getattr(self.w, 'root_uri', None)
+    def __init__(self, test, webdriver_attr='browser'):
+        webdriver = getattr(test, webdriver_attr)
+        assert isinstance(test, TestCase)
+        assert isinstance(webdriver, WebDriver)
+        
+        self.test = test
+        self.w = webdriver 
 
 
 class PageElement(object):
     """ Page Element pattern.
-
-        Parameters
-        ----------
-        webdriver: `selenium.webdriver.WebDriver`
-            Selenium webdriver instance
 
         Required Attributes:
         locator:  (`selenium.webriver.common.by.By`, locator text)
@@ -87,7 +81,7 @@ class MultiPageElement(PageElement):
 
 # Map factory arguments to webdriver locator enums
 _LOCATOR_MAP = {'css': By.CSS_SELECTOR,
-                'id_': By.ID,
+                'id': By.ID,
                 'name': By.NAME,
                 'xpath': By.XPATH,
                 'link_text': By.LINK_TEXT,
@@ -104,7 +98,7 @@ def page_element(klass=PageElement, **kwargs):
         ----------
         css:    `str`
             Use this css locator
-        id_:    `str`
+        id:    `str`
             Use this element ID locator
         name:    `str`
             Use this element name locator
@@ -123,10 +117,10 @@ def page_element(klass=PageElement, **kwargs):
         --------
         Page Elements can be used like this::
 
-            from pkglib_testing.page_objects import PageObject, page_element
+            from page_objects import PageObject, page_element
             class MyPage(PageObject)
                 elem1 = page_element(css='div.myclass')
-                elem2 = page_element(id_='foo')
+                elem2 = page_element(id='foo')
 
     """
     if not kwargs:
