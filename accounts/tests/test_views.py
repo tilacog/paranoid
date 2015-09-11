@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.utils.html import escape
 from unittest import skip
 from unittest.mock import patch
+import unittest
 
 from accounts.views import login_view
 from accounts.forms import LoginForm, EMPTY_EMAIL_ERROR, EMPTY_PASSWORD_ERROR
@@ -37,7 +38,7 @@ class LoginPageTest(TestCase):
 
 
 @patch('accounts.views.LoginForm')
-class LoginFormUnitTests(TestCase):
+class LoginFormUnitTests(unittest.TestCase):  # Not using django's TestCase
 
     def setUp(self):
         self.request = HttpRequest()
