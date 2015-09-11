@@ -75,11 +75,8 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
@@ -113,3 +110,22 @@ LOGGING = {
     },
     'root': {'level': 'INFO'},
 }
+
+
+# Test-specific configs
+import sys
+if 'test' in sys.argv:
+    # import logging
+    # logger = logging.getLogger(__name__)
+    # logger.warning(
+    #     'Some settings have been changed for this test. '
+    #     'Check settings.py file for more info.'
+    # )
+
+    # test with in-memory sqlite, if other db is used
+    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
+
+    # Ignore naive datetime warning from IPython
+    import warnings
+    warnings.filterwarnings("ignore", category=RuntimeWarning, module='django.db.backends.sqlite3.base', lineno=53)
+

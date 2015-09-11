@@ -17,7 +17,7 @@ class FirstTest(FunctionalTest):
         # Jacob access the home page and finds a login page. He is requested
         # to insert his email and password.
         login_page = LoginPage(self).visit()
-        login_page.login(user='jacob@django.com', password='letsrock')
+        login_page.login(email='jacob@django.com', password='letsrock')
 
         # He notices the application title is also present in his browser title.
 
