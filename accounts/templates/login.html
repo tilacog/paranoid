@@ -1,8 +1,29 @@
-<html>
-<head>
-    <title>Titan</title>
-</head>
-<body>
-    <h1>Titan</h1>
-    {{ form.text }}
-</body>
+{% extends 'base.html' %}
+
+{% block title %}Titan{% endblock title %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-6 col-md-offset-3 jumbotron">
+    <div class="text-center">
+      <h1>{% block header_text %}Titan{% endblock %}</h1>
+      
+      <form method="POST" 
+          {% comment 'future login url' %}   
+          action="{% url 'login_user' %}"
+          {% endcomment %}
+      >
+        {% csrf_token %}
+        {{ form.email }}
+        {{ form.password }} 
+        <input type="submit" value="Login" />
+        
+        {% if form.errors %}
+         <div class="form-group has-error"> <span class="help-block">{{ form.errors }}</span></div>
+        {% endif %}
+      </form>
+    
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -14,14 +14,22 @@ class FirstTest(FunctionalTest):
 
     def test_returning_user(self):
 
-        # Jacob access the home page and finds a login page. He is requested
-        # to insert his email and password.
+        # Jacob access the home page.
         login_page = LoginPage(self).visit()
-        login_page.login(email='jacob@django.com', password='letsrock')
+        
+        # The app name is featured in the page, and also in the browser tab. 
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        self.assertIn('Titan', header_text)
+        self.assertIn('Titan', login_page.title)
 
-        # He notices the application title is also present in his browser title.
+        # He is requested to insert his email and password.
+        login_page.login(email='jacob@django.com', password='letsroque')
 
         # He tries to log in, but misspells his own email, resulting in an error.
+        self.wait_for(self.assertEqual(
+            'Usuário ou senha incorretos.',
+            login_page.login_error.text
+        ))
 
         # After retyping, he manages to successfull log in.
 
