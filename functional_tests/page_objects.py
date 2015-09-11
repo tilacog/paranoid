@@ -36,10 +36,10 @@ class PageObject(object):
         webdriver = getattr(test, webdriver_attr)
         assert isinstance(test, TestCase)
         assert isinstance(webdriver, WebDriver)
-        
-        self.test = test
-        self.w = webdriver 
 
+        self.test = test
+        self.w = webdriver
+        self.browser = self.w  # friendly alias
 
 class PageElement(object):
     """ Page Element pattern.
