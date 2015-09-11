@@ -1,3 +1,4 @@
+
 '''
 Website testing Page Objects
 '''
@@ -65,7 +66,15 @@ class PageElement(object):
     def __set__(self, instance, value):
         elem = self.__get__(instance, None)
         if not elem:
-            raise ValueError("Can't set value, element not found")
+            raise ValueError(
+                'Can\'t set value "{value}", element not found on {page_name}.\n'
+                'Method:"{method}", Selector:"{selector}"'.format(
+                    value=value,
+                    page_name=instance.__class__.__name__,
+                    method=self.locator[0],
+                    selector=self.locator[1]
+                )
+            )
         elem.send_keys(value)
 
 
