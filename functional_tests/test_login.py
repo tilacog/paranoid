@@ -16,11 +16,11 @@ class FirstTest(FunctionalTest):
 
         # Jacob access the home page.
         login_page = LoginPage(self).visit()
-        
-        # The app name is featured in the page, and also in the browser tab. 
+
+        # The app name is featured in the page, and also in the browser tab.
         header_text = self.browser.find_element_by_tag_name('h1').text
-        self.assertIn('Titan', header_text)
-        self.assertIn('Titan', login_page.title)
+        self.assertIn('Titan', header_text.capitalize())
+        self.assertIn('Titan', login_page.title.capitalize())
 
         # He is requested to insert his email and password.
         login_page.login(email='jacob@django.com', password='letsroque')

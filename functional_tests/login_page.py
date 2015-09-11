@@ -7,7 +7,7 @@ class LoginPage(PageObject):
 
     email = page_element(id='id_email')
     password = page_element(id='id_password')
-    
+
 
     def landmark(self):
         self.test.assertEqual(self.browser.title, 'Titan')
@@ -20,10 +20,10 @@ class LoginPage(PageObject):
     def login(self, email, password):
         self.visit()
         self.email = email
-        self.password = password + '\n' 
+        self.password = password + '\n'
 
     @property
     def login_error(self):
         return self.browser.find_element_by_css_selector('.has-error')
-        
+
 

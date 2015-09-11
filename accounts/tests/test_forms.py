@@ -13,9 +13,11 @@ class LoginFormTest(TestCase):
         self.assertIn('id="id_email"', form_html)
         self.assertIn('name="email"', form_html)
         self.assertIn('type="email"', form_html)
-        
+        self.assertIn('placeholder="Email"', form_html)
+
         self.assertIn('id="id_password"', form_html)
         self.assertIn('name="password"', form_html)
         self.assertIn('type="password"', form_html)
+        self.assertIn('placeholder="Senha"', form_html)
 
 

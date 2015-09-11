@@ -3,6 +3,10 @@ from django.shortcuts import render
 from .forms import LoginForm
 
 
+
 def login_view(request):
-    form = LoginForm(data=request.POST)  # on GET form will still be blank
+    if request.method == 'POST':
+        form = LoginForm(data=request.POST)
+    else:
+        form = LoginForm()
     return render(request, 'login.html', {'form': form})

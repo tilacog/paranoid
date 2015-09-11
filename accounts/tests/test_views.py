@@ -1,19 +1,19 @@
-from django.test import TestCase
-
-from django.http import HttpRequest, HttpResponse
 from django.core.urlresolvers import reverse
-from unittest.mock import patch
+from django.http import HttpRequest, HttpResponse
+from django.test import TestCase
+from django.utils.html import escape
 from unittest import skip
+from unittest.mock import patch
 
 from accounts.views import login_view
-from accounts.forms import LoginForm
+from accounts.forms import LoginForm, EMPTY_EMAIL_ERROR, EMPTY_PASSWORD_ERROR
 
 
 class LoginPageTest(TestCase):
-    
+
     def setUp(self):
-        url = reverse('login')
-        self.response = self.client.get(url)
+        self.url = reverse('login')
+        self.response = self.client.get(self.url)
 
     def test_login_page_exists(self):
         self.assertEqual(self.response.status_code, 200)
@@ -26,17 +26,39 @@ class LoginPageTest(TestCase):
         self.assertContains(self.response, 'id="id_email"')
         self.assertContains(self.response, 'id="id_password"')
 
-    @patch('accounts.views.LoginForm')
+    @skip
+    def test_invalid_input_shows_errors(self):
+        response = self.client.post(self.url, data={
+            'email':'', 'password':''
+        })
+        self.assertContains(response, escape(EMPTY_EMAIL_ERROR))
+        self.assertContains(response, escape(EMPTY_PASSWORD_ERROR))
+
+
+
+@patch('accounts.views.LoginForm')
+class LoginFormUnitTests(TestCase):
+
+    def setUp(self):
+        self.request = HttpRequest()
+        self.response = login_view(self.request)
+
+    def test_no_data_is_passed_to_form_on_get_request(self, mockLoginForm):
+        self.request.method = 'POST'
+        self.request.POST['email'] = 'john@leonnon.co.uk'
+
+        login_view(self.request)
+
+        mockLoginForm.assert_called_once_with(data=self.request.POST)
+
     def test_view_passes_post_data_to_form(self, mockLoginForm):
-        request = HttpRequest()
-        request.method = 'POST'
-        request.POST['email'] = 'john@leonnon.co.uk'
+        self.request.method = 'POST'
+        self.request.POST['email'] = 'john@leonnon.co.uk'
 
-        login_view(request)
-        
-        mockLoginForm.assert_called_once_with(data=request.POST)
+        login_view(self.request)
 
-    @patch('accounts.views.LoginForm')
+        mockLoginForm.assert_called_once_with(data=self.request.POST)
+
     @patch('accounts.views.render')
     def test_can_patch_render(self, mock_render, mockLoginForm):
         request = HttpRequest()
