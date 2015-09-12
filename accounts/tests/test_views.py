@@ -1,13 +1,16 @@
+from django.contrib.auth import get_user_model, SESSION_KEY
 from django.core.urlresolvers import reverse
 from django.http import HttpRequest, HttpResponse
 from django.test import TestCase
 from django.utils.html import escape
 from unittest import skip
-from unittest.mock import patch
 import unittest
+from unittest.mock import patch
 
 from accounts.views import login_page
 from accounts.forms import LoginForm, EMPTY_EMAIL_ERROR, EMPTY_PASSWORD_ERROR
+
+User = get_user_model()
 
 
 class LoginPageTest(TestCase):
@@ -72,3 +75,40 @@ class LoginFormUnitTests(unittest.TestCase):  # Not using django's TestCase
             'login.html',
             {'form': mock_form}
         )
+
+
+class LoginViewTest(TestCase):
+
+    def setUp(self):
+        self.url = reverse('login_view')
+
+    @patch('accounts.views.authenticate')
+    @patch('accounts.views.login')  # w/o this test crashes
+    def test_calls_authenticate_from_post(self, mock_login, mock_authenticate):
+        self.client.post(self.url)  # doesn't need any POST data for this test
+        mock_authenticate.assert_called()
+
+
+    def test_returns_OK_when_user_found(self):
+        user = User.objects.create_user(email='a@b.com', password='123')
+        response = self.client.post(
+            self.url,
+            {'email':'a@b.com', 'password':'123'}
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    @patch('accounts.views.authenticate')  # have no interest in authenticate
+    def test_gets_logged_in_session_on_success(self, mock_authenticate):
+        user = User.objects.create_user(email='a@b.com', password='123')
+        user.backend = ''  # required for auth_login to work
+        mock_authenticate.return_value = user
+
+        response = self.client.post(
+            self.url,
+            {'email':'a@b.com', 'password':'123'}
+        )
+        self.assertEqual(self.client.session[SESSION_KEY], user.pk)
+
+    def test_des_not_get_logged_in_on_failure(self):
+        self.fail()
