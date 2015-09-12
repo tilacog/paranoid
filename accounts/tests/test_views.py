@@ -27,7 +27,6 @@ class LoginPageTest(TestCase):
         self.assertContains(self.response, 'id="id_email"')
         self.assertContains(self.response, 'id="id_password"')
 
-    @skip
     def test_invalid_input_shows_errors(self):
         response = self.client.post(self.url, data={
             'email':'', 'password':''

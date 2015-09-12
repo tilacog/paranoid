@@ -14,16 +14,26 @@
 <div class="row">
   <div class="col-md-6 col-md-offset-3 jumbotron">
     <div class="text-center">
-        <h1 id="id_app_title"> 
+        <h1 id="id_app_title">
           {% block header_text %}Titan{% endblock %}</h1>
+
+
       <form class="form-group" method="POST" >
         {% csrf_token %}
+
         <p>{{ form.email }}</p>
         <p>{{ form.password }}</p>
+
+        {% if form.errors %}
+          <div class="form-group has-error">
+            <span class="help-block">{{ form.email.errors }}</span>
+            <span class="help-block">{{ form.password.errors }}</span>
+          </div>
+        {% endif %}
+
         <input type="submit" value="Login" />
-        
       </form>
-    
+
     </div>
   </div>
 </div>
