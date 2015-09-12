@@ -24,6 +24,12 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
+AUTH_USER_MODEL = 'accounts.ParanoidUser'
+AUTHENTICATION_BACKENDS = (
+    'accounts.authentication.ParanoidAuthenticationBackend',
+)
+
+
 # This setting is changed by the deploy script
 DOMAIN = "localhost"
 ALLOWED_HOSTS = [DOMAIN]
