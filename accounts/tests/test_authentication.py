@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from django.test import TestCase
 from accounts.authentication import ParanoidAuthenticationBackend
 User = get_user_model()
@@ -21,3 +21,10 @@ class AuthenticateTest(TestCase):
         user = self.backend.authenticate(email='idont@exist.com', password='123')
         self.assertIsNone(user)
 
+class AuthenticateIntegratedTest(TestCase):
+
+    def test_django_contrib_auth_works(self):
+        "Django must know how to authenticate our custom user model"
+        User.objects.create_user(email='a@b.com', password='top_secret')
+        user = authenticate(email='a@b.com', password='top_secret')
+        self.assertIsNotNone(user)
