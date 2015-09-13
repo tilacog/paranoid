@@ -26,6 +26,7 @@
 
         {% if form.errors %}
           <div class="form-group has-error">
+            <span class="help-block">{{ form.non_field_errors}}</span>
             <span class="help-block">{{ form.email.errors }}</span>
             <span class="help-block">{{ form.password.errors }}</span>
           </div>

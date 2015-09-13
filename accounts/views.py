@@ -13,12 +13,11 @@ def login_page(request):
     return render(request, 'login.html', {'form': form})
 
 def login_view(request):
-    user = authenticate(
-        email=request.POST.get('email'),
-        password=request.POST.get('password')
-    )
+    form = LoginForm(request.POST)
 
-    if user:
+    if form.is_valid():
+        user = form.user_cache
         login(request, user)
         return HttpResponse()
-    return HttpResponse(status=422)
+    else:
+        return render(request, 'login.html', {'form': form})

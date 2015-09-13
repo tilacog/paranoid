@@ -8,7 +8,10 @@ import unittest
 from unittest.mock import patch
 
 from accounts.views import login_page
-from accounts.forms import LoginForm, EMPTY_EMAIL_ERROR, EMPTY_PASSWORD_ERROR
+from accounts.forms import (
+    LoginForm, INVALID_LOGIN_ERROR, EMPTY_EMAIL_ERROR,
+    EMPTY_PASSWORD_ERROR
+)
 
 User = get_user_model()
 
@@ -30,12 +33,21 @@ class LoginPageTest(TestCase):
         self.assertContains(self.response, 'id="id_email"')
         self.assertContains(self.response, 'id="id_password"')
 
-    def test_invalid_input_shows_errors(self):
+    def test_displays_empty_field_errors(self):
         response = self.client.post(self.url, data={
             'email':'', 'password':''
         })
+
         self.assertContains(response, escape(EMPTY_EMAIL_ERROR))
         self.assertContains(response, escape(EMPTY_PASSWORD_ERROR))
+
+
+    def test_invalid_input_shows_errors(self):
+        response = self.client.post(self.url, data={
+            'email':'nonexistent@user.com', 'password':'123'
+        })
+        self.assertContains(response, escape(INVALID_LOGIN_ERROR))
+
 
 
 

@@ -26,8 +26,8 @@ class FirstTest(FunctionalTest):
         login_page.login(email='jacob@django.com', password='letsroque')
 
         # He tries to log in, but misspells his own email, resulting in an error.
-        self.wait_for(self.assertEqual(
-            'Usuário ou senha incorretos.',
+        self.wait_for(lambda: self.assertEqual(
+            'Usuário ou senha incorreto.',
             login_page.login_error.text
         ))
 
@@ -46,3 +46,4 @@ class FirstTest(FunctionalTest):
         # He also notices a form to upload a new document.
 
         # But he gets too scared, and logs out in despair.
+        self.fail("Finish the test!")
