@@ -5,12 +5,12 @@ from django.test import TestCase
 from django.utils.html import escape
 from unittest import skip
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from accounts.views import login_page
 from accounts.forms import (
-    LoginForm, INVALID_LOGIN_ERROR, EMPTY_EMAIL_ERROR,
-    EMPTY_PASSWORD_ERROR
+    LoginForm, INACTIVE_USER_ERROR, INVALID_LOGIN_ERROR,
+    EMPTY_EMAIL_ERROR,EMPTY_PASSWORD_ERROR,
 )
 
 User = get_user_model()
@@ -41,15 +41,25 @@ class LoginPageTest(TestCase):
         self.assertContains(response, escape(EMPTY_EMAIL_ERROR))
         self.assertContains(response, escape(EMPTY_PASSWORD_ERROR))
 
-
-    def test_invalid_input_shows_errors(self):
+    def test_displays_invalid_input_error(self):
         response = self.client.post(self.url, data={
             'email':'nonexistent@user.com', 'password':'123'
         })
         self.assertContains(response, escape(INVALID_LOGIN_ERROR))
 
+    def test_displays_inactive_user_error(self):
+        # Must call create_user otherwise test will fail.
+        user = User.objects.create_user(
+            email='inactive@user.com', password='123'
+        )
+        user.is_active = False
+        user.save()
 
+        response = self.client.post(self.url, data={
+            'email': 'inactive@user.com', 'password': '123'
+        })
 
+        self.assertContains(response, escape(INACTIVE_USER_ERROR))
 
 @patch('accounts.views.LoginForm')
 class LoginFormUnitTests(unittest.TestCase):  # Not using django's TestCase

@@ -7,7 +7,7 @@ User = get_user_model()
 EMPTY_EMAIL_ERROR = "Por favor, digite um email"
 EMPTY_PASSWORD_ERROR = "Por favor, digite uma senha"
 INVALID_LOGIN_ERROR = "Usuário ou senha incorreto."
-INACTIVE_ACCOUNT_ERROR = "Esta conta está desativada."
+INACTIVE_USER_ERROR = "Esta conta está desativada."
 
 class LoginForm(forms.ModelForm):
 
@@ -28,7 +28,7 @@ class LoginForm(forms.ModelForm):
 
         error_messages = {
             'invalid_login': INVALID_LOGIN_ERROR,
-            'inactive': INACTIVE_ACCOUNT_ERROR,
+            'inactive': INACTIVE_USER_ERROR,
             'email': {'required': EMPTY_EMAIL_ERROR},
             'password': {'required': EMPTY_PASSWORD_ERROR},
         }
@@ -52,7 +52,6 @@ class LoginForm(forms.ModelForm):
 
         if email and password:
             self.user_cache = authenticate(email=email, password=password)
-
             if self.user_cache is None:
                 raise forms.ValidationError(
                     self.Meta.error_messages['invalid_login'],

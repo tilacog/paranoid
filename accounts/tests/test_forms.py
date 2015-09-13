@@ -1,7 +1,8 @@
 from django.test import TestCase
-
 from accounts.forms import LoginForm
 
+import unittest
+from unittest.mock import patch, Mock
 
 class LoginFormTest(TestCase):
 
@@ -20,4 +21,14 @@ class LoginFormTest(TestCase):
         self.assertIn('type="password"', form_html)
         self.assertIn('placeholder="Senha"', form_html)
 
+
+@patch('accounts.forms.authenticate')
+class LoginFormValidationUnitTest(unittest.TestCase):
+
+    def test_can_detact_inactive_user(self, mock_authenticate):
+        mock_user = Mock(is_active=False)
+        mock_authenticate.return_value = mock_user
+
+        form = LoginForm()
+        self.assertFalse(form.is_valid())
 
