@@ -110,5 +110,11 @@ class LoginViewTest(TestCase):
         )
         self.assertEqual(self.client.session[SESSION_KEY], user.pk)
 
-    def test_des_not_get_logged_in_on_failure(self):
-        self.fail()
+    @patch('accounts.views.authenticate')
+    def test_des_not_get_logged_in_on_failure(self, mock_authenticate):
+        mock_authenticate.return_value = None
+        self.client.post(self.url, {
+            'email': 'a@b.com',
+            'password': 'WRONG_PASSWORD'
+        })
+        self.assertNotIn(SESSION_KEY, self.client.session)
