@@ -42,9 +42,6 @@ class PageObject(object):
         self.w = webdriver
         self.browser = self.w  # friendly alias
 
-    @property
-    def title(self):
-        return self.browser.title
 
 class PageElement(object):
     """ Page Element pattern.
