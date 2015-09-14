@@ -61,6 +61,7 @@ class LoginPageTest(TestCase):
 
         self.assertContains(response, escape(INACTIVE_USER_ERROR))
 
+
 @patch('accounts.views.LoginForm')
 class LoginFormUnitTests(unittest.TestCase):  # Not using django's TestCase
 
@@ -118,7 +119,7 @@ class LoginViewTest(TestCase):
             {'email':'a@b.com', 'password':'123'}
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('home_page'))
 
     @patch('accounts.views.authenticate')  # have no interest in authenticate
     def test_gets_logged_in_session_on_success(self, mock_authenticate):

@@ -1,6 +1,7 @@
-from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
-from django.shortcuts import render
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
 
 from .forms import LoginForm
 
@@ -18,6 +19,6 @@ def login_view(request):
     if form.is_valid():
         user = form.user_cache
         login(request, user)
-        return HttpResponse()
+        return redirect(reverse('home_page'))
     else:
         return render(request, 'login.html', {'form': form})

@@ -4,5 +4,5 @@ urlpatterns = patterns('',
     # url(r'^$', 'paranoid.views.home', name='home'),
     url(r'^$', 'accounts.views.login_page', name='login_page'),
     url(r'^/login', 'accounts.views.login_view', name='login_view'),
-
+    url(r'^/home/$', 'audits.views.home_page', name='home_page'),
 )
