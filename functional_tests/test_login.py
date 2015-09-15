@@ -13,6 +13,8 @@ class FunctionalTest(StaticLiveServerTestCase):
 
 class FirstTest(FunctionalTest):
 
+    fixtures = ['user_fixture.json'] # email=test@user.com, password='123'
+
     def test_returning_user(self):
 
         # Jacob access the home page.
@@ -21,9 +23,9 @@ class FirstTest(FunctionalTest):
 
         # The app name is featured in the page, and also in the browser tab.
         login_page.check()
-        
+
         # He is requested to insert his email and password.
-        login_page.login(email='jacob@django.com', password='letsroque')
+        login_page.login(email='test@user.com', password='UnoDosTres')
 
         # He tries to log in, but misspells his own email, resulting in an error.
         self.wait_for(lambda: self.assertEqual(
@@ -32,11 +34,12 @@ class FirstTest(FunctionalTest):
         ))
 
         # After retyping, he manages to successfull log in.
-        login_page.login(email='jacob@django.com', password='letsrock')
-        
+        login_page.email.clear()
+        login_page.login(email='test@user.com', password='123')
+
         # He is taken to the home page.
         home_page = HomePage(self)
-        home_page.check()
+        self.wait_for(lambda : home_page.check())
 
         # There is also a navigation menu, with options for browsing available
         # audits.
@@ -50,9 +53,9 @@ class FirstTest(FunctionalTest):
         audit_page = AuditDetailPage(self)
         self.assertEqual('ECF', audit_page.audit_title)
         self.assertTrue(audit_page.audit_description)
-        
+
         # He also notices a form to upload a new document.
-        self.assertTrue(audit_page.upload_forms) 
+        self.assertTrue(audit_page.upload_forms)
 
         # But he gets too scared, and logs out in despair.
         audit_page.log_out()

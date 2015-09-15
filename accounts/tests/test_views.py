@@ -112,17 +112,16 @@ class LoginViewTest(TestCase):
         mock_authenticate.assert_called()
 
 
-    def test_returns_OK_when_user_found(self):
+    def test_redirects_on_successfull_login(self):
         user = User.objects.create_user(email='a@b.com', password='123')
         response = self.client.post(
             self.url,
             {'email':'a@b.com', 'password':'123'}
         )
-
         self.assertRedirects(response, reverse('home_page'))
 
-    @patch('accounts.views.authenticate')  # have no interest in authenticate
-    def test_gets_logged_in_session_on_success(self, mock_authenticate):
+    @patch('accounts.views.authenticate')
+    def test_user_is_logged_in_session_on_success(self, mock_authenticate):
         user = User.objects.create_user(email='a@b.com', password='123')
         user.backend = ''  # required for auth_login to work
         mock_authenticate.return_value = user
@@ -141,3 +140,4 @@ class LoginViewTest(TestCase):
             'password': 'WRONG_PASSWORD'
         })
         self.assertNotIn(SESSION_KEY, self.client.session)
+

@@ -18,7 +18,7 @@
           {% block header_text %}Titan{% endblock %}</h1>
 
 
-      <form class="form-group" method="POST" >
+      <form class="form-group" method="POST" action="{% url 'login_view' %}">
         {% csrf_token %}
 
         <p>{{ form.email }}</p>
