@@ -18,6 +18,8 @@ class FirstTest(FunctionalTest):
     def test_returning_user(self):
 
         # Jacob access the home page.
+        email = 'test@user.com'
+
         self.browser.get(self.server_url)
         login_page = LoginPage(self)
 
@@ -25,7 +27,7 @@ class FirstTest(FunctionalTest):
         login_page.check()
 
         # He is requested to insert his email and password.
-        login_page.login(email='test@user.com', password='UnoDosTres')
+        login_page.login(email=email, password='UnoDosTres')
 
         # He tries to log in, but misspells his own email, resulting in an error.
         self.wait_for(lambda: self.assertEqual(
@@ -35,20 +37,19 @@ class FirstTest(FunctionalTest):
 
         # After retyping, he manages to successfull log in.
         login_page.email.clear()
-        login_page.login(email='test@user.com', password='123')
+        login_page.login(email=email, password='123')
 
         # He is taken to the home page.
         home_page = HomePage(self)
         self.wait_for(lambda : home_page.check())
 
-        # There is also a navigation menu, with options for browsing available
-        # audits.
-        self.assertIn('Auditorias', home_page.navigation_links)
+        # There is a navigation bar with his email on it.
+        self.assertEqual(home_page.loged_user_email.text, email)
 
         # He clicks on "ECF" and is taken to a page for creating new jobs.
         self.browser.find_element_by_link_text('ECF').click()
 
-        # There he can see that the audit name is featured with a descriptive
+        # There he can see that the audit name is featured wipth a descriptive
         # paragraph right below it.
         audit_page = AuditDetailPage(self)
         self.assertEqual('ECF', audit_page.audit_title)
