@@ -3,6 +3,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from audits.models import Package, Audit
+from audits.factories import AuditFactory
+
 
 class HomePageTest(TestCase):
 
@@ -22,29 +24,18 @@ class HomePageTest(TestCase):
         pass
 
     @skip('future tests')
-    def test_do_not_render_unavailable_packages(self):
+    def test_dont_render_unavailable_packages(self):
         pass
 
     @skip('future tests')
-    def test_do_not_render_unavailable_packages(self):
+    def test_dont_render_unavailable_packages(self):
         pass
 
 class AuditPageTest(TestCase):
 
     def setUp(self):
-        self.package = Package.objects.create(
-            name='test pkg name',
-            description='test pkg desc'
-        )
-
-        self.audit = Audit.objects.create(
-            name="Papel de trabalho da ECF",
-            description="bla bla bla",
-            package=self.package,
-            execution_script ='/path/to/somewhere/script.py',
-
-        )
-
+        self.audit = AuditFactory()
+        
         self.response = self.client.get(reverse(
             'audit_page', args=[self.audit.id]
         ))
@@ -52,15 +43,20 @@ class AuditPageTest(TestCase):
     def test_view_renders_audit_template(self):
         self.assertTemplateUsed(self.response, 'audit.html')
 
-
     def test_view_passes_the_right_object_to_template_context(self):
         self.assertEqual(self.audit, self.response.context['audit'])
 
-
+    @skip('future tests')
+    def test_view_passes_the_right_forms_to_template_context(self):
+        self.fail('write me')
 
     def test_response_contains_audit_name_and_description(self):
         self.assertContains(self.response, self.audit.name)
         self.assertContains(self.response, self.audit.description)
+
+    @skip('future tests')
+    def test_response_contais_all_required_documents_forms(self):
+        pass
 
     @skip('future tests')
     def test_inexistent_audit_raises_404_error_and_renders_error_page(self):
