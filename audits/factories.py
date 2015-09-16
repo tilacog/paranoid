@@ -3,7 +3,6 @@ import random
 import string
 
 import factory
-from .models import Package, Audit
 
 def random_string(length=10):
     return ''.join(random.choice(string.ascii_letters) for x in range(length))
@@ -29,3 +28,10 @@ class AuditFactory(factory.DjangoModelFactory):
     # post generation...
     # required_doctypes ...
     # required_kvs ...
+
+
+class DoctypeFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = 'audits.Doctype'
+
+    name = factory.Sequence(lambda n: 'Doctype #%s' % (n,))
