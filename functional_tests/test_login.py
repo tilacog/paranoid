@@ -3,6 +3,9 @@ from .login_page import LoginPage
 from .home_page import HomePage
 from .audit_page import AuditPage
 
+from accounts.factories import UserFactory
+from audits.factories import AuditFactory
+
 
 """
 Keep in mind that .base.FunctionalTest has those methods:
@@ -15,13 +18,20 @@ class FunctionalTest(StaticLiveServerTestCase):
 
 class FirstTest(FunctionalTest):
 
-    fixtures = ['user_fixture.json'] # email=test@user.com, password='123'
 
     def test_returning_user(self):
 
-        # Jacob access the home page.
-        email = 'test@user.com'
-
+        ## Fixtures
+        user = UserFactory()
+        user.set_password('123')  # define a password I can refer to later
+        user.save()               # needs to be saved again
+        
+        audit = AuditFactory(name='ECF')
+        assert audit.id == 1
+        
+        
+        ## The test begins...
+        # A user access the home page.
         self.browser.get(self.server_url)
         login_page = LoginPage(self)
 
@@ -29,7 +39,7 @@ class FirstTest(FunctionalTest):
         login_page.check()
 
         # He is requested to insert his email and password.
-        login_page.login(email=email, password='UnoDosTres')
+        login_page.login(email=user.email, password='wrong_password')
 
         # He tries to log in, but misspells his own email, resulting in an error.
         self.wait_for(lambda: self.assertEqual(
@@ -39,14 +49,14 @@ class FirstTest(FunctionalTest):
 
         # After retyping, he manages to successfull log in.
         login_page.email.clear()
-        login_page.login(email=email, password='123')
+        login_page.login(email=user.email, password='123')
 
         # He is taken to the home page.
         home_page = HomePage(self)
         self.wait_for(lambda : home_page.check())
 
         # There is a navigation bar with his email on it.
-        self.assertEqual(home_page.loged_user_email.text, email)
+        self.assertEqual(home_page.loged_user_email.text, user.email)
 
         # He clicks on "ECF" and is taken to a page for creating new jobs.
         self.browser.find_element_by_link_text('ECF').click()
