@@ -25,8 +25,17 @@ class AuditFactory(factory.DjangoModelFactory):
     execution_script = factory.Sequence(lambda n: 'Script #%s' % (n,))
     package = factory.SubFactory(PackageFactory)
 
+    @factory.post_generation
+    def required_doctypes(self, create, extracted, **kwargs):
+        if not create: return  # Simple build, do nothing.
+        if extracted:
+            # A list of related_doctypes were passed in, use them
+            for doctype in extracted:
+                self.required_doctypes.add(doctype)
+
+    
+    
     # post generation...
-    # required_doctypes ...
     # required_kvs ...
 
 

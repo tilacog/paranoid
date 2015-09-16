@@ -1,5 +1,6 @@
-from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.db import models
 
 
 class Package(models.Model):
@@ -15,16 +16,26 @@ class Audit(models.Model):
     # Upgrade to FilePathFiled in the future
     execution_script = models.CharField(max_length=4096, blank=False, null=False)
 
-
     required_doctypes = models.ManyToManyField('Doctype')
     required_key_value_store = models.ManyToManyField('KeyValueStore')
+    
+    def clean(self):
+        # Don't allow audits to be saved without at least one required doctype
+        if not self.required_doctypes.all():
+            raise ValidationError(
+                {'required_doctypes': ("Audits must have at least one "
+                                       "required doctype.")
+                }
+            )
 
 
 class Doctype(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
 
     # Upgrade to FilePathFiled in the future
-    parsing_instructions = models.CharField(max_length=4096, blank=True, null=False)
+    parsing_instructions = models.CharField(
+        max_length=4096, blank=True, null=False
+    )
 
 class KeyValueStore(models.Model):
     pass
