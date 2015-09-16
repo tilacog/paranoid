@@ -13,7 +13,7 @@ class KeyValueStoreTest(TestCase):
         kvs.input_label = 'test kvs label'
         kvs.formField_class = 'forms.BooleanField'
         kvs.taggedModel = 'audits.Audit'
-        
+
         kvs.full_clean()  # should not raise
         kvs.save()        # should not raise
 

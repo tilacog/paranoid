@@ -8,13 +8,13 @@ class ParanoidPage(PageObject, metaclass=ABCMeta):
     Very similar to PageObject, but implements common mehtods for all
     pages inside the Paranoid project.
     """
-    
+
     def __init__(self, *args, **kwargs):
         "Run self-check on initialization"
         super().__init__(*args, **kwargs)
         self.test.wait_for(lambda: self.check())
-        
-        
+
+
 
     @property
     def title(self):

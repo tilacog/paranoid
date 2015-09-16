@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+
+{% block title %}{{ audit.name }} | Titan{% endblock title %}
+
+{% block navbar %}
+    {% include 'navbar.html' %}
+{% endblock navbar %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-10">
+        <div class="page-header">
+            <h1 id="id_audit_name">{{ audit.name }}</h1>
+            <small id="id_audit_description">{{ audit.description }}</small>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+
+
