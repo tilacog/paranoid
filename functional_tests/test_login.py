@@ -1,6 +1,8 @@
 from .base import FunctionalTest
 from .login_page import LoginPage
 from .home_page import HomePage
+from .audit_page import AuditPage
+
 
 """
 Keep in mind that .base.FunctionalTest has those methods:
@@ -51,8 +53,9 @@ class FirstTest(FunctionalTest):
 
         # There he can see that the audit name is featured wipth a descriptive
         # paragraph right below it.
-        audit_page = AuditDetailPage(self)
-        self.assertEqual('ECF', audit_page.audit_title)
+        audit_page = AuditPage(self)
+        audit_page.check()
+        self.assertEqual('ECF', audit_page.audit_name.text)
         self.assertTrue(audit_page.audit_description)
 
         # He also notices a form to upload a new document.
