@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Audit',
             fields=[
-                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
+                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('name', models.CharField(max_length=30, unique=True)),
                 ('description', models.TextField()),
                 ('execution_script', models.CharField(max_length=4096)),
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Doctype',
             fields=[
-                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
+                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('name', models.CharField(max_length=30, unique=True)),
                 ('parsing_instructions', models.CharField(max_length=4096, blank=True)),
             ],
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Document',
             fields=[
-                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
+                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('file', models.FileField(upload_to='')),
                 ('checksum', models.CharField(max_length=40, blank=True)),
                 ('doctype', models.ForeignKey(to='audits.Doctype')),
@@ -42,10 +42,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='FormFieldRecipe',
             fields=[
-                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
+                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('key', models.CharField(max_length=30)),
                 ('tag', models.CharField(max_length=30, blank=True)),
-                ('form_field_class', models.CharField(max_length=30)),
+                ('form_field_class', models.CharField(max_length=30, choices=[('BaseTemporalField', 'BaseTemporalField'), ('BooleanField', 'BooleanField'), ('CharField', 'CharField'), ('ChoiceField', 'ChoiceField'), ('ComboField', 'ComboField'), ('DateField', 'DateField'), ('DateTimeField', 'DateTimeField'), ('DecimalField', 'DecimalField'), ('DurationField', 'DurationField'), ('EmailField', 'EmailField'), ('FileField', 'FileField'), ('FilePathField', 'FilePathField'), ('FloatField', 'FloatField'), ('GenericIPAddressField', 'GenericIPAddressField'), ('IPAddressField', 'IPAddressField'), ('ImageField', 'ImageField'), ('IntegerField', 'IntegerField'), ('MultiValueField', 'MultiValueField'), ('MultipleChoiceField', 'MultipleChoiceField'), ('NullBooleanField', 'NullBooleanField'), ('RegexField', 'RegexField'), ('SlugField', 'SlugField'), ('SplitDateTimeField', 'SplitDateTimeField'), ('TimeField', 'TimeField'), ('TypedChoiceField', 'TypedChoiceField'), ('TypedMultipleChoiceField', 'TypedMultipleChoiceField'), ('URLField', 'URLField'), ('UUIDField', 'UUIDField')])),
                 ('input_label', models.CharField(max_length=30)),
                 ('tooltip_text', models.TextField(blank=True)),
             ],
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Package',
             fields=[
-                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
+                ('id', models.AutoField(primary_key=True, serialize=False, auto_created=True, verbose_name='ID')),
                 ('name', models.CharField(max_length=30, unique=True)),
                 ('description', models.TextField()),
             ],
@@ -61,12 +61,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='audit',
             name='extra_audit_info',
-            field=models.ManyToManyField(related_name='as_audit_tags', to='audits.FormFieldRecipe'),
+            field=models.ManyToManyField(to='audits.FormFieldRecipe', related_name='as_audit_tags'),
         ),
         migrations.AddField(
             model_name='audit',
             name='extra_doctype_info',
-            field=models.ManyToManyField(related_name='as_doctype_tags', to='audits.FormFieldRecipe'),
+            field=models.ManyToManyField(to='audits.FormFieldRecipe', related_name='as_doctype_tags'),
         ),
         migrations.AddField(
             model_name='audit',

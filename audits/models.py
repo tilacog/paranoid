@@ -1,6 +1,8 @@
+from inspect import getmembers
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.forms import fields
 
 
 class Package(models.Model):
@@ -31,6 +33,9 @@ class Audit(models.Model):
             )
 
 
+    def build_form(self):
+        pass
+
 class Doctype(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
 
@@ -43,12 +48,38 @@ class FormFieldRecipe(models.Model):
     """
     This object will loosely tag audits or doctypes, carrying information to
     dynamically build a form object, to be rendered on Audit pages.
-    
-    All its references are loose, and must be validated at runtime.
+
+    Its `tag` attribute is a loose reference to a `Doctype.name`, and must be
+    validated at runtime.
     """
+
+    def get_field_classes():
+        """
+        Scans and returns all django.forms.fields.Field subclasses.
+        They will be used as choices for the `form_field_class` field.
+        """
+        for tup in getmembers(fields):
+            try:
+                # The first element is a string, and the second is the
+                # class itself.
+                if (issubclass(tup[1], fields.Field)
+                    and tup[1] != fields.Field
+                ):
+                    # Return values comply with Django's choice spec.
+                    yield (tup[0], tup[0])
+                else:
+                    continue
+            except TypeError:
+                continue
+
+    FIELD_CHOICES = tuple(get_field_classes())
+
+    # Fields
     key = models.CharField(max_length=30)
     tag = models.CharField(max_length=30, blank=True)
-    form_field_class = models.CharField(max_length=30)
+    form_field_class = models.CharField(
+        max_length=30, choices=FIELD_CHOICES,
+    )
     input_label = models.CharField(max_length=30)
     tooltip_text = models.TextField(blank=True)
 
