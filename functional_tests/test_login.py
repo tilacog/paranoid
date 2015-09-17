@@ -25,11 +25,11 @@ class FirstTest(FunctionalTest):
         user = UserFactory()
         user.set_password('123')  # define a password I can refer to later
         user.save()               # needs to be saved again
-        
+
         audit = AuditFactory(name='ECF')
         assert audit.id == 1
-        
-        
+
+
         ## The test begins...
         # A user access the home page.
         self.browser.get(self.server_url)

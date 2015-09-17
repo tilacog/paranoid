@@ -9,9 +9,9 @@ class UserFactory(factory.DjangoModelFactory):
         model = settings.AUTH_USER_MODEL
         django_get_or_create = ('email',)
 
-    
+
     email = factory.Faker('email')
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
-    password = factory.Faker('password') 
+    password = factory.Faker('password')
 

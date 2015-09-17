@@ -33,8 +33,8 @@ class AuditFactory(factory.DjangoModelFactory):
             for doctype in extracted:
                 self.required_doctypes.add(doctype)
 
-    
-    
+
+
     # post generation...
     # required_kvs ...
 

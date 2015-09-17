@@ -17,10 +17,12 @@ class Audit(models.Model):
     execution_script = models.CharField(max_length=4096, blank=False, null=False)
 
     required_doctypes = models.ManyToManyField('Doctype')
-    required_key_value_store = models.ManyToManyField('KeyValueStore')
-    
+    extra_audit_info = models.ManyToManyField('KeyValueFormStore', related_name="as_audit_tags")
+    extra_doctype_info = models.ManyToManyField('KeyValueFormStore', related_name="as_doctype_tags")
+
+
     def clean(self):
-        # Don't allow audits to be saved without at least one required doctype
+        # Don't allow audits to be cleansed without at least one required doctype
         if not self.required_doctypes.all():
             raise ValidationError(
                 {'required_doctypes': ("Audits must have at least one "
@@ -37,8 +39,18 @@ class Doctype(models.Model):
         max_length=4096, blank=True, null=False
     )
 
-class KeyValueStore(models.Model):
-    pass
+class KeyValueFormStore(models.Model):
+    """
+    This object will loosely tag audits or doctypes, carrying information to
+    dynamically build a form object, to be rendered on Audit pages.
+    """
+    key = models.CharField(max_length=30)
+    value = models.CharField(max_length=120, blank=True)
+    tag = models.CharField(max_length=30, blank=True)
+    form_field_class = models.CharField(max_length=30)
+    input_label = models.CharField(max_length=30)
+    tooltip_text = models.TextField(blank=True)
+
 
 class Document(models.Model):
     doctype = models.ForeignKey('Doctype')

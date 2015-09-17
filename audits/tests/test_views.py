@@ -35,7 +35,7 @@ class AuditPageTest(TestCase):
 
     def setUp(self):
         self.audit = AuditFactory()
-        
+
         self.response = self.client.get(reverse(
             'audit_page', args=[self.audit.id]
         ))

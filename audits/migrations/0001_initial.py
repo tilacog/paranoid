@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='Audit',
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
-                ('name', models.CharField(unique=True, max_length=30)),
+                ('name', models.CharField(max_length=30, unique=True)),
                 ('description', models.TextField()),
                 ('execution_script', models.CharField(max_length=4096)),
             ],
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
             name='Doctype',
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
-                ('name', models.CharField(unique=True, max_length=30)),
+                ('name', models.CharField(max_length=30, unique=True)),
                 ('parsing_instructions', models.CharField(max_length=4096, blank=True)),
             ],
         ),
@@ -40,18 +40,34 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='KeyValueStore',
+            name='KeyValueFormStore',
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
+                ('key', models.CharField(max_length=30)),
+                ('value', models.CharField(max_length=120, blank=True)),
+                ('tag', models.CharField(max_length=30, blank=True)),
+                ('form_field_class', models.CharField(max_length=30)),
+                ('input_label', models.CharField(max_length=30)),
+                ('tooltip_text', models.TextField(blank=True)),
             ],
         ),
         migrations.CreateModel(
             name='Package',
             fields=[
                 ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
-                ('name', models.CharField(unique=True, max_length=30)),
+                ('name', models.CharField(max_length=30, unique=True)),
                 ('description', models.TextField()),
             ],
+        ),
+        migrations.AddField(
+            model_name='audit',
+            name='extra_audit_info',
+            field=models.ManyToManyField(related_name='as_audit_tags', to='audits.KeyValueFormStore'),
+        ),
+        migrations.AddField(
+            model_name='audit',
+            name='extra_doctype_info',
+            field=models.ManyToManyField(related_name='as_doctype_tags', to='audits.KeyValueFormStore'),
         ),
         migrations.AddField(
             model_name='audit',
@@ -62,10 +78,5 @@ class Migration(migrations.Migration):
             model_name='audit',
             name='required_doctypes',
             field=models.ManyToManyField(to='audits.Doctype'),
-        ),
-        migrations.AddField(
-            model_name='audit',
-            name='required_key_value_store',
-            field=models.ManyToManyField(to='audits.KeyValueStore'),
         ),
     ]
