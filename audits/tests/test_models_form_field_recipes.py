@@ -10,7 +10,7 @@ class FormFieldRecipeTest(TestCase):
     def test_can_create_a_minimal_form_field_recipe(self):
         field_recipe = FormFieldRecipe()
 
-        field_recipe.key = 'test field_recipe name'
+        field_recipe.name = 'test field_recipe name'
         field_recipe.input_label = 'test field_recipe label'
         field_recipe.form_field_class = 'BooleanField'
         field_recipe.tag = 'some doctype name'
@@ -27,7 +27,7 @@ class FormFieldRecipeTest(TestCase):
         field_recipe = FormFieldRecipe()
 
         # Valid values
-        field_recipe.key = 'test field_recipe name'
+        field_recipe.name = 'test field_recipe name'
         field_recipe.input_label = 'test field_recipe label'
 
         invalid_value = 'not_a_django_field_class'

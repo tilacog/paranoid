@@ -52,19 +52,28 @@ class AuditFormFactoryTest(TestCase):
     def setUp(self):
 
         # Create specific related objects
-        self.dt_name = 'manad'
-        self.doctype_fields = FormFieldRecipeFactory.create_batch(3, tag=self.dt_name)
+        self.doctype1 = DoctypeFactory(name='manad')
+        self.doctype2 = DoctypeFactory(name='fopag')
+        self.doctypes = [self.doctype1,  self.doctype2]
+
+        self.doctype1_fields = FormFieldRecipeFactory.create_batch(3, tag='manad')
+        self.doctype2_fields = FormFieldRecipeFactory.create_batch(2, tag='fopag')
         self.audit_fields = FormFieldRecipeFactory.create_batch(2, tag='not_a_doctype')
-        self.doctype = DoctypeFactory(name=self.dt_name)
+        self.extra_fields = (
+            self.doctype1_fields + self.doctype2_fields + self.audit_fields
+        )
 
         # Create audit object using pre-defined related objects
         self.audit = AuditFactory(
-            extra_fields= self.audit_fields + self.doctype_fields,
-            required_doctypes=[self.doctype]
+            extra_fields=self.extra_fields,
+            required_doctypes=self.doctypes
         )
 
     def test_audit_models_can_render_a_form(self):
         form = self.audit.build_form()
         self.assertIsInstance(form, Form)
 
-
+    def test_rendered_form_has_required_fields(self):
+        form = self.audit.build_form()
+        self.assertEqual(len(form.fields), len(self.extra_fields))
+        self.fail('finish test!') 

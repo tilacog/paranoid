@@ -1,8 +1,9 @@
-from inspect import getmembers
+from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.forms import fields
+from inspect import getmembers
+from itertools import chain
 
 
 class Package(models.Model):
@@ -17,7 +18,7 @@ class Audit(models.Model):
     # Upgrade 'execution_script' to FilePathFiled in the future
     execution_script = models.CharField(max_length=4096, blank=False, null=False)
     required_doctypes = models.ManyToManyField('Doctype')
-    extra_fields = models.ManyToManyField('FormFieldRecipe') 
+    extra_fields = models.ManyToManyField('FormFieldRecipe')
 
     def clean(self):
         # Don't allow audits to be cleansed without at least one required doctype
@@ -29,7 +30,33 @@ class Audit(models.Model):
             )
 
     def build_form(self):
-        pass
+        """
+        Create a Django form using data from Audit's instance.
+        """
+        form = forms.Form()
+
+        # Doctype fields
+        associations = {
+            doctype.name: [
+                field for field in self.extra_fields.all()
+                if field.tag == doctype.name
+            ]
+            for doctype in self.required_doctypes.all()
+        }
+
+        # Audit fields (remainders)
+        associations.update({
+            'non_doctype_fields': [
+                field for field in self.extra_fields.all()
+                if field not in chain(*associations.values())
+            ]
+        })
+
+        # Create form field object
+        for i, item in enumerate(chain(*associations.values())):
+            form.fields[i] = forms.fields.BooleanField()
+        return form
+
 
 
 class Doctype(models.Model):
@@ -54,12 +81,12 @@ class FormFieldRecipe(models.Model):
         Scans and returns all django.forms.fields.Field subclasses.
         They will be used as choices for the `form_field_class` field.
         """
-        for tup in getmembers(fields):
+        for tup in getmembers(forms.fields):
             try:
                 # The first element is a string, and the second is the
                 # class itself.
-                if (issubclass(tup[1], fields.Field)
-                    and tup[1] != fields.Field
+                if (issubclass(tup[1], forms.fields.Field)
+                    and tup[1] != forms.fields.Field
                 ):
                     # Return values comply with Django's choice spec.
                     yield (tup[0], tup[0])
@@ -71,7 +98,7 @@ class FormFieldRecipe(models.Model):
     FIELD_CHOICES = tuple(get_field_classes())
 
     # Fields
-    key = models.CharField(max_length=30)
+    name = models.CharField(max_length=30)
     tag = models.CharField(max_length=30, blank=True)
     form_field_class = models.CharField(
         max_length=30, choices=FIELD_CHOICES,
@@ -79,6 +106,11 @@ class FormFieldRecipe(models.Model):
     input_label = models.CharField(max_length=30)
     tooltip_text = models.TextField(blank=True)
 
+    def __str__(self):
+        s = "{}".format(self.name)
+        if self.tag:
+            s += "({})".format(self.tag)
+        return s
 
 class Document(models.Model):
     doctype = models.ForeignKey('Doctype')

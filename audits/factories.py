@@ -61,7 +61,7 @@ class FormFieldRecipeFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'audits.FormFieldRecipe'
 
-    key = factory.Sequence(lambda n: 'field_{}'.format(n))
+    name = factory.Sequence(lambda n: 'field_{}'.format(n))
     tag = factory.Sequence(lambda n: 'tag_{}'.format(n))
     form_field_class = factory.fuzzy.FuzzyChoice(map(
         lambda x: x[0],
