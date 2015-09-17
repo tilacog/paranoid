@@ -17,8 +17,8 @@ class Audit(models.Model):
     execution_script = models.CharField(max_length=4096, blank=False, null=False)
 
     required_doctypes = models.ManyToManyField('Doctype')
-    extra_audit_info = models.ManyToManyField('KeyValueFormStore', related_name="as_audit_tags")
-    extra_doctype_info = models.ManyToManyField('KeyValueFormStore', related_name="as_doctype_tags")
+    extra_audit_info = models.ManyToManyField('FormFieldRecipe', related_name="as_audit_tags")
+    extra_doctype_info = models.ManyToManyField('FormFieldRecipe', related_name="as_doctype_tags")
 
 
     def clean(self):
@@ -39,13 +39,14 @@ class Doctype(models.Model):
         max_length=4096, blank=True, null=False
     )
 
-class KeyValueFormStore(models.Model):
+class FormFieldRecipe(models.Model):
     """
     This object will loosely tag audits or doctypes, carrying information to
     dynamically build a form object, to be rendered on Audit pages.
+    
+    All its references are loose, and must be validated at runtime.
     """
     key = models.CharField(max_length=30)
-    value = models.CharField(max_length=120, blank=True)
     tag = models.CharField(max_length=30, blank=True)
     form_field_class = models.CharField(max_length=30)
     input_label = models.CharField(max_length=30)

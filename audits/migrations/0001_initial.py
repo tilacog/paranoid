@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Audit',
             fields=[
-                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
                 ('name', models.CharField(max_length=30, unique=True)),
                 ('description', models.TextField()),
                 ('execution_script', models.CharField(max_length=4096)),
@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Doctype',
             fields=[
-                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
                 ('name', models.CharField(max_length=30, unique=True)),
                 ('parsing_instructions', models.CharField(max_length=4096, blank=True)),
             ],
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Document',
             fields=[
-                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
                 ('file', models.FileField(upload_to='')),
                 ('checksum', models.CharField(max_length=40, blank=True)),
                 ('doctype', models.ForeignKey(to='audits.Doctype')),
@@ -40,11 +40,10 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='KeyValueFormStore',
+            name='FormFieldRecipe',
             fields=[
-                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
                 ('key', models.CharField(max_length=30)),
-                ('value', models.CharField(max_length=120, blank=True)),
                 ('tag', models.CharField(max_length=30, blank=True)),
                 ('form_field_class', models.CharField(max_length=30)),
                 ('input_label', models.CharField(max_length=30)),
@@ -54,7 +53,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Package',
             fields=[
-                ('id', models.AutoField(auto_created=True, serialize=False, primary_key=True, verbose_name='ID')),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', serialize=False, primary_key=True)),
                 ('name', models.CharField(max_length=30, unique=True)),
                 ('description', models.TextField()),
             ],
@@ -62,12 +61,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='audit',
             name='extra_audit_info',
-            field=models.ManyToManyField(related_name='as_audit_tags', to='audits.KeyValueFormStore'),
+            field=models.ManyToManyField(related_name='as_audit_tags', to='audits.FormFieldRecipe'),
         ),
         migrations.AddField(
             model_name='audit',
             name='extra_doctype_info',
-            field=models.ManyToManyField(related_name='as_doctype_tags', to='audits.KeyValueFormStore'),
+            field=models.ManyToManyField(related_name='as_doctype_tags', to='audits.FormFieldRecipe'),
         ),
         migrations.AddField(
             model_name='audit',
