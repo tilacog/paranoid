@@ -1,3 +1,4 @@
+from django.forms import Form
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from unittest import skip
@@ -52,18 +53,18 @@ class AuditFormFactoryTest(TestCase):
 
         # Create specific related objects
         self.dt_name = 'manad'
-        self.doctype_field = FormFieldRecipeFactory(tag=self.dt_name)
-        self.audit_fields = FormFieldRecipeFactory.create_batch(2, tag=self.dt_name)
+        self.doctype_fields = FormFieldRecipeFactory.create_batch(3, tag=self.dt_name)
+        self.audit_fields = FormFieldRecipeFactory.create_batch(2, tag='not_a_doctype')
         self.doctype = DoctypeFactory(name=self.dt_name)
 
         # Create audit object using pre-defined related objects
         self.audit = AuditFactory(
-            extra_audit_info=self.audit_fields,
-            extra_doctype_info=[self.doctype_field],
+            extra_fields= self.audit_fields + self.doctype_fields,
+            required_doctypes=[self.doctype]
         )
 
-    def test_audit_models_have_the_build_form_method(self):
+    def test_audit_models_can_render_a_form(self):
         form = self.audit.build_form()
-
+        self.assertIsInstance(form, Form)
 
 

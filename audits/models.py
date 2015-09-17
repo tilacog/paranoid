@@ -14,14 +14,10 @@ class Audit(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
     description = models.TextField(blank=False, null=False)
     package = models.ForeignKey('Package')
-
-    # Upgrade to FilePathFiled in the future
+    # Upgrade 'execution_script' to FilePathFiled in the future
     execution_script = models.CharField(max_length=4096, blank=False, null=False)
-
     required_doctypes = models.ManyToManyField('Doctype')
-    extra_audit_info = models.ManyToManyField('FormFieldRecipe', related_name="as_audit_tags")
-    extra_doctype_info = models.ManyToManyField('FormFieldRecipe', related_name="as_doctype_tags")
-
+    extra_fields = models.ManyToManyField('FormFieldRecipe') 
 
     def clean(self):
         # Don't allow audits to be cleansed without at least one required doctype
@@ -32,9 +28,9 @@ class Audit(models.Model):
                 }
             )
 
-
     def build_form(self):
         pass
+
 
 class Doctype(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
@@ -49,8 +45,8 @@ class FormFieldRecipe(models.Model):
     This object will loosely tag audits or doctypes, carrying information to
     dynamically build a form object, to be rendered on Audit pages.
 
-    Its `tag` attribute is a loose reference to a `Doctype.name`, and must be
-    validated at runtime.
+    Its `tag` attribute is a loose reference to a `Doctype.name`, Otherwise,
+    it will be a reference to the audit who invoked it.
     """
 
     def get_field_classes():

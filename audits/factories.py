@@ -41,22 +41,14 @@ class AuditFactory(factory.DjangoModelFactory):
                 self.required_doctypes.add(doctype)
 
     @factory.post_generation
-    def extra_audit_info(self, create, extracted, **kwargs):
+    def extra_fields(self, create, extracted, **kwargs):
         if not create:
             return  # Simple build, do nothing.
         if extracted:
             # A list of FormFieldRecipe instances were passed in, use them
             for form_field_recipe in extracted:
-                self.extra_audit_info.add(form_field_recipe)
+                self.extra_fields.add(form_field_recipe)
 
-    @factory.post_generation
-    def extra_doctype_info(self, create, extracted, **kwargs):
-        if not create:
-            return  # Simple build, do nothing.
-        if extracted:
-            # A list of FormFieldRecipe instances were passed in, use them
-            for form_field_recipe in extracted:
-                self.extra_doctype_info.add(form_field_recipe)
 
 
 class DoctypeFactory(factory.DjangoModelFactory):
