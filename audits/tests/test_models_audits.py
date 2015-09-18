@@ -69,11 +69,14 @@ class AuditFormFactoryTest(TestCase):
             required_doctypes=self.doctypes
         )
 
-    def test_audit_models_can_render_a_form(self):
-        form = self.audit.build_form()
-        self.assertIsInstance(form, Form)
+        self.form = self.audit.build_form()
 
-    def test_rendered_form_has_required_fields(self):
-        form = self.audit.build_form()
-        self.assertEqual(len(form.fields), len(self.extra_fields))
-        self.fail('finish test!') 
+    def test_audit_models_can_render_a_form(self):
+        self.assertIsInstance(self.form, Form)
+
+    def test_rendered_form_has_right_numer_of_fields(self):
+        "Form should have one form per extra_field plus one form per doctype"
+        self.assertEqual(
+            len(self.form.fields),
+            len(self.extra_fields + self.doctypes)
+        )

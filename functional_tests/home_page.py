@@ -3,7 +3,7 @@ from .paranoid_pages import ParanoidPage
 
 class HomePage(ParanoidPage):
 
-    loged_user_email = page_element(id="id_user_email")        
+    loged_user_email = page_element(id="id_user_email")
 
     def check(self):
         self.test.assertEqual(self.title, 'Titan')
