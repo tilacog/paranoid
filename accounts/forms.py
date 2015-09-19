@@ -16,12 +16,12 @@ class LoginForm(forms.ModelForm):
         fields = ('email', 'password')
         widgets = {
             'email': forms.EmailInput(attrs={
-                'class':'form-control',
+                'class': 'form-control',
                 'placeholder': 'Email',
             }),
 
             'password': forms.PasswordInput(attrs={
-                'class':'form-control',
+                'class': 'form-control',
                 'placeholder': 'Senha',
             }),
         }

@@ -13,4 +13,3 @@ class PackageTestCase(TestCase):
         pkg = Package()
         with self.assertRaises(ValidationError):
             pkg.full_clean()
-

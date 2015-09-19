@@ -140,4 +140,3 @@ class LoginViewTest(TestCase):
             'password': 'WRONG_PASSWORD'
         })
         self.assertNotIn(SESSION_KEY, self.client.session)
-

@@ -39,4 +39,3 @@ class FormFieldRecipeTest(TestCase):
         # Check if error was raised by invalid choice
         error_msg = "Value '{}' is not a valid choice.".format(invalid_value)
         self.assertIn(error_msg, e.exception.messages)
-

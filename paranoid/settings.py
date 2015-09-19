@@ -135,4 +135,3 @@ if 'test' in sys.argv:
     # Ignore naive datetime warning from IPython
     import warnings
     warnings.filterwarnings("ignore", category=RuntimeWarning, module='django.db.backends.sqlite3.base', lineno=53)
-

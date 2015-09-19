@@ -8,4 +8,3 @@ class FactoryTestCase(TestCase):
 
     def test_create_audit(self):
         audit = AuditFactory.create()
-

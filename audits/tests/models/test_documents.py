@@ -40,5 +40,3 @@ class DocumentTest(TestCase):
         phase [?]
         """
         pass
-
-

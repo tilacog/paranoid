@@ -44,5 +44,3 @@ class AuditTestCase(TestCase):
     @skip('future tests')
     def test_execution_script_file_exists(self):
         pass
-
-

@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.forms import ModelForm, widgets 
+from django.forms import ModelForm, widgets
 from django.forms.formsets import formset_factory
 
 from audits.forms import DocumentForm

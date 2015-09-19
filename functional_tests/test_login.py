@@ -4,7 +4,7 @@ from .home_page import HomePage
 from .audit_page import AuditPage
 
 from accounts.factories import UserFactory
-from audits.factories import AuditFactory
+from audits.factories import AuditFactory, DoctypeFactory
 
 
 """
@@ -26,8 +26,10 @@ class FirstTest(FunctionalTest):
         user.set_password('123')  # define a password I can refer to later
         user.save()               # needs to be saved again
 
-        audit = AuditFactory(name='ECF')
-        assert audit.id == 1
+        audit = AuditFactory(
+            name='ECF',
+            required_doctypes=DoctypeFactory.create_batch(3)
+        )
 
 
         ## The test begins...

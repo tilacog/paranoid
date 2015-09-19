@@ -20,5 +20,3 @@ class LoginPage(ParanoidPage):
     @property
     def login_error_element(self):
         return self.browser.find_element_by_css_selector('.has-error')
-
-

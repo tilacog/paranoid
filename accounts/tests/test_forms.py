@@ -31,4 +31,3 @@ class LoginFormValidationUnitTest(unittest.TestCase):
 
         form = LoginForm()
         self.assertFalse(form.is_valid())
-

@@ -1,13 +1,12 @@
-from django.forms import ModelForm 
-from django.forms.widgets import HiddenInput
+from django.forms import widgets, ModelForm
 
 from audits.models import Document
 
 
 class DocumentForm(ModelForm):
     class Meta:
-        model = Document 
+        model = Document
         fields = ('file', 'doctype')
         widgets = {
-            'doctype': HiddenInput()
+            'doctype': widgets.HiddenInput(),
         }
