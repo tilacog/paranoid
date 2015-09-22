@@ -7,7 +7,9 @@ def create_session_on_server(host, email):
     return subprocess.check_output(
         [
             'fab',
-            'create_session_on_server:email={}'.format(email),
+            'create_session_on_server:email={},password={}'.format(
+                email, password
+            ),
             '--host={}'.format(host),
             '--hide=everything,status',
         ],

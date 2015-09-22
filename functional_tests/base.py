@@ -10,6 +10,7 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 
 
+from .management.commands.create_session_cookie import create_session_cookie
 from .server_tools import create_session_on_server, reset_database
 
 
@@ -100,23 +101,13 @@ class FunctionalTest(StaticLiveServerTestCase):
             )
         )
 
-    def create_pre_authenticated_session(self, email, password='123'):
-        """
-        Creates a new test user and uses django test client to log him in.
-        Webdriver instance then receives a logged-in session cookie.
-        """
-        # Create test user
-        User = get_user_model()
-        User.objects.create_user(email=email, password=password)
+    def create_pre_authenticated_session(self, email, password):
+        if self.against_staging:
+            serialized_cookie = create_session_on_server(email, password)
+            session_cookie = json.loads(serialized_cookie)
+        else:
+            session_cookie = create_session_cookie(email, password)
 
-        # Authenticate this user
-        self.client.login(email=email, password=password)
-        cookie = self.client.cookies[settings.SESSION_COOKIE_NAME]
-        self.browser.get(self.server_url + '/404-dont-exist/')
-        self.browser.add_cookie(dict(
-            name=settings.SESSION_COOKIE_NAME,
-            value=cookie.value,
-            secure=False,
-            path='/'
-        ))
+        self.browser.get(self.server_url + '/404/dont-exist/')
+        self.browser.add_cookie(session_cookie)
         self.browser.refresh()

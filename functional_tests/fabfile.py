@@ -13,9 +13,17 @@ def reset_database():
         manage_py=_get_manage_dot_py(env.host)
     ))
 
-def create_session_on_server(email):
-    session_key = run('{manage_py} create_session {email}'.format(
+def create_session_on_server(email, password):
+    
+    cmd_string = (
+        "{manage_py} create_session_cookie "
+        "--email={email} --password={password}")
+    )
+    
+    serialized_cookie= run(cmd.format(
         manage_py=_get_manage_dot_py(env.host),
         email=email,
+        password=password,
     ))
-    print(session_key)
+    
+    print(serialized_cookie)

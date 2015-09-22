@@ -23,9 +23,7 @@ class Command(BaseCommand):
 
 
 def create_session_cookie(email, password):
-    cookie = {}
-    cookie['name'] = settings.SESSION_COOKIE_NAME
-
+    # Create test user
     user = User.objects.create_user(email=email, password=password)
     
     # Get session details
@@ -35,8 +33,12 @@ def create_session_cookie(email, password):
     session[HASH_SESSION_KEY] = user.get_session_auth_hash()
     session.save()
 
-    cookie['value'] = session.session_key
-    cookie['secure'] = False
-    cookie['path'] = '/'
+    # Create pre-authenticated session cookie
+    cookie = {
+        'name': settings.SESSION_COOKIE_NAME,
+        'value': session.session_key,
+        'secure': False,
+        'path': '/'
+    }
 
     return cookie
