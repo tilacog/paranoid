@@ -26,7 +26,7 @@ def create_user_on_server(host, email, password):
     subprocess.check_call(
         [
             'fab',
-            'create_user_on_server:email={},password={}'.format(
+            'create_user:email={},password={}'.format(
                 email, password
             ),
             '--host={}'.format(host),
