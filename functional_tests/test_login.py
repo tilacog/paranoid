@@ -16,7 +16,7 @@ class FunctionalTest(StaticLiveServerTestCase):
     def wait_for_element_with_id(self, element_id):
 """
 
-class FirstTest(FunctionalTest):
+class LoginTest(FunctionalTest):
 
 
     def test_returning_user(self):

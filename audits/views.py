@@ -8,8 +8,8 @@ from audits.forms import DocumentForm
 
 @login_required
 def home_page(request):
-    return render(request, 'home.html')
-
+    audits = Audit.objects.all()
+    return render(request, 'home.html', {'audits': audits})
 
 def audit_page(request, audit_id):
     audit = Audit.objects.get(id=audit_id)

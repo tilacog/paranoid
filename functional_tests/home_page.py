@@ -10,3 +10,6 @@ class HomePage(ParanoidPage):
     def check(self):
         self.test.assertEqual(self.title, 'Titan')
         self.test.assertTrue(self.logout_link)
+
+    def get_audit(self, link_text):
+        return self.browser.find_element_by_link_text(link_text)

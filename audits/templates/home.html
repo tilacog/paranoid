@@ -14,9 +14,9 @@
     <div class="col-md-10">
         <div class="page-header"><h1>Validações</h1></div>
         <ul>
-            <li> <a href="audits/1/">ECF</a></li>
-            <li> <a href="#">EFD Contribuições</a></li>
-            <li> <a href="#">MANAD</a></li>
+            {% for audit in audits %}
+            <li><a href="{% url 'audit_page' audit.pk %}">{{ audit.name }}</a></li>
+            {% endfor %}
         <ul>
     </div>
 </div>

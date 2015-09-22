@@ -16,17 +16,19 @@ class FunctionalTest(StaticLiveServerTestCase):
     def wait_for_element_with_id(self, element_id):
 """
 
-class FirstTest(FunctionalTest):
+class FileUploadTest(FunctionalTest):
 
 
-    def test_returning_user(self):
+    def test_returning_user_can_upload_a_file(self):
 
         ## Fixtures
         # Create audit obj
         audit = AuditFactory(
-            name='ECF',
+            name='Test Audit',
             required_doctypes=DoctypeFactory.create_batch(3)
         )
+
+        self.send_fixtures('audit')
 
         self.create_pre_authenticated_session(
             email='test@user.com', password='123'
@@ -39,9 +41,10 @@ class FirstTest(FunctionalTest):
         self.assertEqual(home_page.loged_user_email.text, 'test@user.com')
 
         # Visit the audit page, where uploads are made
+        home_page.get_audit('Test Audit').click()
+        audit_page = AuditPage(self)
 
         # Inject the file paths into the form and submit the form
-
         # Grab the filename text that the page displays after processing the upload
 
         # Assert that the filename text matches the filename provided in the test

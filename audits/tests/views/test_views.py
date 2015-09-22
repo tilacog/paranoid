@@ -1,16 +1,19 @@
 import re
+from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.forms import BaseFormSet
+from django.http import HttpRequest
 from django.test import TestCase, RequestFactory
 from unittest import skip
 from unittest.mock import patch, Mock
 
 from audits.models import Package, Audit
 from audits.factories import AuditFactory, DoctypeFactory
-from audits.views import audit_page
+from audits.views import audit_page, home_page
 from audits.forms import DocumentForm
 
 class HomePageTest(TestCase):
+
 
     def test_redirects_aonymous_user_to_login_page(self):
         response = self.client.get(reverse('home_page'))
@@ -23,6 +26,33 @@ class HomePageTest(TestCase):
     def test_renders_available_packages_only(self):
         pass
 
+    def test_home_page_renders_available_audits(self):
+        User = get_user_model()
+        User.objects.create_user(email='test@user.com', password='123')
+        self.client.login(email='test@user.com', password='123')
+
+        audit = AuditFactory(
+            required_doctypes=DoctypeFactory.create_batch(3)
+        )
+
+        response = self.client.get(reverse('home_page'))
+
+        audit_link_text = '{}</a>'.format(audit.name)
+        self.assertContains(response, audit_link_text)
+
+    def test_home_page_response_contains_available_audits(self):
+        User = get_user_model()
+        User.objects.create_user(email='test@user.com', password='123')
+        self.client.login(email='test@user.com', password='123')
+
+        audit = AuditFactory(
+            required_doctypes=DoctypeFactory.create_batch(3)
+        )
+
+        response = self.client.get(reverse('home_page'))
+
+        self.assertIn(audit, response.context['audits'])
+
 class AuditPageTest(TestCase):
 
     def setUp(self):
@@ -32,7 +62,7 @@ class AuditPageTest(TestCase):
         )
 
         # Some shortcuts
-        self.url = reverse('audit_page', args=[self.audit.id])
+        self.url = reverse('audit_page', args=[self.audit.pk])
         self.response = self.client.get(self.url)
 
         # RequestFactory doesn't use middlweare, thus, no request.context.
@@ -112,7 +142,6 @@ class AuditPageTest(TestCase):
             expected_num_forms,
             msg=self.response.content.decode(),
         )
-
 
 
     @skip('future tests')
