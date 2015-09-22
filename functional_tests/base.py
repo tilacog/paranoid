@@ -103,7 +103,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def create_pre_authenticated_session(self, email, password):
         if self.against_staging:
-            serialized_cookie = create_session_on_server(email, password)
+            serialized_cookie = create_session_on_server(self.server_host, email, password)
             session_cookie = json.loads(serialized_cookie)
         else:
             session_cookie = create_session_cookie(email, password)
