@@ -2,10 +2,12 @@
 '''
 Website testing Page Objects
 '''
+from unittest import TestCase
+
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
-from unittest import TestCase
+
 
 class PageObject(object):
     """ Page Object pattern.

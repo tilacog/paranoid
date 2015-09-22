@@ -1,10 +1,10 @@
-from .base import FunctionalTest
-from .login_page import LoginPage
-from .home_page import HomePage
-from .audit_page import AuditPage
-
 from accounts.factories import UserFactory
 from audits.factories import AuditFactory, DoctypeFactory
+
+from .audit_page import AuditPage
+from .base import FunctionalTest
+from .home_page import HomePage
+from .login_page import LoginPage
 
 
 """

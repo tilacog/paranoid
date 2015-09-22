@@ -1,6 +1,7 @@
 from .page_objects import page_element
 from .paranoid_pages import ParanoidPage
 
+
 class LoginPage(ParanoidPage):
 
     email = page_element(id='id_email')

@@ -1,5 +1,6 @@
-from .page_objects import page_element, multi_page_element
 from .home_page import HomePage
+from .page_objects import multi_page_element, page_element
+
 
 class AuditPage(HomePage):
 

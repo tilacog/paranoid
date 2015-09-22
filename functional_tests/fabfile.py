@@ -1,4 +1,5 @@
-from fabric.api import env, run, put
+from fabric.api import env, put, run
+
 
 def _get_base_folder(host):
     return '~/sites/' + host

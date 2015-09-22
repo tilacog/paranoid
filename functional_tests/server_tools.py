@@ -1,5 +1,6 @@
-from os import path
 import subprocess
+from os import path
+
 THIS_FOLDER = path.dirname(path.abspath(__file__))
 
 

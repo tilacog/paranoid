@@ -1,25 +1,26 @@
 import json
 import os
 import sys
+import tempfile
 import time
 from datetime import datetime
-from django.conf import settings
+
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.management import call_command
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 
 from .management.commands.create_session_cookie import create_session_cookie
-from .server_tools import (
-    create_session_on_server, reset_database, create_user_on_server
-)
-
+from .server_tools import (create_session_on_server, create_user_on_server,
+                           reset_database, send_fixture_file)
 
 DEFAULT_WAIT = 5
 SCREEN_DUMP_LOCATION = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), 'screendumps'
 )
+
 
 class FunctionalTest(StaticLiveServerTestCase):
 
@@ -76,14 +77,17 @@ class FunctionalTest(StaticLiveServerTestCase):
             f.write(self.browser.page_source)
 
     def _get_filename(self):
-        timestamp = datetime.now().isoformat().replace(':','.')[:19]
-        return '{folder}/{classname}.{method}-window{windowid}-{timestamp}'.format(
+        timestamp = datetime.now().isoformat().replace(':', '.')[:19]
+        path = '{folder}/{classname}.{method}-window{windowid}-{timestamp}'
+        fmt_path = path.format(
             folder=SCREEN_DUMP_LOCATION,
             classname=self.__class__.__name__,
             method=self._testMethodName,
             windowid=self._windowid,
             timestamp=timestamp
         )
+
+        return fmt_path
 
     def wait_for(self, function_with_assertion, timeout=DEFAULT_WAIT):
         start_time = time.time()
@@ -105,7 +109,9 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def create_pre_authenticated_session(self, email, password):
         if self.against_staging:
-            serialized_cookie = create_session_on_server(self.server_host, email, password)
+            serialized_cookie = create_session_on_server(
+                self.server_host, email, password
+            )
             session_cookie = json.loads(serialized_cookie)
         else:
             session_cookie = create_session_cookie(email, password)
@@ -124,13 +130,11 @@ class FunctionalTest(StaticLiveServerTestCase):
     def send_fixtures(self, app_name):
         if not self.against_staging:
             return  # nothing to do on local
-        import tempfile
-        from io import StringIO
-        from django.core.management import call_command
-        from .server_tools import send_fixture_file
-        import os.path
 
-        with tempfile.NamedTemporaryFile(suffix='.json', mode='w+') as fixture_file:
+        with tempfile.NamedTemporaryFile(
+            suffix='.json',
+            mode='w+'
+        ) as fixture_file:
             call_command(
                 'dumpdata',
                 app_name,
