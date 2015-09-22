@@ -27,3 +27,14 @@ def create_session_on_server(email, password):
     ))
 
     print(serialized_cookie)
+
+def create_user(email, password):
+    cmd_string = (
+        "{manage_py} create_user "
+        "--email={email} --password={password}"
+    )
+
+    run(cmd_string.format(
+        email=email,
+        password=password,
+    ))
