@@ -10,9 +10,10 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 
-
 from .management.commands.create_session_cookie import create_session_cookie
-from .server_tools import create_session_on_server, reset_database
+from .server_tools import (
+    create_session_on_server, reset_database, create_user_on_server
+)
 
 
 DEFAULT_WAIT = 5
@@ -112,3 +113,10 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.get(self.server_url + '/404/dont-exist/')
         self.browser.add_cookie(session_cookie)
         self.browser.refresh()
+
+    def create_user(self, email, password):
+        if self.against_staging:
+            create_user_on_server(self.server_host, email, password)
+        else:
+            User = get_user_model()
+            User.objects.create_user(email, password)

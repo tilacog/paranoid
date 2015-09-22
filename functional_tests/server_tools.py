@@ -21,3 +21,16 @@ def reset_database(host):
         ['fab', 'reset_database', '--host={}'.format(host)],
         cwd=THIS_FOLDER
     )
+
+def create_user_on_server(host, email, password):
+    subprocess.check_call(
+        [
+            'fab',
+            'create_user_on_server:email={},password={}'.format(
+                email, password
+            ),
+            '--host={}'.format(host),
+            '--hide=everything,status',
+        ],
+    cwd=THIS_FOLDER
+    )

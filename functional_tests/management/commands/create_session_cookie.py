@@ -25,7 +25,7 @@ class Command(BaseCommand):
 def create_session_cookie(email, password):
     # Create test user
     user = User.objects.create_user(email=email, password=password)
-    
+
     # Get session details
     session = SessionStore()
     session[SESSION_KEY] = user.pk
