@@ -120,3 +120,19 @@ class FunctionalTest(StaticLiveServerTestCase):
         else:
             User = get_user_model()
             User.objects.create_user(email, password)
+
+    def send_fixtures(self, app_name):
+        if not self.against_staging:
+            return  # nothing to do on local
+        import tempfile
+        from django.core.management import call_command
+        from .server_tools import send_fixture_file
+
+        with tempfile.NamedTemporaryFile(suffix='.json') as fixture_file:
+            call_command(
+                'dumpdata',
+                app_name,
+                format='json',
+                stdout=fixture_file
+            )
+            send_fixture_file(self.server_host, fixture_file.name)

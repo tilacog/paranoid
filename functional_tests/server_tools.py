@@ -34,3 +34,14 @@ def create_user_on_server(host, email, password):
         ],
     cwd=THIS_FOLDER
     )
+
+def send_fixture_file(host, filepath)
+    subprocess.check_call(
+        [
+            'fab',
+            'send_fixture_file:filepath={}'.format(filepath),
+            '--host={}'.format(host),
+            # '--hide=everything,status',
+        ],
+        cwd=THIS_FOLDER
+    )
