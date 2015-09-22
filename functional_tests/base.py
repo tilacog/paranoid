@@ -125,14 +125,18 @@ class FunctionalTest(StaticLiveServerTestCase):
         if not self.against_staging:
             return  # nothing to do on local
         import tempfile
+        from io import StringIO
         from django.core.management import call_command
         from .server_tools import send_fixture_file
+        import os.path
 
-        with tempfile.NamedTemporaryFile(suffix='.json') as fixture_file:
+        with tempfile.NamedTemporaryFile(suffix='.json', mode='w+') as fixture_file:
             call_command(
                 'dumpdata',
                 app_name,
                 format='json',
                 stdout=fixture_file
             )
+            fixture_file.seek(0)
+            assert os.path.exists(fixture_file.name)
             send_fixture_file(self.server_host, fixture_file.name)

@@ -40,13 +40,16 @@ def create_user(email, password):
         password=password,
     ))
 
-def send_fixture_file(host, filepath):
+def send_fixture_file(filepath):
     # mkdir if doesn't exist
-    fixtures_path = _get_base_folder() + '/source/functional_tests/fixtures'
+    fixtures_path = (
+        _get_base_folder(env.host) + '/source/functional_tests/fixtures'
+    )
+
     run('mkdir -p %s' % (fixtures_path,))
 
     # send the fixture file
-    server_files_list = put(filepath, fixtures_path + filepath)
+    server_files_list = put(filepath, fixtures_path)
 
     # `put` returns a list of server file paths, so we need to unpack it
     # to get the complete file path on server.

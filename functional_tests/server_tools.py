@@ -35,7 +35,7 @@ def create_user_on_server(host, email, password):
     cwd=THIS_FOLDER
     )
 
-def send_fixture_file(host, filepath)
+def send_fixture_file(host, filepath):
     subprocess.check_call(
         [
             'fab',
