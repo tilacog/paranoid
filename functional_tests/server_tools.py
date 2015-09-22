@@ -3,7 +3,7 @@ import subprocess
 THIS_FOLDER = path.dirname(path.abspath(__file__))
 
 
-def create_session_on_server(host, email):
+def create_session_on_server(host, email, password):
     return subprocess.check_output(
         [
             'fab',
