@@ -4,6 +4,8 @@ from .paranoid_pages import ParanoidPage
 class HomePage(ParanoidPage):
 
     loged_user_email = page_element(id="id_user_email")
+    logout_link = page_element(link_text="Logout")
 
     def check(self):
         self.test.assertEqual(self.title, 'Titan')
+        self.test.assertTrue(self.logout_link)

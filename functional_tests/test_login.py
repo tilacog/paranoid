@@ -74,5 +74,4 @@ class FirstTest(FunctionalTest):
         self.assertTrue(audit_page.upload_forms)
 
         # But he gets too scared, and logs out in despair.
-        audit_page.log_out()
-        self.fail("Finish the test!")
+        audit_page.logout_link.click()
