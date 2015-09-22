@@ -17,10 +17,10 @@ def create_session_on_server(email, password):
     
     cmd_string = (
         "{manage_py} create_session_cookie "
-        "--email={email} --password={password}")
+        "--email={email} --password={password}"
     )
     
-    serialized_cookie= run(cmd.format(
+    serialized_cookie= run(cmd_string.format(
         manage_py=_get_manage_dot_py(env.host),
         email=email,
         password=password,
