@@ -35,6 +35,7 @@ def create_user(email, password):
     )
 
     run(cmd_string.format(
+        manage_py=_get_manage_dot_py(env.host),
         email=email,
         password=password,
     ))
