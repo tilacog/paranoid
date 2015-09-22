@@ -6,13 +6,18 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
+    help = ("Creates a pre authenticated session key for a given email "
+            "and prints it to stdout")
 
-    def handle(self, email, *_, **__):
-        session_key = create_pre_authenticated_session(email)
+    def add_arguments(self, parser):
+        parser.add_argument('email')
+
+    def handle(self, *args, **options):
+        session_key = create_pre_authenticated_session(options['email'])
         self.stdout.write(session_key)
 
 def create_pre_authenticated_session(email):
-    user = User.objects.create(email=email)
+    user = User.objects.create_user(email=email)
     session = SessionStore()
     session[SESSION_KEY] = user.pk
     session[BACKEND_SESSION_KEY] = settings.AUTHENTICATION_BACKENDS[0]
