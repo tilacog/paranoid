@@ -3,12 +3,13 @@ import sys
 import time
 from datetime import datetime
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 
-from .management.commands.create_session import create_pre_authenticated_session
+
 from .server_tools import create_session_on_server, reset_database
 
 
@@ -99,3 +100,23 @@ class FunctionalTest(StaticLiveServerTestCase):
             )
         )
 
+    def create_pre_authenticated_session(self, email, password='123'):
+        """
+        Creates a new test user and uses django test client to log him in.
+        Webdriver instance then receives a logged-in session cookie.
+        """
+        # Create test user
+        User = get_user_model()
+        User.objects.create_user(email=email, password=password)
+
+        # Authenticate this user
+        self.client.login(email=email, password=password)
+        cookie = self.client.cookies[settings.SESSION_COOKIE_NAME]
+        self.browser.get(self.server_url + '/404-dont-exist/')
+        self.browser.add_cookie(dict(
+            name=settings.SESSION_COOKIE_NAME,
+            value=cookie.value,
+            secure=False,
+            path='/'
+        ))
+        self.browser.refresh()

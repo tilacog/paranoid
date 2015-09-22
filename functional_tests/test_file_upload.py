@@ -27,37 +27,21 @@ class FirstTest(FunctionalTest):
             name='ECF',
             required_doctypes=DoctypeFactory.create_batch(3)
         )
-       
-        # Create test user
-        user = UserFactory(email='test@user.com')
-        user.set_password('123')
-        user.save()
 
-        # Authenticate this user
-        self.client.login(email=user.email, password='123')
-        cookie = self.client.cookies['sessionid']
-        self.browser.get(self.server_url + '/404-dont-exist/')
-        self.browser.add_cookie(dict(
-            name='sessionid',
-            value=cookie.value,
-            secure=False,
-            path='/'
-        ))
-        self.browser.refresh()
-        
-        
+        self.create_pre_authenticated_session(
+            email='test@user.com', password='123'
+        )
+
         ## The test begins...
         # Open the browser and check that the user is logged in
-        
         self.browser.get(self.server_url)
         home_page = HomePage(self)
         self.assertEqual(home_page.loged_user_email.text, 'test@user.com')
 
         # Visit the audit page, where uploads are made
-        
+
         # Inject the file paths into the form and submit the form
 
         # Grab the filename text that the page displays after processing the upload
 
         # Assert that the filename text matches the filename provided in the test
-
