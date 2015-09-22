@@ -22,15 +22,15 @@ class FirstTest(FunctionalTest):
     def test_returning_user(self):
 
         ## Fixtures
-        user = UserFactory()
-        user.set_password('123')  # define a password I can refer to later
-        user.save()               # needs to be saved again
+        user_email = 'test@user.com'
+        user_password = '123'
+
+        self.create_user(user_email, user_password)
 
         audit = AuditFactory(
             name='ECF',
             required_doctypes=DoctypeFactory.create_batch(3)
         )
-
 
         ## The test begins...
         # A user access the home page.
@@ -41,7 +41,7 @@ class FirstTest(FunctionalTest):
         login_page.check()
 
         # He is requested to insert his email and password.
-        login_page.login(email=user.email, password='wrong_password')
+        login_page.login(email=user_email, password='wrong_password')
 
         # He tries to log in, but misspells his own email, resulting in an error.
         self.wait_for(lambda: self.assertEqual(
@@ -51,14 +51,14 @@ class FirstTest(FunctionalTest):
 
         # After retyping, he manages to successfull log in.
         login_page.email.clear()
-        login_page.login(email=user.email, password='123')
+        login_page.login(email=user_email, password=user_password)
 
         # He is taken to the home page.
         home_page = HomePage(self)
         self.wait_for(lambda : home_page.check())
 
         # There is a navigation bar with his email on it.
-        self.assertEqual(home_page.loged_user_email.text, user.email)
+        self.assertEqual(home_page.loged_user_email.text, user_email)
 
         # He clicks on "ECF" and is taken to a page for creating new jobs.
         self.browser.find_element_by_link_text('ECF').click()
