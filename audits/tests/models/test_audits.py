@@ -5,7 +5,7 @@ from unittest import skip
 
 from audits.models import Audit, Package, Doctype
 from audits.factories import (
-    PackageFactory, DoctypeFactory, AuditFactory, FormFieldRecipeFactory,
+    PackageFactory, DoctypeFactory, AuditFactory
 )
 
 

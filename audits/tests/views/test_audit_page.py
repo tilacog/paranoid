@@ -1,15 +1,24 @@
 import re
+from unittest import skip
+from unittest.mock import MagicMock, patch
+
+from django.core.files import File
+from django.core.files.storage import Storage
 from django.core.urlresolvers import reverse
 from django.forms import BaseFormSet
-from django.test import TestCase, RequestFactory
-from unittest import skip
-from unittest.mock import patch
+from django.test import RequestFactory, TestCase
 
-from audits.factories import AuditFactory, DoctypeFactory
+from audits.factories import (AuditFactory, DoctypeFactory, DocumentFactory,
+                              UserFactory)
 from audits.forms import DocumentForm
+from audits.models import Document
 
 
-class AuditPageTest(TestCase):
+class AuditPageTestGET(TestCase):
+    """
+    Tests for GET requests on audit_page view.
+    """
+
 
     def setUp(self):
         # Setup Audit instance with some doctypes
@@ -39,11 +48,25 @@ class AuditPageTest(TestCase):
         self.assertIsInstance(formset, BaseFormSet)
 
     @patch('audits.views.formset_factory')
-    def test_view_passes_initial_data_to_formset(self, fake_formset_factory):
-        # Set the formset instance to be a mock. It is the result of two calls:
-        # one to the formset_factory and other to the formset class.
-        mock_document_formset_cls = fake_formset_factory.return_value
-        mock_formset = mock_document_formset_cls.return_value
+    def test_view_initializes_formset_with_audit_initial_data(
+        self, fake_formset_factory
+    ):
+        # formset_factory returns a subclass of BaseFormset.
+        mock_formset_cls = fake_formset_factory.return_value
+
+        expected_init_data = [
+            {'doctype': obj.id}
+            for obj in self.audit.required_doctypes.all()
+        ]
+
+        response = self.client.get(self.url)
+
+        mock_formset_cls.assert_called_with(initial=expected_init_data)
+
+    @patch('audits.views.formset_factory')
+    def test_view_sends_formset_to_response_context(self, fake_formset_factory):
+        mock_formset_cls = fake_formset_factory.return_value
+        mock_formset = mock_formset_cls.return_value
 
         response = self.client.get(self.url)
         self.assertEqual(mock_formset, response.context['formset'])
@@ -110,3 +133,37 @@ class AuditPageTest(TestCase):
     @skip('future tests')
     def test_user_cannot_view_audit_page_if_his_group_isnt_authorized(self):
         pass
+
+
+class FileUploadsIsolatedTests(TestCase):
+    """
+    Tests isolated from Django's file and storage system.
+    """
+
+    def setUp(self):
+
+        # Patch django storage system
+        storage_patcher = patch(
+            'django.core.files.storage.default_storage._wrapped',
+            spec=Storage,
+            name='StorageMock',
+        )
+        self.addCleanup(storage_patcher.stop)
+        self.storage_mock = storage_patcher.start()
+        self.storage_mock.url = MagicMock(name='url')
+        self.storage_mock.url.return_value = 'some_test_file.test'
+
+        # Mock a django file
+        self.file_mock = MagicMock(spec=File, name='FileMock')
+        self.file_mock.name = 'some_test_file.test'
+
+    def test_mocking_works(self):
+
+        document = DocumentFactory()
+        document.file = self.file_mock
+        document.full_clean()
+        document.save()
+
+
+   #@patch()
+   #def test_formset_is_called_with_POST_data_and_POST_files(self):

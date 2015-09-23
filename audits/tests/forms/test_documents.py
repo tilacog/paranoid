@@ -3,7 +3,9 @@ from django.forms import ModelForm, widgets
 from django.forms.formsets import formset_factory
 
 from audits.forms import DocumentForm
+from unittest.mock import MagicMock
 
+from audits.factories import DoctypeFactory
 
 class DocumentFormTest(TestCase):
 
@@ -25,3 +27,39 @@ class DocumentFormTest(TestCase):
         field = form.fields['doctype']
         widget = field.widget
         self.assertIsInstance(widget, widgets.HiddenInput)
+
+
+    def test_form_can_validate(self):
+        DoctypeFactory()  # needed to set the choices of the doctype field.
+        mock_file = MagicMock()
+
+        post_data = {'doctype': 1}
+        post_files = {'file': mock_file}
+
+        form = DocumentForm(post_data, post_files)
+        self.assertTrue(form.is_valid())
+
+class DocumentFormsetTest(TestCase):
+
+    def test_formset_can_validate(self):
+        "Just a spike test"
+        DoctypeFactory()
+        mock_file = MagicMock()
+
+        post_data = {
+            'form-TOTAL_FORMS': 2,
+            'form-INITIAL_FORMS': 0,
+            'form-MAX_NUM_FORMS':'',
+            'form-0-doctype': 1,
+            'form-1-doctype': 1,
+        }
+
+        file_data = {
+            'form-0-file': mock_file,
+            'form-1-file': mock_file,
+        }
+
+        DocumentFormSet = formset_factory(DocumentForm)
+        formset = DocumentFormSet(post_data, file_data)
+
+        self.assertTrue(formset.is_valid())
