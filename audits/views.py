@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.forms.formsets import formset_factory
 
 from audits.models import Audit
@@ -37,6 +37,4 @@ def audit_page(request, audit_id):
         DocumentFormSet = formset_factory(DocumentForm, max_num=0)
         formset = DocumentFormSet(request.POST, request.FILES)
 
-        return render(
-            request, 'audit.html', {'audit': audit, 'formset': formset}
-        )
+        return redirect('job_received', 1)
