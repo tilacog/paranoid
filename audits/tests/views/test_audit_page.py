@@ -1,57 +1,13 @@
 import re
-from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.forms import BaseFormSet
-from django.http import HttpRequest
 from django.test import TestCase, RequestFactory
 from unittest import skip
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 
-from audits.models import Package, Audit
 from audits.factories import AuditFactory, DoctypeFactory
-from audits.views import audit_page, home_page
 from audits.forms import DocumentForm
 
-class HomePageTest(TestCase):
-
-
-    def test_redirects_aonymous_user_to_login_page(self):
-        response = self.client.get(reverse('home_page'))
-        login_url = reverse('login_page')
-
-        self.assertEqual(response.status_code, 302)
-        self.assertIn(login_url, response.url)
-
-    @skip('future tests')
-    def test_renders_available_packages_only(self):
-        pass
-
-    def test_home_page_renders_available_audits(self):
-        User = get_user_model()
-        User.objects.create_user(email='test@user.com', password='123')
-        self.client.login(email='test@user.com', password='123')
-
-        audit = AuditFactory(
-            required_doctypes=DoctypeFactory.create_batch(3)
-        )
-
-        response = self.client.get(reverse('home_page'))
-
-        audit_link_text = '{}</a>'.format(audit.name)
-        self.assertContains(response, audit_link_text)
-
-    def test_home_page_response_contains_available_audits(self):
-        User = get_user_model()
-        User.objects.create_user(email='test@user.com', password='123')
-        self.client.login(email='test@user.com', password='123')
-
-        audit = AuditFactory(
-            required_doctypes=DoctypeFactory.create_batch(3)
-        )
-
-        response = self.client.get(reverse('home_page'))
-
-        self.assertIn(audit, response.context['audits'])
 
 class AuditPageTest(TestCase):
 
@@ -99,15 +55,15 @@ class AuditPageTest(TestCase):
         """
         formset = self.response.context['formset']
 
-        ## First assert they're DocumentForms.
+        # First assert they're DocumentForms.
         for form in formset:
             self.assertIsInstance(form, DocumentForm)
 
-        ## Then assert they're the Docforms for the required fields, defined
-        ## on the Audit instance.
+        # Then assert they're the Docforms for the required fields, defined
+        # on the Audit instance.
 
         # Those are the doctypes found inside the forms of the formset.
-        formset_doctype_ids = { d['doctype'] for d in formset.initial }
+        formset_doctype_ids = {d['doctype'] for d in formset.initial}
 
         # And those are the doctypes defined by the Audit instance.
         expected_doctype_ids = {
@@ -117,10 +73,10 @@ class AuditPageTest(TestCase):
         self.assertEqual(formset_doctype_ids, expected_doctype_ids)
 
     def test_response_context_forms_labels_are_named_after_doctype_names(self):
-        doctype_names = { d.name for d in self.audit.required_doctypes.all() }
+        doctype_names = {d.name for d in self.audit.required_doctypes.all()}
 
         formset = self.response.context['formset']
-        form_labels = { form.fields['file'].label for form in formset }
+        form_labels = {form.fields['file'].label for form in formset}
 
         self.assertEqual(doctype_names, form_labels)
 
@@ -142,7 +98,6 @@ class AuditPageTest(TestCase):
             expected_num_forms,
             msg=self.response.content.decode(),
         )
-
 
     @skip('future tests')
     def test_inexistent_audit_raises_404_error_and_renders_error_page(self):

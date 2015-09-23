@@ -5,8 +5,7 @@ import tempfile
 from .audit_page import AuditPage
 from .base import FunctionalTest
 from .home_page import HomePage
-from .login_page import LoginPage
-
+from .job_request_page import JobRequestPage
 
 class FileUploadTest(FunctionalTest):
 

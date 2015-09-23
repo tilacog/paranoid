@@ -21,6 +21,7 @@
 <div class="row">
     <div class="col-md-8">
         <form class="form-inline document-upload-form" method="POST" action="">
+            {% csrf_token %}
             {{ formset.management_form }}
 
             {% for form in formset %}
