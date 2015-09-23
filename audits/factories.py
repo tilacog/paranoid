@@ -4,6 +4,7 @@ import string
 
 import factory
 import factory.fuzzy
+from django.conf import settings
 
 from audits.models import FormFieldRecipe
 
@@ -50,22 +51,33 @@ class AuditFactory(factory.DjangoModelFactory):
                 self.extra_fields.add(form_field_recipe)
 
 
-
 class DoctypeFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'audits.Doctype'
 
     name = factory.Sequence(lambda n: 'Doctype #%s' % (n,))
 
-class FormFieldRecipeFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = 'audits.FormFieldRecipe'
 
-    name = factory.Sequence(lambda n: 'field_{}'.format(n))
-    tag = factory.Sequence(lambda n: 'tag_{}'.format(n))
-    form_field_class = factory.fuzzy.FuzzyChoice(map(
-        lambda x: x[0],
-        FormFieldRecipe.FIELD_CHOICES
-    ))
-    input_label = factory.Faker('word')
-    tooltip_text = factory.Faker('paragraph', nb_sentences=1)
+class UserFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = settings.AUTH_USER_MODEL
+
+    email = factory.Faker('email')
+    password = factory.Faker('password')
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        manager = cls._get_manager(model_class)
+        # The default would use ``manager.create(*args, **kwargs)``
+        return manager.create_user(*args, **kwargs)
+
+class DocumentFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = 'audits.Document'
+
+    doctype = factory.SubFactory(DoctypeFactory)
+    file = factory.django.FileField(
+        filename='test_file_' + random_string() + '.test',
+        data=random_string()
+    )
+    uploaded_by = factory.SubFactory(UserFactory)
