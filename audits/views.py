@@ -13,16 +13,30 @@ def home_page(request):
 
 def audit_page(request, audit_id):
     audit = Audit.objects.get(id=audit_id)
+    DocumentFormSet = formset_factory(DocumentForm, max_num=0)
 
-    DocumentFormset = formset_factory(DocumentForm, max_num=0)
-    initial_data = [
-        {'doctype': obj.id} for obj in audit.required_doctypes.all()
-    ]
-    formset = DocumentFormset(initial=initial_data)
-    for form in formset.forms:
-        doctype_id = form.initial['doctype']
-        doctype_name = audit.required_doctypes.get(id=doctype_id).name
+    if request.method == 'GET':
 
-        form.fields['file'].label = doctype_name
+        initial_data = [
+            {'doctype': obj.id}
+            for obj in audit.required_doctypes.all()
+        ]
+        formset = DocumentFormSet(initial=initial_data)
 
-    return render(request, 'audit.html', {'audit': audit, 'formset': formset})
+        # Update forms labels to match doctype name
+        for form in formset.forms:
+            doctype_id = form.initial['doctype']
+            doctype_name = audit.required_doctypes.get(id=doctype_id).name
+            form.fields['file'].label = doctype_name
+
+        return render(
+            request, 'audit.html', {'audit': audit, 'formset': formset}
+        )
+
+    elif request.method == 'POST':
+        DocumentFormSet = formset_factory(DocumentForm, max_num=0)
+        formset = DocumentFormSet(request.POST, request.FILES)
+
+        return render(
+            request, 'audit.html', {'audit': audit, 'formset': formset}
+        )

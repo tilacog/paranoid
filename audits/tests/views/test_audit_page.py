@@ -4,14 +4,17 @@ from unittest.mock import MagicMock, patch
 
 from django.core.files import File
 from django.core.files.storage import Storage
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.forms import BaseFormSet
+from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
 
 from audits.factories import (AuditFactory, DoctypeFactory, DocumentFactory,
                               UserFactory)
 from audits.forms import DocumentForm
 from audits.models import Document
+from audits.views import audit_page
 
 
 class AuditPageGETTest(TestCase):
@@ -136,6 +139,23 @@ class AuditPageGETTest(TestCase):
 
 class AuditPagePOSTTest(TestCase):
 
+    def setUp(self):
+
+        # Fixtures
+        self.audit = AuditFactory(
+            required_doctypes=[DoctypeFactory()]
+        )
+
+        self.post_data = {
+            'form-TOTAL_FORMS': 1,
+            'form-INITIAL_FORMS': 0,
+            'form-MAX_NUM_FORMS':'',
+            'form-0-doctype': 1,
+        }
+        self.post_files = {
+            'form-0-file': MagicMock(spec=File)
+        }
+
     def test_view_can_save_a_POST_request(self):
         # assert no objs exist
         # send post request
@@ -144,16 +164,35 @@ class AuditPagePOSTTest(TestCase):
         #   * a job
         pass
 
-    def test_formset_is_initialized_with_POST_data_and_files(self):
+    @patch('audits.views.formset_factory')
+    def test_formset_is_initialized_with_POST_data_and_files(
+        self, mock_formset_factory
+    ):
         # mock the formset class
+        mock_formset_cls = MagicMock(name='MockFormSet')
+        mock_formset_factory.return_value = mock_formset_cls
+
         # grab resquest.POST and request.FILES data
-        # `mock.assert_called_once_with(...)`
-        pass
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST = self.post_data
+        request.FILES = self.post_files
+
+        audit_page(request, 1)
+
+        mock_formset_cls.assert_called_once_with(request.POST, request.FILES)
 
     def test_redirects_after_POST(self):
-        # send post
-        # assertRedirects to new-job-request page
-        pass
+        # send post with valid data
+        post_data = self.post_data.copy()
+        post_data.update(self.post_files)
+
+        response = self.client.post(
+            reverse('audit_page', args=[self.audit.pk]),
+            post_data
+        )
+
+        self.assertRedirects(response, reverse('job_received', args=[1]))
 
     def test_invalid_POST_data_renders_the_same_page(self):
         # patch render and formset.is_valid
