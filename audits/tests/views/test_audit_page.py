@@ -14,11 +14,10 @@ from audits.forms import DocumentForm
 from audits.models import Document
 
 
-class AuditPageTestGET(TestCase):
+class AuditPageGETTest(TestCase):
     """
     Tests for GET requests on audit_page view.
     """
-
 
     def setUp(self):
         # Setup Audit instance with some doctypes
@@ -135,6 +134,41 @@ class AuditPageTestGET(TestCase):
         pass
 
 
+class AuditPagePOSTTest(TestCase):
+
+    def test_view_can_save_a_POST_request(self):
+        # assert no objs exist
+        # send post request
+        # assert the new *expected* objs exist
+        #   * documents
+        #   * a job
+        pass
+
+    def test_formset_is_initialized_with_POST_data_and_files(self):
+        # mock the formset class
+        # grab resquest.POST and request.FILES data
+        # `mock.assert_called_once_with(...)`
+        pass
+
+    def test_redirects_after_POST(self):
+        # send post
+        # assertRedirects to new-job-request page
+        pass
+
+    def test_invalid_POST_data_renders_the_same_page(self):
+        # patch render and formset.is_valid
+        # assert invalid data renders the same page,
+        # with the same invalid formset.
+        pass
+
+    ## FORMSET TEST ###
+    def test_invalid_POST_data_doesnt_create_new_objects(self):
+        # patch formset.is_valid
+        # assert don't create a new job and document if form is
+        # invalid/incomplete
+        pass
+
+
 class FileUploadsIsolatedTests(TestCase):
     """
     Tests isolated from Django's file and storage system.
@@ -163,7 +197,3 @@ class FileUploadsIsolatedTests(TestCase):
         document.file = self.file_mock
         document.full_clean()
         document.save()
-
-
-   #@patch()
-   #def test_formset_is_called_with_POST_data_and_POST_files(self):

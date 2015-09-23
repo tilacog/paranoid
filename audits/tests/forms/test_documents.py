@@ -63,3 +63,16 @@ class DocumentFormsetTest(TestCase):
         formset = DocumentFormSet(post_data, file_data)
 
         self.assertTrue(formset.is_valid())
+
+    def test_invalid_data_doesnt_create_new_objects(self):
+        # assert no objs exists
+        # initialize formset with invalid data
+        # form.is_valid()
+        # assert no objs exist still
+        pass
+
+    def test_formset_save_instantiate_new_objects(self):
+        # assert no objs exist
+        # formset.save
+        # assert expected objs now exist
+        pass
