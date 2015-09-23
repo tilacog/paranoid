@@ -15,8 +15,12 @@ def audit_page(request, audit_id):
     audit = Audit.objects.get(id=audit_id)
     DocumentFormSet = formset_factory(DocumentForm, max_num=0)
 
-    if request.method == 'GET':
+    if request.method == 'POST':
+        formset = DocumentFormSet(request.POST, request.FILES)
+        if formset.is_valid():
+             return redirect('job_received', 1)
 
+    if request.method == 'GET':
         initial_data = [
             {'doctype': obj.id}
             for obj in audit.required_doctypes.all()
@@ -29,12 +33,6 @@ def audit_page(request, audit_id):
             doctype_name = audit.required_doctypes.get(id=doctype_id).name
             form.fields['file'].label = doctype_name
 
-        return render(
-            request, 'audit.html', {'audit': audit, 'formset': formset}
-        )
-
-    elif request.method == 'POST':
-        DocumentFormSet = formset_factory(DocumentForm, max_num=0)
-        formset = DocumentFormSet(request.POST, request.FILES)
-
-        return redirect('job_received', 1)
+    return render(
+        request, 'audit.html', {'audit': audit, 'formset': formset}
+    )

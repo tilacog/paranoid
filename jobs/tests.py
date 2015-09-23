@@ -1,3 +1,6 @@
 from django.test import TestCase
 
-# Create your tests here.
+class JobViewTest(TestCase):
+    def test_job_reived_view_uses_right_template(self):
+        response = self.client.get('/jobs/1/')
+        self.assertTemplateUsed(response, 'job_received.html')

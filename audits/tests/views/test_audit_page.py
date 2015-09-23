@@ -184,21 +184,40 @@ class AuditPagePOSTTest(TestCase):
 
     def test_redirects_after_POST(self):
         # send post with valid data
-        post_data = self.post_data.copy()
-        post_data.update(self.post_files)
+        data = self.post_data.copy()
+        data.update(self.post_files)
 
         response = self.client.post(
             reverse('audit_page', args=[self.audit.pk]),
-            post_data
+            data
         )
 
+        # Magic Number 1 is a replacement for ``job.pk``
         self.assertRedirects(response, reverse('job_received', args=[1]))
 
-    def test_invalid_POST_data_renders_the_same_page(self):
-        # patch render and formset.is_valid
+    @patch('audits.views.formset_factory')
+    def test_invalid_POST_data_renders_the_same_page(self, mock_formset_factory):
+        # Mock the formset object with invalid data
+        mock_formset = MagicMock(name='MockFormSet')
+        mock_formset.is_valid.return_value = False
+
+        # Patch the formset_factory and formset class
+        mock_formset_cls = mock_formset_factory.return_value
+        mock_formset_cls.return_value = mock_formset
+
         # assert invalid data renders the same page,
         # with the same invalid formset.
-        pass
+        data = self.post_data.copy()
+        data.update(self.post_files)
+
+
+        response = self.client.post(
+            reverse('audit_page', args=[self.audit.pk]),
+            data
+        )
+
+        self.assertTemplateUsed(response, 'audit.html')
+
 
     ## FORMSET TEST ###
     def test_invalid_POST_data_doesnt_create_new_objects(self):
