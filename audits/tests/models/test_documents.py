@@ -19,7 +19,7 @@ class DocumentTest(TestCase):
 
         document = Document()
         document.doctype = doctype
-        document.uploaded_by = user
+        document.user = user
         document.file = test_file
 
         document.full_clean()  # should not raise

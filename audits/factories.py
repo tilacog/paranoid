@@ -81,4 +81,4 @@ class DocumentFactory(factory.DjangoModelFactory):
         filename='test_file_' + random_string() + '.test',
         data=random_string()
     )
-    uploaded_by = factory.SubFactory(UserFactory)
+    user = factory.SubFactory(UserFactory)

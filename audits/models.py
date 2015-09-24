@@ -70,5 +70,5 @@ class Doctype(models.Model):
 class Document(models.Model):
     doctype = models.ForeignKey('Doctype')
     file = models.FileField()
-    uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     checksum = models.CharField(max_length=40, blank=True)

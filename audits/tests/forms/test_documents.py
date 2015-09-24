@@ -1,11 +1,13 @@
-from django.test import TestCase
+from unittest.mock import MagicMock, patch
+
 from django.forms import ModelForm, widgets
-from django.forms.formsets import formset_factory, BaseFormSet
+from django.forms.formsets import BaseFormSet
+from django.test import TestCase
 
+from audits.factories import AuditFactory, DoctypeFactory, UserFactory
 from audits.forms import DocumentForm, DocumentFormSet
-from unittest.mock import patch, MagicMock
+from audits.models import Document
 
-from audits.factories import DoctypeFactory, AuditFactory
 
 class DocumentFormTest(TestCase):
 
@@ -58,8 +60,7 @@ class DocumentFormsetTest(TestCase):
         forms_pks = {form.initial['doctype'] for form in formset}
         self.assertSetEqual(expected_doctype_pks, forms_pks)
 
-    def test_formset_can_validate(self):
-        "Just a spike test to learn about formset validation"
+    def create_formset_data(self):
         DoctypeFactory()
         mock_file = MagicMock()
 
@@ -76,20 +77,46 @@ class DocumentFormsetTest(TestCase):
             'form-1-file': mock_file,
         }
 
-        DocumentFormSet = formset_factory(DocumentForm)
+        return (post_data, file_data)
+
+    def test_formset_can_validate(self):
+        "Just a spike test to learn about formset validation"
+
+        post_data, file_data = self.create_formset_data()
+
         formset = DocumentFormSet(post_data, file_data)
 
         self.assertTrue(formset.is_valid())
 
-    def test_invalid_data_doesnt_create_new_objects(self):
-        # assert no objs exists
-        # initialize formset with invalid data
-        # form.is_valid()
-        # assert no objs exist still
-        pass
 
     def test_formset_save_instantiate_new_objects(self):
+        user = UserFactory()
+
         # assert no objs exist
-        # formset.save
+        self.assertEqual(Document.objects.count(), 0)
+
+        post_data, file_data = self.create_formset_data()
+        formset = DocumentFormSet(post_data, file_data)
+        formset.save(user.pk)
+
         # assert expected objs now exist
-        pass
+        expected_num_documents = len(file_data)
+        self.assertEqual(Document.objects.count(), expected_num_documents)
+
+    @patch('audits.forms.DocumentFormSet.is_valid', value=False)
+    def test_formset_save_wont_create_new_objects_if_form_is_invalid(
+        self, mock_form_method
+    ):
+        mock_form_method.return_value = False
+        user = UserFactory()
+
+        # assert no objs exist
+        self.assertEqual(Document.objects.count(), 0)
+
+        post_data, file_data = self.create_formset_data()
+        formset = DocumentFormSet(post_data, file_data)
+
+        with self.assertRaises(RuntimeError):
+            formset.save(user.pk)
+
+        self.assertEqual(Document.objects.count(), 0)
