@@ -6,8 +6,6 @@ import factory
 import factory.fuzzy
 from django.conf import settings
 
-from audits.models import FormFieldRecipe
-
 
 def random_string(length=10):
     return ''.join(random.choice(string.ascii_letters) for x in range(length))
@@ -34,6 +32,7 @@ class AuditFactory(factory.DjangoModelFactory):
 
     @factory.post_generation
     def required_doctypes(self, create, extracted, **kwargs):
+        """Passes a list of specific Doctypes to be related with this audit."""
         if not create:
             return  # Simple build, do nothing.
         if extracted:
@@ -42,13 +41,15 @@ class AuditFactory(factory.DjangoModelFactory):
                 self.required_doctypes.add(doctype)
 
     @factory.post_generation
-    def extra_fields(self, create, extracted, **kwargs):
+    def num_doctypes(self, create, extracted, **kwargs):
+        """Creates a number of related doctypes for this audit."""
         if not create:
-            return  # Simple build, do nothing.
+            return # Simple build, do nothing.
         if extracted:
-            # A list of FormFieldRecipe instances were passed in, use them
-            for form_field_recipe in extracted:
-                self.extra_fields.add(form_field_recipe)
+            assert isinstance(extracted, int)
+            for i in range(extracted):
+                doctype = DoctypeFactory()
+                self.required_doctypes.add(doctype)
 
 
 class DoctypeFactory(factory.DjangoModelFactory):

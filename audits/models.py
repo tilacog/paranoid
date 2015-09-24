@@ -18,7 +18,6 @@ class Audit(models.Model):
     # Upgrade 'execution_script' to FilePathFiled in the future
     execution_script = models.CharField(max_length=4096, blank=False, null=False)
     required_doctypes = models.ManyToManyField('Doctype')
-    extra_fields = models.ManyToManyField('FormFieldRecipe')
 
     def clean(self):
         # Don't allow audits to be cleansed without at least one required doctype
@@ -67,50 +66,6 @@ class Doctype(models.Model):
         max_length=4096, blank=True, null=False
     )
 
-class FormFieldRecipe(models.Model):
-    """
-    This object will loosely tag audits or doctypes, carrying information to
-    dynamically build a form object, to be rendered on Audit pages.
-
-    Its `tag` attribute is a loose reference to a `Doctype.name`, Otherwise,
-    it will be a reference to the audit who invoked it.
-    """
-
-    def get_field_classes():
-        """
-        Scans and returns all django.forms.fields.Field subclasses.
-        They will be used as choices for the `form_field_class` field.
-        """
-        for tup in getmembers(forms.fields):
-            try:
-                # The first element is a string, and the second is the
-                # class itself.
-                if (issubclass(tup[1], forms.fields.Field)
-                    and tup[1] != forms.fields.Field
-                ):
-                    # Return values comply with Django's choice spec.
-                    yield (tup[0], tup[0])
-                else:
-                    continue
-            except TypeError:
-                continue
-
-    FIELD_CHOICES = tuple(get_field_classes())
-
-    # Fields
-    name = models.CharField(max_length=30)
-    tag = models.CharField(max_length=30, blank=True)
-    form_field_class = models.CharField(
-        max_length=30, choices=FIELD_CHOICES,
-    )
-    input_label = models.CharField(max_length=30)
-    tooltip_text = models.TextField(blank=True)
-
-    def __str__(self):
-        s = "{}".format(self.name)
-        if self.tag:
-            s += "({})".format(self.tag)
-        return s
 
 class Document(models.Model):
     doctype = models.ForeignKey('Doctype')

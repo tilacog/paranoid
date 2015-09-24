@@ -1,11 +1,11 @@
 from django.test import TestCase
 from django.forms import ModelForm, widgets
-from django.forms.formsets import formset_factory
+from django.forms.formsets import formset_factory, BaseFormSet
 
-from audits.forms import DocumentForm
-from unittest.mock import MagicMock
+from audits.forms import DocumentForm, DocumentFormSet
+from unittest.mock import patch, MagicMock
 
-from audits.factories import DoctypeFactory
+from audits.factories import DoctypeFactory, AuditFactory
 
 class DocumentFormTest(TestCase):
 
@@ -41,8 +41,25 @@ class DocumentFormTest(TestCase):
 
 class DocumentFormsetTest(TestCase):
 
+    def test_view_initializes_formset_with_audit_initial_data(self):
+        """
+        DocumentFormSet forms' fields must be labeled and initialized
+        according to the audit object used in its initialization.
+        """
+        audit = AuditFactory(num_doctypes=3)  # fixture
+
+        formset = DocumentFormSet(audit_pk=audit.pk)
+
+        expected_labels = {dt.name for dt in audit.required_doctypes.all()}
+        forms_labels = {form.fields['file'].label for form in formset}
+        self.assertSetEqual(expected_labels, forms_labels)
+
+        expected_doctype_pks = {dt.pk for dt in audit.required_doctypes.all()}
+        forms_pks = {form.initial['doctype'] for form in formset}
+        self.assertSetEqual(expected_doctype_pks, forms_pks)
+
     def test_formset_can_validate(self):
-        "Just a spike test"
+        "Just a spike test to learn about formset validation"
         DoctypeFactory()
         mock_file = MagicMock()
 

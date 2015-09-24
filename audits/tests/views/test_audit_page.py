@@ -4,16 +4,13 @@ from unittest.mock import MagicMock, patch
 
 from django.core.files import File
 from django.core.files.storage import Storage
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.forms import BaseFormSet
 from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
 
-from audits.factories import (AuditFactory, DoctypeFactory, DocumentFactory,
-                              UserFactory)
+from audits.factories import AuditFactory, DoctypeFactory, DocumentFactory
 from audits.forms import DocumentForm
-from audits.models import Document
 from audits.views import audit_page
 
 
@@ -49,25 +46,8 @@ class AuditPageGETTest(TestCase):
         formset = self.response.context['formset']
         self.assertIsInstance(formset, BaseFormSet)
 
-    @patch('audits.views.formset_factory')
-    def test_view_initializes_formset_with_audit_initial_data(
-        self, fake_formset_factory
-    ):
-        # formset_factory returns a subclass of BaseFormset.
-        mock_formset_cls = fake_formset_factory.return_value
-
-        expected_init_data = [
-            {'doctype': obj.id}
-            for obj in self.audit.required_doctypes.all()
-        ]
-
-        response = self.client.get(self.url)
-
-        mock_formset_cls.assert_called_with(initial=expected_init_data)
-
-    @patch('audits.views.formset_factory')
-    def test_view_sends_formset_to_response_context(self, fake_formset_factory):
-        mock_formset_cls = fake_formset_factory.return_value
+    @patch('audits.views.DocumentFormSet', autospec=True)
+    def test_view_sends_formset_to_response_context(self, mock_formset_cls):
         mock_formset = mock_formset_cls.return_value
 
         response = self.client.get(self.url)
@@ -142,14 +122,12 @@ class AuditPagePOSTTest(TestCase):
     def setUp(self):
 
         # Fixtures
-        self.audit = AuditFactory(
-            required_doctypes=[DoctypeFactory()]
-        )
+        self.audit = AuditFactory(num_doctypes=1)
 
         self.post_data = {
             'form-TOTAL_FORMS': 1,
             'form-INITIAL_FORMS': 0,
-            'form-MAX_NUM_FORMS':'',
+            'form-MAX_NUM_FORMS': '',
             'form-0-doctype': 1,
         }
         self.post_files = {
@@ -164,13 +142,10 @@ class AuditPagePOSTTest(TestCase):
         #   * a job
         pass
 
-    @patch('audits.views.formset_factory')
+    @patch('audits.views.DocumentFormSet', autospec=True)
     def test_formset_is_initialized_with_POST_data_and_files(
-        self, mock_formset_factory
+        self, mock_formset_cls
     ):
-        # mock the formset class
-        mock_formset_cls = MagicMock(name='MockFormSet')
-        mock_formset_factory.return_value = mock_formset_cls
 
         # grab resquest.POST and request.FILES data
         request = HttpRequest()
@@ -195,21 +170,19 @@ class AuditPagePOSTTest(TestCase):
         # Magic Number 1 is a replacement for ``job.pk``
         self.assertRedirects(response, reverse('job_received', args=[1]))
 
-    @patch('audits.views.formset_factory')
-    def test_invalid_POST_data_renders_the_same_page(self, mock_formset_factory):
+    @patch('audits.views.DocumentFormSet')
+    def test_invalid_POST_data_renders_the_same_page(self, mock_formset_cls):
         # Mock the formset object with invalid data
         mock_formset = MagicMock(name='MockFormSet')
         mock_formset.is_valid.return_value = False
 
         # Patch the formset_factory and formset class
-        mock_formset_cls = mock_formset_factory.return_value
         mock_formset_cls.return_value = mock_formset
 
         # assert invalid data renders the same page,
         # with the same invalid formset.
         data = self.post_data.copy()
         data.update(self.post_files)
-
 
         response = self.client.post(
             reverse('audit_page', args=[self.audit.pk]),
@@ -218,8 +191,6 @@ class AuditPagePOSTTest(TestCase):
 
         self.assertTemplateUsed(response, 'audit.html')
 
-
-    ## FORMSET TEST ###
     def test_invalid_POST_data_doesnt_create_new_objects(self):
         # patch formset.is_valid
         # assert don't create a new job and document if form is
