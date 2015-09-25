@@ -10,6 +10,9 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+# Test-specific configs
+import sys
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -120,8 +123,6 @@ LOGGING = {
 }
 
 
-# Test-specific configs
-import sys
 if 'test' in sys.argv:
     # import logging
     # logger = logging.getLogger(__name__)

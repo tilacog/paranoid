@@ -1,10 +1,8 @@
-from django.contrib.auth import get_user_model
 from django.forms import ModelForm, widgets
 from django.forms.formsets import BaseFormSet, formset_factory
 
 from audits.models import Audit, Doctype, Document
 
-User = get_user_model()
 
 class DocumentForm(ModelForm):
     class Meta:
@@ -53,18 +51,24 @@ class DocumentBaseFormSet(BaseFormSet):
             doctype_name = self.audit.required_doctypes.get(pk=doctype_pk).name
             form.fields['file'].label = doctype_name
 
-    def save(self, user_pk):
+    def save(self, user):
+        """Saves all documents and return their pks"""
         if not self.is_valid():
             raise RuntimeError('Formset has invalid data. Cannot save.')
 
-        new_documents = []
+        new_docs_pks = []  # will be returned
         for form in self.forms:
-            user = User.objects.get(pk=user_pk)
             doctype = form.cleaned_data['doctype']
             file_obj = form.cleaned_data['file']
-            new_documents.append(Document(user=user, doctype=doctype, file=file_obj))
-
-        Document.objects.bulk_create(new_documents)
+            
+            new_doc = Document.objects.create(
+                user=user,
+                doctype=doctype,
+                file=file_obj,
+            )
+            new_docs_pks.append(new_doc.pk)
+            
+        return new_docs_pks 
 
 
 # This formset should be used on views

@@ -1,26 +1,28 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <link href='https://fonts.googleapis.com/css?family=Work+Sans:700' rel='stylesheet' type='text/css'>
-  {% block stylesheets %}{% endblock stylesheets %}
-  <title>{% block title %}Titan{% endblock title %}</title>
-  <meta name="viewport"
-  content="width=device-width, initial-scale=1.0">
-  <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"
-  media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Work+Sans:700' rel='stylesheet' type='text/css'>
+    <link href="{% static "base.css" %}" rel='stylesheet' type='text/css'>
+    {% block stylesheets %}{% endblock stylesheets %}
+    <title>{% block title %}Titan{% endblock title %}</title>
+    <meta name="viewport"
+    content="width=device-width, initial-scale=1.0">
+    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"
+    media="screen">
 </head>
 
 <body>
- <div class="container">
-  {% block    navbar %}
-  {% endblock navbar %}
+    <div class="container">
+    {% block    navbar %}
+    {% endblock navbar %}
 
-  {% block content %}
-  {% endblock content %}
+    {% block content %}
+    {% endblock content %}
 
-  {% block extra_content %}
-  {% endblock extra_content %}
+    {% block extra_content %}
+    {% endblock extra_content %}
 
 </div>
 <!--  <script src="http://code.jquery.com/jquery.min.js"></script>  -->

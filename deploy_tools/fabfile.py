@@ -1,6 +1,7 @@
-from fabric.contrib.files import append, exists, sed
-from fabric.api import env, local, run
 import random
+
+from fabric.api import env, local, run
+from fabric.contrib.files import append, exists, sed
 
 REPO_URL = 'https://github.com/tilacog/paranoid.git'
 

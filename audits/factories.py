@@ -6,6 +6,8 @@ import factory
 import factory.fuzzy
 from django.conf import settings
 
+from accounts.factories import UserFactory
+
 
 def random_string(length=10):
     return ''.join(random.choice(string.ascii_letters) for x in range(length))
@@ -59,18 +61,6 @@ class DoctypeFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'Doctype #%s' % (n,))
 
 
-class UserFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = settings.AUTH_USER_MODEL
-
-    email = factory.Faker('email')
-    password = factory.Faker('password')
-
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        manager = cls._get_manager(model_class)
-        # The default would use ``manager.create(*args, **kwargs)``
-        return manager.create_user(*args, **kwargs)
 
 class DocumentFactory(factory.DjangoModelFactory):
     class Meta:

@@ -9,11 +9,12 @@ from django.forms import BaseFormSet
 from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
 
-from audits.factories import (AuditFactory, DoctypeFactory, DocumentFactory,
-                              UserFactory)
+from accounts.factories import UserFactory
+from audits.factories import AuditFactory, DoctypeFactory, DocumentFactory
 from audits.forms import DocumentForm
 from audits.models import Document
 from audits.views import audit_page
+from jobs.models import Job
 
 
 class AuditPageGETTest(TestCase):

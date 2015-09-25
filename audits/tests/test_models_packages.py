@@ -1,7 +1,8 @@
-from django.test import TestCase
 from django.core.exceptions import ValidationError
+from django.test import TestCase
 
 from audits.models import Package
+
 
 class PackageTestCase(TestCase):
 

@@ -68,8 +68,19 @@ class FileUploadTest(FunctionalTest):
 
         # Grab the filename text that the page displays after processing the upload
         job_request_page = JobRequestPage(self)
-        uploaded_files = { uf.text for uf in job_requet_page.uploaded_files }
+        uploaded_docs = {
+            document.text
+            for document in job_request_page.uploaded_documents
+        }
 
         # Assert that the filename text matches the filename provided in the test
-        file_names = { f.name for f in self.tempfiles }
-        self.assertSetEqual(file_names, uploaded_files)
+        file_names = { 
+            os.path.basename(f.name)
+            for f in self.tempfiles
+        }
+        
+        self.assertSetEqual(file_names, uploaded_docs)
+
+        # The user clicks on the return_home button and returns to the home_page
+        job_request_page.return_home_button.click()
+        home_page.check()

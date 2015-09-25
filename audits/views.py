@@ -1,9 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
 from django.forms.formsets import formset_factory
+from django.shortcuts import redirect, render
 
-from audits.models import Audit
 from audits.forms import DocumentForm, DocumentFormSet
+from audits.models import Audit
+from jobs.models import Job
 
 
 @login_required
@@ -17,8 +18,10 @@ def audit_page(request, audit_pk):
     if request.method == 'POST':
         formset = DocumentFormSet(request.POST, request.FILES)
         if formset.is_valid():
-            formset.save(request.user.pk)
-            return redirect('new_job', 1)
+            new_docs_pks = formset.save(request.user)
+            job = Job.objects.create(audit=audit, user=request.user)
+            job.documents.add(*new_docs_pks)
+            return redirect(job)
 
     if request.method == 'GET':
         formset = DocumentFormSet(audit_pk=audit_pk)

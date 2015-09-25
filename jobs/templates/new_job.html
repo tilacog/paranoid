@@ -11,20 +11,19 @@
 <div class="row">
     <div class="col-md-8">
         <div class="page-header">
-            <h1>Documentos Recebidos<span class="glyphicon glyphicon-ok" aria-hidden="true" style="padding-left:0.3em;"></span></h1>
-            <small>Os documentos listados abaixo foram recebidos e em instantes serão encaminhados para processamento.</small>
+            <h1>Documentos Recebidos<span class="glyphicon glyphicon-ok" aria-hidden="true"></span></h1>
+            <small>Os documentos listados abaixo foram recebidos e serão encaminhados para processamento.</small>
         </div>
-        <h4>Resumo do trabalho em andamento</h4>
         <dl>
             <dt>Validação</dt>
-            <dl id="audit_name">{{ job.audit.name }}</dl>
+            <dl id="id_audit_name">{{ job.audit.name }}</dl>
             <dt>Documentos</dt>
-            {% for document in job.documents %}
-            <dl>{{ document.doctype.name }}<small class="uploaded-document">{{ document.file.filename }}</small></dl>
+            {% for document in job.documents.all %}
+            <dl>{{ document.doctype.name }}<small class="uploaded-document">{{ document.file.name|cut:"./" }}</small></dl>
             {% endfor %}
         </dl>
         <hr>
-        <button id="id_return_home_btn" type="button" class="btn btn-primary pull-right">Página Principal</button>
+        <a id="id_return_home_btn" href="{% url 'home_page' %}" class="btn btn-primary pull-right" role="button">Página Principal</a>
     </div>
 </div>
 

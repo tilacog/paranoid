@@ -1,11 +1,12 @@
-from django.test import TestCase
-from unittest.mock import Mock, patch
 from unittest import skip
+from unittest.mock import Mock, patch
 
-from django.core.files.uploadedfile import SimpleUploadedFile
-
-from audits.models import Document, Doctype
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase
+
+from audits.models import Doctype, Document
+
 User = get_user_model()
 
 class DocumentTest(TestCase):

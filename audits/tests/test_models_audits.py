@@ -1,12 +1,11 @@
-from django.forms import Form
-from django.test import TestCase
-from django.core.exceptions import ValidationError
 from unittest import skip
 
-from audits.models import Audit, Package, Doctype
-from audits.factories import (
-    PackageFactory, DoctypeFactory, AuditFactory
-)
+from django.core.exceptions import ValidationError
+from django.forms import Form
+from django.test import TestCase
+
+from audits.factories import AuditFactory, DoctypeFactory, PackageFactory
+from audits.models import Audit, Doctype, Package
 
 
 class AuditTestCase(TestCase):

@@ -2,3 +2,11 @@
     font-family: 'Work Sans', sans-serif;
     text-transform: uppercase;
 }
+
+h1 span.glyphicon {
+    padding-left: 0.3em;
+}
+
+dl small {
+    padding-left: 1em;
+}

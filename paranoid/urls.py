@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, patterns, url
 
 urlpatterns = patterns('',
     # url(r'^$', 'paranoid.views.home', name='home'),

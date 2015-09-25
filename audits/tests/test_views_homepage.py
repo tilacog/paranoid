@@ -1,7 +1,8 @@
+from unittest import skip
+
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 from django.test import TestCase
-from unittest import skip
 
 from audits.factories import AuditFactory, DoctypeFactory
 

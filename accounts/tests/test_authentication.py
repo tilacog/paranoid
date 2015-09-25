@@ -1,6 +1,8 @@
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import authenticate, get_user_model
 from django.test import TestCase
+
 from accounts.authentication import ParanoidAuthenticationBackend
+
 User = get_user_model()
 
 

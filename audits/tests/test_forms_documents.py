@@ -4,7 +4,8 @@ from django.forms import ModelForm, widgets
 from django.forms.formsets import BaseFormSet
 from django.test import TestCase
 
-from audits.factories import AuditFactory, DoctypeFactory, UserFactory
+from accounts.factories import UserFactory
+from audits.factories import AuditFactory, DoctypeFactory
 from audits.forms import DocumentForm, DocumentFormSet
 from audits.models import Document
 
@@ -97,11 +98,23 @@ class DocumentFormsetTest(TestCase):
 
         post_data, file_data = self.create_formset_data()
         formset = DocumentFormSet(post_data, file_data)
-        formset.save(user.pk)
+        formset.save(user)
 
         # assert expected objs now exist
         expected_num_documents = len(file_data)
         self.assertEqual(Document.objects.count(), expected_num_documents)
+
+
+    def test_formset_save_return_new_documents_pks(self):
+        user = UserFactory()
+
+        post_data, file_data = self.create_formset_data()
+        formset = DocumentFormSet(post_data, file_data)
+        return_value = formset.save(user)
+
+        expected_return_value = [i for i in range(1, len(file_data)+1)]
+
+        self.assertEqual(return_value, expected_return_value)
 
     @patch('audits.forms.DocumentFormSet.is_valid', value=False)
     def test_formset_save_wont_create_new_objects_if_form_is_invalid(

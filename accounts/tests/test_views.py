@@ -1,17 +1,17 @@
-from django.contrib.auth import get_user_model, SESSION_KEY
+import unittest
+from unittest import skip
+from unittest.mock import Mock, patch
+
+from django.contrib.auth import SESSION_KEY, get_user_model
 from django.core.urlresolvers import reverse
 from django.http import HttpRequest, HttpResponse
 from django.test import TestCase
 from django.utils.html import escape
-from unittest import skip
-import unittest
-from unittest.mock import patch, Mock
 
+from accounts.forms import (EMPTY_EMAIL_ERROR, EMPTY_PASSWORD_ERROR,
+                            INACTIVE_USER_ERROR, INVALID_LOGIN_ERROR,
+                            LoginForm)
 from accounts.views import login_page
-from accounts.forms import (
-    LoginForm, INACTIVE_USER_ERROR, INVALID_LOGIN_ERROR,
-    EMPTY_EMAIL_ERROR,EMPTY_PASSWORD_ERROR,
-)
 
 User = get_user_model()
 

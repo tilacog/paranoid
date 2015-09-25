@@ -1,8 +1,10 @@
+import unittest
+from unittest.mock import Mock, patch
+
 from django.test import TestCase
+
 from accounts.forms import LoginForm
 
-import unittest
-from unittest.mock import patch, Mock
 
 class LoginFormTest(TestCase):
 

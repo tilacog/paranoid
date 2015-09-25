@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from audits.models import Doctype
 
+
 class DoctypeTest(TestCase):
 
     def test_doctypes_can_be_created(self):
