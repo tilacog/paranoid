@@ -23,7 +23,7 @@ class FileUploadTest(FunctionalTest):
             num_doctypes=3,
         )
 
-        self.send_fixtures('audit')
+        self.send_fixtures('audits')
 
         self.create_pre_authenticated_session(
             email='test@user.com', password='123'
@@ -39,14 +39,15 @@ class FileUploadTest(FunctionalTest):
             f.seek(0)
 
     def tearDown(self):
-        # Delete temp files
-        for f in self.tempfiles:
-            f.close()
-            final_path = os.path.join(
-                settings.MEDIA_ROOT,
-                os.path.basename(f.name)
-            )
-            os.remove(final_path)
+        # Delete temp files if testing from local
+        if not self.against_staging:
+            for f in self.tempfiles:
+                f.close()
+                final_path = os.path.join(
+                    settings.MEDIA_ROOT,
+                    os.path.basename(f.name)
+                )
+                os.remove(final_path)
 
         super().tearDown()
 
@@ -74,11 +75,11 @@ class FileUploadTest(FunctionalTest):
         }
 
         # Assert that the filename text matches the filename provided in the test
-        file_names = { 
+        file_names = {
             os.path.basename(f.name)
             for f in self.tempfiles
         }
-        
+
         self.assertSetEqual(file_names, uploaded_docs)
 
         # The user clicks on the return_home button and returns to the home_page

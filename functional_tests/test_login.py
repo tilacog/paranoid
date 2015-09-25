@@ -25,12 +25,14 @@ class LoginTest(FunctionalTest):
         user_email = 'test@user.com'
         user_password = '123'
 
-        self.create_user(user_email, user_password)
 
         audit = AuditFactory(
             name='ECF',
-            required_doctypes=DoctypeFactory.create_batch(3)
+            num_doctypes=3
         )
+
+        self.send_fixtures('audits')
+        self.create_user(user_email, user_password)
 
         ## The test begins...
         # A user access the home page.

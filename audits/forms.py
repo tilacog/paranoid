@@ -60,15 +60,15 @@ class DocumentBaseFormSet(BaseFormSet):
         for form in self.forms:
             doctype = form.cleaned_data['doctype']
             file_obj = form.cleaned_data['file']
-            
+
             new_doc = Document.objects.create(
                 user=user,
                 doctype=doctype,
                 file=file_obj,
             )
             new_docs_pks.append(new_doc.pk)
-            
-        return new_docs_pks 
+
+        return new_docs_pks
 
 
 # This formset should be used on views

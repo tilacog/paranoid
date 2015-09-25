@@ -6,7 +6,7 @@ from jobs.factories import JobFactory
 
 class JobViewTest(TestCase):
     def setUp(self):
-        
+
         self.job = JobFactory(num_documents=3)
 
     def test_new_job_view_uses_right_template(self):

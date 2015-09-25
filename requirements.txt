@@ -1,3 +1,3 @@
 Django==1.8
 gunicorn==19.3.0
-requests==2.7.0
+-e git+https://github.com/rbarrois/factory_boy.git#egg=factory_boy
