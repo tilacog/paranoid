@@ -17,7 +17,8 @@ def audit_page(request, audit_pk):
     if request.method == 'POST':
         formset = DocumentFormSet(request.POST, request.FILES)
         if formset.is_valid():
-             return redirect('job_received', 1)
+            formset.save(request.user.pk)
+            return redirect('job_received', 1)
 
     if request.method == 'GET':
         formset = DocumentFormSet(audit_pk=audit_pk)

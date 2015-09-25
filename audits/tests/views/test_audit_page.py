@@ -9,8 +9,10 @@ from django.forms import BaseFormSet
 from django.http import HttpRequest
 from django.test import RequestFactory, TestCase
 
-from audits.factories import AuditFactory, DoctypeFactory, DocumentFactory
+from audits.factories import (AuditFactory, DoctypeFactory, DocumentFactory,
+                              UserFactory)
 from audits.forms import DocumentForm
+from audits.models import Document
 from audits.views import audit_page
 
 
@@ -75,7 +77,7 @@ class AuditPageGETTest(TestCase):
             doctype.id for doctype in self.audit.required_doctypes.all()
         }
 
-        self.assertEqual(formset_doctype_ids, expected_doctype_ids)
+        self.assertSetEqual(formset_doctype_ids, expected_doctype_ids)
 
     def test_response_context_forms_labels_are_named_after_doctype_names(self):
         doctype_names = {d.name for d in self.audit.required_doctypes.all()}
@@ -123,6 +125,8 @@ class AuditPagePOSTTest(TestCase):
 
         # Fixtures
         self.audit = AuditFactory(num_doctypes=1)
+        self.user = UserFactory(password='123')
+        self.client.login(email=self.user.email, password='123')
 
         self.post_data = {
             'form-TOTAL_FORMS': 1,
@@ -134,28 +138,21 @@ class AuditPagePOSTTest(TestCase):
             'form-0-file': MagicMock(spec=File)
         }
 
-    def test_view_can_save_a_POST_request(self):
-        # assert no objs exist
-        # send post request
-        # assert the new *expected* objs exist
-        #   * documents
-        #   * a job
-        pass
 
     @patch('audits.views.DocumentFormSet', autospec=True)
     def test_formset_is_initialized_with_POST_data_and_files(
         self, mock_formset_cls
     ):
 
-        # grab resquest.POST and request.FILES data
         request = HttpRequest()
+        request.user = self.user
         request.method = 'POST'
         request.POST = self.post_data
         request.FILES = self.post_files
 
-        audit_page(request, 1)
+        response = audit_page(request, self.audit.pk)
 
-        mock_formset_cls.assert_called_once_with(request.POST, request.FILES)
+        mock_formset_cls.assert_called_once_with(self.post_data, self.post_files)
 
     def test_redirects_after_POST(self):
         # send post with valid data
@@ -191,11 +188,35 @@ class AuditPagePOSTTest(TestCase):
 
         self.assertTemplateUsed(response, 'audit.html')
 
+    def test_view_can_save_a_POST_request(self):
+        # Assert no objecs exist prior to the test
+        self.assertEqual(Document.objects.count(), 0)
+
+        # Send a POST request
+        data = self.post_data.copy()
+        data.update(self.post_files)
+        self.client.post(
+            reverse('audit_page', args=[self.audit.pk]),
+            data
+        )
+
+        # Assert new expected objects were created
+        expected_num_documents = len(self.post_files)
+        self.assertEqual(Document.objects.count(), expected_num_documents)
+        self.assertEqual(Job.objects.count(), 1)
+
     def test_invalid_POST_data_doesnt_create_new_objects(self):
-        # patch formset.is_valid
-        # assert don't create a new job and document if form is
-        # invalid/incomplete
-        pass
+        # Assert no objecs exist prior to the test
+        self.assertEqual(Document.objects.count(), 0)
+
+        # Send a POST request without files
+        self.client.post(
+            reverse('audit_page', args=[self.audit.pk]),
+            self.post_data
+        )
+
+        # Assert new expected objects were created
+        self.assertEqual(Document.objects.count(), 0)
 
 
 class FileUploadsIsolatedTests(TestCase):

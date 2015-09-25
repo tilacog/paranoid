@@ -1,11 +1,16 @@
-from accounts.factories import UserFactory
-from audits.factories import AuditFactory, DoctypeFactory
 import os
 import tempfile
+
+from django.conf import settings
+
+from accounts.factories import UserFactory
+from audits.factories import AuditFactory
+
 from .audit_page import AuditPage
 from .base import FunctionalTest
 from .home_page import HomePage
 from .job_request_page import JobRequestPage
+
 
 class FileUploadTest(FunctionalTest):
 
@@ -15,7 +20,7 @@ class FileUploadTest(FunctionalTest):
         # Fixtures
         AuditFactory(
             name='Test Audit',
-            required_doctypes=DoctypeFactory.create_batch(3)
+            num_doctypes=3,
         )
 
         self.send_fixtures('audit')
@@ -25,16 +30,23 @@ class FileUploadTest(FunctionalTest):
         )
 
         # Temp files
-        self.tempfiles = [tempfile.NamedTemporaryFile() for i in range(3)]
+        self.tempfiles = [
+            tempfile.NamedTemporaryFile()
+            for i in range(3)
+        ]
         for f in self.tempfiles:
             f.write(os.urandom(1024))
             f.seek(0)
-
 
     def tearDown(self):
         # Delete temp files
         for f in self.tempfiles:
             f.close()
+            final_path = os.path.join(
+                settings.MEDIA_ROOT,
+                os.path.basename(f.name)
+            )
+            os.remove(final_path)
 
         super().tearDown()
 

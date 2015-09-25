@@ -20,7 +20,7 @@
 
 <div class="row">
     <div class="col-md-8">
-        <form class="form-inline document-upload-form" method="POST" action="">
+        <form class="form-inline document-upload-form" method="POST" action="{% url 'audit_page' audit.pk  %}" enctype="multipart/form-data">
             {% csrf_token %}
             {{ formset.management_form }}
 
