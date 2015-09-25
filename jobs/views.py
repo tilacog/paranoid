@@ -1,5 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-def job_received(request, job_pk):
-    return render(request, 'job_received.html')
+def new_job(request, job_pk):
+    return render(request, 'new_job.html')

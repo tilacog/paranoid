@@ -165,7 +165,7 @@ class AuditPagePOSTTest(TestCase):
         )
 
         # Magic Number 1 is a replacement for ``job.pk``
-        self.assertRedirects(response, reverse('job_received', args=[1]))
+        self.assertRedirects(response, reverse('new_job', args=[1]))
 
     @patch('audits.views.DocumentFormSet')
     def test_invalid_POST_data_renders_the_same_page(self, mock_formset_cls):
