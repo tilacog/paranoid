@@ -98,6 +98,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'paranoid', 'static'),
 )
 
+MEDIA_ROOT = os.path.join(BASE_DIR, '../media')
+
 # More detailed logging
 LOGGING = {
     'version': 1,
@@ -124,16 +126,6 @@ LOGGING = {
 
 
 if 'test' in sys.argv:
-    # import logging
-    # logger = logging.getLogger(__name__)
-    # logger.warning(
-    #     'Some settings have been changed for this test. '
-    #     'Check settings.py file for more info.'
-    # )
-
-    # test with in-memory sqlite, if other db is used
-    DATABASES['default'] = {'ENGINE': 'django.db.backends.sqlite3'}
-
     # Ignore naive datetime warning from IPython
     import warnings
     warnings.filterwarnings("ignore", category=RuntimeWarning, module='django.db.backends.sqlite3.base', lineno=53)

@@ -19,7 +19,7 @@
             <dl id="id_audit_name">{{ job.audit.name }}</dl>
             <dt>Documentos</dt>
             {% for document in job.documents.all %}
-            <dl>{{ document.doctype.name }}<small class="uploaded-document">{{ document.file.name|cut:"./" }}</small></dl>
+            <dl>{{ document.doctype.name }}<small class="uploaded-document">{{ document.basename }}</small></dl>
             {% endfor %}
         </dl>
         <hr>

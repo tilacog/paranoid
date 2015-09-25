@@ -38,19 +38,6 @@ class FileUploadTest(FunctionalTest):
             f.write(os.urandom(1024))
             f.seek(0)
 
-    def tearDown(self):
-        # Delete temp files if testing from local
-        if not self.against_staging:
-            for f in self.tempfiles:
-                f.close()
-                final_path = os.path.join(
-                    settings.MEDIA_ROOT,
-                    os.path.basename(f.name)
-                )
-                os.remove(final_path)
-
-        super().tearDown()
-
     def test_returning_user_can_upload_a_file(self):
 
         # Open the browser and check that the user is logged in

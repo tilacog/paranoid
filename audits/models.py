@@ -1,3 +1,5 @@
+import os.path
+
 from inspect import getmembers
 from itertools import chain
 
@@ -29,35 +31,6 @@ class Audit(models.Model):
                 }
             )
 
-    def build_form(self):
-        """
-        Create a Django form using data from Audit's instance.
-        """
-        form = forms.Form()
-
-        # Doctype fields
-        associations = {
-            doctype.name: [
-                field for field in self.extra_fields.all()
-                if field.tag == doctype.name
-            ]
-            for doctype in self.required_doctypes.all()
-        }
-
-        # Audit fields (remainders)
-        associations.update({
-            'non_doctype_fields': [
-                field for field in self.extra_fields.all()
-                if field not in chain(*associations.values())
-            ]
-        })
-
-        # Create form field object
-        for i, item in enumerate(chain(*associations.values())):
-            form.fields[i] = forms.fields.BooleanField()
-        return form
-
-
 
 class Doctype(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
@@ -68,8 +41,16 @@ class Doctype(models.Model):
     )
 
 
+def document_filename(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/uploads/<user.email>/<filename>
+    return '/'.join(['uploads', instance.user.email, filename])
+
+
 class Document(models.Model):
     doctype = models.ForeignKey('Doctype')
-    file = models.FileField()
+    file = models.FileField(upload_to=document_filename)
     user = models.ForeignKey(settings.AUTH_USER_MODEL)
     checksum = models.CharField(max_length=40, blank=True)
+
+    def basename(self):
+        return os.path.basename(self.file.name)
