@@ -1,4 +1,4 @@
-#id_app_title {
+#id_app_title, .navbar-brand {
     font-family: 'Work Sans', sans-serif;
     text-transform: uppercase;
 }
@@ -9,4 +9,8 @@ h1 span.glyphicon {
 
 dl small {
     padding-left: 1em;
+}
+
+a.btn.pull-right {
+    margin: 0 .3em;
 }

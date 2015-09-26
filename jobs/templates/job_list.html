@@ -1,30 +1,46 @@
 {% extends 'base.html' %}
 
-{% block title %}Documentos Recebidos{% endblock title %}
+{% block title %}Minhas Análises{% endblock title %}
 
 {% block navbar %}
     {% include 'navbar.html' %}
 {% endblock navbar %}
 
 {% block content %}
-
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-10">
         <div class="page-header">
-            <h1>Documentos Recebidos<span class="glyphicon glyphicon-ok" aria-hidden="true"></span></h1>
-            <small>Os documentos listados abaixo foram recebidos e serão encaminhados para processamento.</small>
+            <h1>Minhas Análisess</h1>
         </div>
-        <dl>
-            <dt>Validação</dt>
-            <dl id="id_audit_name">{{ job.audit.name }}</dl>
-            <dt>Documentos</dt>
-            {% for document in job.documents.all %}
-            <dl>{{ document.doctype.name }}<small class="uploaded-document">{{ document.basename }}</small></dl>
-            {% endfor %}
-        </dl>
-        <hr>
+        <div id="id_job_list">
+            {% if not jobs %}
+            <p>Você ainda não criou nenhuma análise. Clique no botão <strong>Nova Análise</strong> para criar a sua primeira.</p>
+            {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <caption>Análises criadas por você.</caption>
+                    <thread><tr>
+                        <th>#</th>
+                        <th>Validação</th>
+                        <th>Criada em</th>
+                        <th>Status</th>
+                    </tr></thread>
+                    <tbody>
+                    {% for job in jobs %}
+                    <tr class="job_row">
+                        <td>{{ job.pk }}</td>
+                        <td>{{ job.audit.name }}</td>
+                        <td>{{ job.creation_date }}</td>
+                        <td>{{ job.status }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+        </div>
         <a id="id_return_home_btn" href="{% url 'home_page' %}" class="btn btn-primary pull-right" role="button">Página Principal</a>
+        <a id="id_new_job_btn" href="{% url 'home_page' %}" class="btn btn-default pull-right" role="button">Nova Análise</a>
     </div>
 </div>
-
 {% endblock content %}
