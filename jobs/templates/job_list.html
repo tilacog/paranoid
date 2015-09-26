@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Documentos Recebidos{% endblock title %}
+
+{% block navbar %}
+    {% include 'navbar.html' %}
+{% endblock navbar %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="page-header">
+            <h1>Documentos Recebidos<span class="glyphicon glyphicon-ok" aria-hidden="true"></span></h1>
+            <small>Os documentos listados abaixo foram recebidos e serão encaminhados para processamento.</small>
+        </div>
+        <dl>
+            <dt>Validação</dt>
+            <dl id="id_audit_name">{{ job.audit.name }}</dl>
+            <dt>Documentos</dt>
+            {% for document in job.documents.all %}
+            <dl>{{ document.doctype.name }}<small class="uploaded-document">{{ document.basename }}</small></dl>
+            {% endfor %}
+        </dl>
+        <hr>
+        <a id="id_return_home_btn" href="{% url 'home_page' %}" class="btn btn-primary pull-right" role="button">Página Principal</a>
+    </div>
+</div>
+
+{% endblock content %}

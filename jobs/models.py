@@ -10,3 +10,5 @@ class Job(models.Model):
 
     def get_absolute_url(self):
         return reverse('new_job', args=[self.pk])
+    def __repr__(self):
+        return "<Job: pk={}>".format(self.pk)
