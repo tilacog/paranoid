@@ -30,5 +30,13 @@ class Job(models.Model):
 
     def get_absolute_url(self):
         return reverse('new_job', args=[self.pk])
+
     def __repr__(self):
         return "<Job: pk={}>".format(self.pk)
+
+    def add_report(self, report_file):
+        """Add report file and update job state"""
+        self.report_file = report_file
+        self.state = Job.SUCCESS_STATE
+        self.full_clean()
+        self.save()
