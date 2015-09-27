@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import audits.models
 from django.conf import settings
 
 
@@ -15,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Audit',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=30, unique=True)),
                 ('description', models.TextField()),
                 ('execution_script', models.CharField(max_length=4096)),
@@ -24,17 +25,17 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Doctype',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=30, unique=True)),
-                ('parsing_instructions', models.CharField(blank=True, max_length=4096)),
+                ('parsing_instructions', models.CharField(max_length=4096, blank=True)),
             ],
         ),
         migrations.CreateModel(
             name='Document',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
-                ('file', models.FileField(upload_to='')),
-                ('checksum', models.CharField(blank=True, max_length=40)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('file', models.FileField(upload_to=audits.models.document_filename)),
+                ('checksum', models.CharField(max_length=40, blank=True)),
                 ('doctype', models.ForeignKey(to='audits.Doctype')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
@@ -42,7 +43,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Package',
             fields=[
-                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=30, unique=True)),
                 ('description', models.TextField()),
             ],

@@ -24,14 +24,16 @@
                         <th>Validação</th>
                         <th>Criada em</th>
                         <th>Status</th>
+                        <th>Relatório</th>
                     </tr></thread>
                     <tbody>
                     {% for job in jobs %}
                     <tr class="job_row">
                         <td>{{ job.pk }}</td>
                         <td>{{ job.audit.name }}</td>
-                        <td>{{ job.creation_date }}</td>
-                        <td>{{ job.status }}</td>
+                        <td>{{ job.created_at|date:"SHORT_DATETIME_FORMAT" }}</td>
+                        <td>{{ job.get_state_display }}</td>
+                        <td><{{ job.report.get_download_link }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>

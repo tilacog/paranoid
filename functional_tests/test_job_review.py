@@ -10,7 +10,13 @@ class JobReviewTest(FunctionalTest):
     def test_user_can_review_her_jobs(self):
         # Fixtures
         job1 = JobFactory(user__email='test@user.com', user__password='123')
-        job2 = JobFactory(user__email='test@user.com', user__password='123')
+        job2 = JobFactory(
+            user__email='test@user.com',
+            user__password='123',
+            state=Job.SUCCESS_STATE,
+        )
+
+
         self.send_fixtures('jobs')
         self.send_fixtures('audits')
 
@@ -27,25 +33,17 @@ class JobReviewTest(FunctionalTest):
 
         # She can see all her jobs are listed and detailed with the
         # job id, audit name and job status.
-        check_pairs = [
-            (row, job) for row in job_list_page.current_jobs
-                       for job in Job.objects.all()
-        ]
+        check_pairs = zip(job_list_page.current_jobs, Job.objects.all())
         for row, job in check_pairs:
             self.assertIn(str(job.pk), row.text)
             self.assertIn(job.audit.name, row.text)
-            self.assertIn(job.creation_date, row.text)
-            self.assertIn(job.status, row.text)
-
-        # She clicks on the first row
-        job_list_page.current_jobs[0].click()
-
-        # A detail page for that job shows up
-        job_detail_page = JobDetailPage(self)
+            self.assertIn(job.created_at.astimezone().strftime("%d/%m/%Y %H:%M"), row.text)
+            self.assertIn(job.get_state_display(), row.text)
 
         # She can see that a download link for her finished report is available
-        self.assertTrue(job_detail_page.download_link)
+        self.assertTrue(job_list_page.download_links)
 
         # She clicks on it, and her file is saved
-        job_detail_page.download_link.click()
-        self.fail('assert file exists somewhere')
+
+        self.fail('Finish the test! Check that the downloaded file is on user'
+                  ' drive, and its sha1 equals the one on the server')

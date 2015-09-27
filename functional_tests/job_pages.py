@@ -11,6 +11,10 @@ class JobListPage(HomePage):
     def current_jobs(self):
         return self.browser.find_elements_by_css_selector('.job_row')
 
+    @property
+    def download_links(self):
+        return self.browser.find_elements_by_css_selector('a.download_link')
+
     def check(self):
         self.test.assertTrue(self.return_home_button)
         self.test.assertTrue(self.new_job_button)
