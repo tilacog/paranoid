@@ -2,10 +2,10 @@
 import random
 import string
 
-import factory
-import factory.fuzzy
 from django.conf import settings
 
+import factory
+import factory.fuzzy
 from accounts.factories import UserFactory
 from audits.factories import AuditFactory, DocumentFactory
 

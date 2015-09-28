@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 from jobs.models import Job
 
+
 @login_required
 def new_job(request, job_pk):
     job = Job.objects.get(pk=job_pk)

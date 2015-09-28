@@ -1,5 +1,4 @@
 import os.path
-
 from inspect import getmembers
 from itertools import chain
 
