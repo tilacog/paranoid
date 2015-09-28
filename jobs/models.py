@@ -4,7 +4,9 @@ from django.db import models
 
 
 def report_filename(instance, filename):
-    return '/'.join(['reports', instance.user.email, filename])
+    return 'Report-{job_pk}'.format(
+        job_pk=instance.pk
+    )
 
 
 class Job(models.Model):

@@ -13,10 +13,13 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 
+from jobs.models import report_filename
 from .management.commands.create_session_cookie import create_session_cookie
 from .server_tools import (create_media_file_on_server,
                            create_session_on_server, create_user_on_server,
                            reset_database, send_fixture_file)
+
+
 
 DEFAULT_WAIT = 5
 SCREEN_DUMP_LOCATION = os.path.join(
@@ -150,9 +153,11 @@ class FunctionalTest(StaticLiveServerTestCase):
     def assign_report_file_to_job_instance(self, job_instance):
         if self.against_staging:
             # Create file on server: /media/ dir
-            media_file_server_url = create_media_file_on_server(self.server_host)
+            file_name = report_filename(job_instance, None)
+            media_file_server_url = create_media_file_on_server(self.server_host, file_name)
             # Assign instance.report_file.name as on server
-            job_instance.report_file.name = media_file_server_url
+            job_instance.report_file.name = file_name
+            import ipdb; ipdb.set_trace()
 
         else:
             # Assign a simple file

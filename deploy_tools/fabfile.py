@@ -14,6 +14,7 @@ def deploy():
     _update_virtualenv(source_folder)
     _update_static_files(source_folder)
     _update_database(source_folder)
+    _restart_nginx_and_gunicorn(env.host)
 
 def _create_directory_structure_if_necessary(site_folder):
     for subfolder in ('database', 'static', 'virtualenv', 'source'):
@@ -29,7 +30,8 @@ def _get_latest_source(source_folder):
 
 def _update_settings(source_folder, site_name):
     settings_path = source_folder + '/paranoid/settings.py'
-    sed(settings_path, 'DEBUG = True', 'DEBUG = False')
+    if not 'staging' in env.host:  # Let DEBUG=True on staging server
+        sed(settings_path, 'DEBUG = True', 'DEBUG = False')
     sed(settings_path, 'DOMAIN = "localhost"', 'DOMAIN = "%s"' % (site_name,))
     secret_key_file = source_folder + '/paranoid/secret_key.py'
     if not exists(secret_key_file):
@@ -41,7 +43,7 @@ def _update_settings(source_folder, site_name):
 def _update_virtualenv(source_folder):
     virtualenv_folder = source_folder + '/../virtualenv'
     if not exists(virtualenv_folder + '/bin/pip'):
-        run('virtualenv --python=python3 %s' %(virtualenv_folder,))
+        run('virtualenv --python=python3 %s' % (virtualenv_folder,))
     run('%s/bin/pip install -r %s/requirements.txt' % (
             virtualenv_folder, source_folder
     ))
@@ -55,3 +57,7 @@ def _update_database(source_folder):
     run('cd %s && ../virtualenv/bin/python3 manage.py migrate --noinput' % (
         source_folder,
     ))
+
+def _restart_nginx_and_gunicorn(site_name):
+    run('sudo service nginx restart')
+    run ('sudo reload gunicorn-%s' % (site_name,))
