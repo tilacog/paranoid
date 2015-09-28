@@ -53,6 +53,6 @@ def create_media_file_on_server(host):
             'fab',
             'create_media_file',
             '--host={}'.format(host),
-        ]
+        ],
         cwd=THIS_FOLDER
     )

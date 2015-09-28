@@ -149,14 +149,14 @@ class FunctionalTest(StaticLiveServerTestCase):
     def assign_report_file_to_job_instance(self, job_instance):
         if self.against_staging:
             # Create file on server: /media/ dir
-            media_file_server_url = create_media_file_on_server()
+            media_file_server_url = create_media_file_on_server(self.server_host)
             # Assign instance.report_file.name as on server
             job_instance.report_file.name = media_file_server_url
 
         else:
             # Assign a simple file
-            from django.core.file.uploadedfile import SimpleUploadedFile
-            job_instance.file = SimpleUploadedFile('test_file','test contents')
+            from django.core.files.uploadedfile import SimpleUploadedFile
+            job_instance.report_file = SimpleUploadedFile('test_file', b'test contents')
 
         job_instance.full_clean()
         job_instance.save()

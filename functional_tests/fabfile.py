@@ -68,10 +68,17 @@ def send_fixture_file(filepath):
     ))
 
 def create_media_file():
-    # get media folder
+    # create/get media folder
     media_folder = _get_base_folder(env.host) + '/media'
+    run('mkdir -p {media_folder}'.format(
+        media_folder=media_folder
+    ))
 
     # create a dummy file
-    run("touch {media_folder}/test_file.txt".format(media_folder))
+    run('touch {media_folder}/test_file.txt'.format(
+        media_folder=media_folder
+    ))
 
-    print("{media_folder}/test_file.txt".format(media_folder))
+    print('{media_folder}/test_file.txt'.format(
+        media_folder=media_folder
+    ))

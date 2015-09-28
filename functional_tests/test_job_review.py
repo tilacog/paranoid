@@ -18,8 +18,9 @@ class JobReviewTest(FunctionalTest):
 
         self.assign_report_file_to_job_instance(job2)
 
-        self.send_fixtures('jobs')
+        self.send_fixtures('accounts')
         self.send_fixtures('audits')
+        self.send_fixtures('jobs')
 
         self.create_pre_authenticated_session(
             email='test@user.com', password='123'
