@@ -79,6 +79,4 @@ def create_media_file():
         media_folder=media_folder
     ))
 
-    print('{media_folder}/test_file.txt'.format(
-        media_folder=media_folder
-    ))
+    print('test_file.txt')

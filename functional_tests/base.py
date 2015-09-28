@@ -7,6 +7,7 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
@@ -155,7 +156,6 @@ class FunctionalTest(StaticLiveServerTestCase):
 
         else:
             # Assign a simple file
-            from django.core.files.uploadedfile import SimpleUploadedFile
             job_instance.report_file = SimpleUploadedFile('test_file', b'test contents')
 
         job_instance.full_clean()
