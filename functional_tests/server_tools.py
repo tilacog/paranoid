@@ -46,3 +46,13 @@ def send_fixture_file(host, filepath):
         ],
         cwd=THIS_FOLDER
     )
+
+def create_media_file_on_server(host):
+    return subprocess.check_call(  # expect fabric to return the newfile path
+        [
+            'fab',
+            'create_media_file',
+            '--host={}'.format(host),
+        ]
+        cwd=THIS_FOLDER
+    )

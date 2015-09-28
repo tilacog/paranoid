@@ -66,3 +66,12 @@ def send_fixture_file(filepath):
     run("rm {fixture_file}".format(
         fixture_file=fixture_file,
     ))
+
+def create_media_file():
+    # get media folder
+    media_folder = _get_base_folder(env.host) + '/media'
+
+    # create a dummy file
+    run("touch {media_folder}/test_file.txt".format(media_folder))
+
+    print("{media_folder}/test_file.txt".format(media_folder))

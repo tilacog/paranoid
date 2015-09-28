@@ -1,8 +1,9 @@
-from .base import FunctionalTest
 from jobs.factories import JobFactory
 from jobs.models import Job
-from .job_pages import JobListPage, JobDetailPage
+
+from .base import FunctionalTest
 from .home_page import HomePage
+from .job_pages import JobDetailPage, JobListPage
 
 
 class JobReviewTest(FunctionalTest):
@@ -13,9 +14,9 @@ class JobReviewTest(FunctionalTest):
         job2 = JobFactory(
             user__email='test@user.com',
             user__password='123',
-            state=Job.SUCCESS_STATE,
         )
 
+        self.assign_report_file_to_job_instance(job2)
 
         self.send_fixtures('jobs')
         self.send_fixtures('audits')
@@ -43,7 +44,13 @@ class JobReviewTest(FunctionalTest):
         # She can see that a download link for her finished report is available
         self.assertTrue(job_list_page.download_links)
 
+
+        ## The final part of this test must be run against a live server.
+        if not self.against_staging:
+            return
+
         # She clicks on it, and her file is saved
+        job_list_page.download_links[0].click()
 
         self.fail('Finish the test! Check that the downloaded file is on user'
                   ' drive, and its sha1 equals the one on the server')

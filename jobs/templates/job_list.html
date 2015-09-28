@@ -12,7 +12,7 @@
         <div class="page-header">
             <h1>Minhas Análisess</h1>
         </div>
-        <div id="id_job_list">
+        <div id="id-job-list">
             {% if not jobs %}
             <p>Você ainda não criou nenhuma análise. Clique no botão <strong>Nova Análise</strong> para criar a sua primeira.</p>
             {% else %}
@@ -28,12 +28,16 @@
                     </tr></thread>
                     <tbody>
                     {% for job in jobs %}
-                    <tr class="job_row">
+                    <tr class="job-row">
                         <td>{{ job.pk }}</td>
                         <td>{{ job.audit.name }}</td>
                         <td>{{ job.created_at|date:"SHORT_DATETIME_FORMAT" }}</td>
                         <td>{{ job.get_state_display }}</td>
-                        <td>{{ job.report.url }}</td>
+                        <td>
+                            {% if job.get_report_url %}
+                            <a class="download-link" href="{{ job.get_report_url }}" download>Baixar Relatório</a>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -41,8 +45,8 @@
             </div>
             {% endif %}
         </div>
-        <a id="id_return_home_btn" href="{% url 'home_page' %}" class="btn btn-primary pull-right" role="button">Página Principal</a>
-        <a id="id_new_job_btn" href="{% url 'home_page' %}" class="btn btn-default pull-right" role="button">Nova Análise</a>
+        <a id="id-return-home-btn" href="{% url 'home_page' %}" class="btn btn-primary pull-right" role="button">Página Principal</a>
+        <a id="id-new-job-btn" href="{% url 'home_page' %}" class="btn btn-default pull-right" role="button">Nova Análise</a>
     </div>
 </div>
 {% endblock content %}

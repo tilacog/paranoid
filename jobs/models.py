@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 
+
 def report_filename(instance, filename):
     return '/'.join(['reports', instance.user.email, filename])
 
@@ -40,3 +41,9 @@ class Job(models.Model):
         self.state = Job.SUCCESS_STATE
         self.full_clean()
         self.save()
+
+    def get_report_url(self):
+        try:
+            return self.report_file.url
+        except ValueError:
+            return

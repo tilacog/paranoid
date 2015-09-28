@@ -13,7 +13,8 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 
 from .management.commands.create_session_cookie import create_session_cookie
-from .server_tools import (create_session_on_server, create_user_on_server,
+from .server_tools import (create_media_file_on_server,
+                           create_session_on_server, create_user_on_server,
                            reset_database, send_fixture_file)
 
 DEFAULT_WAIT = 5
@@ -144,3 +145,18 @@ class FunctionalTest(StaticLiveServerTestCase):
             fixture_file.seek(0)
             assert os.path.exists(fixture_file.name)
             send_fixture_file(self.server_host, fixture_file.name)
+
+    def assign_report_file_to_job_instance(self, job_instance):
+        if self.against_staging:
+            # Create file on server: /media/ dir
+            media_file_server_url = create_media_file_on_server()
+            # Assign instance.report_file.name as on server
+            job_instance.report_file.name = media_file_server_url
+
+        else:
+            # Assign a simple file
+            from django.core.file.uploadedfile import SimpleUploadedFile
+            job_instance.file = SimpleUploadedFile('test_file','test contents')
+
+        job_instance.full_clean()
+        job_instance.save()
