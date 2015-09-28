@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from jobs.models import Job
 
@@ -16,12 +16,17 @@ def job_list(request):
     return render(request, 'job_list.html', {'jobs': jobs})
 
 @login_required
-def nginx_accel(request, job_pk):
+def download_report(request, job_pk):
+    """
+    Let nginx Accell Redirect handle file downloads.
+    """
 
-    job = Job.objects.get(pk=job_pk)
+    # Someday this will change in order to enable group sharing of reports.
+    job = get_object_or_404(Job, pk=job_pk, user=request.user)
 
-    # if allowed: ...
     response = HttpResponse()
     response['Content-Type'] = ''
-    response['X-Accel-Redirect'] = "/protected/{0}".format(job.report_file.name)
+    response['X-Accel-Redirect'] = "/protected/{0}".format(
+        job.report_file.name
+    )
     return response

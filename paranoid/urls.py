@@ -6,6 +6,6 @@ urlpatterns = patterns('',
     url(r'^accounts/', include('accounts.urls')),
     url(r'^audits/', include('audits.urls')),
     url(r'^jobs/', include('jobs.urls')),
-    url('^downloads/(\d+)/$', 'jobs.views.nginx_accel', name='nginx_accell'),
+    url('^downloads/(\d+)/$', 'jobs.views.download_report', name='download_report'),
     url(r'^logout$', 'django.contrib.auth.views.logout', {'next_page': '/'}, name='logout'),
 )
