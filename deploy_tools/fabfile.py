@@ -1,6 +1,6 @@
 import random
 
-from fabric.api import env, local, run
+from fabric.api import env, local, run, settings
 from fabric.contrib.files import append, exists, sed
 
 REPO_URL = 'https://github.com/tilacog/paranoid.git'
@@ -14,6 +14,8 @@ def deploy():
     _update_virtualenv(source_folder)
     _update_static_files(source_folder)
     _update_database(source_folder)
+    _create_nginx_config_file(env.host, source_folder)
+    _create_gunicorn_upstart_file(env.host, source_folder)
     _restart_nginx_and_gunicorn(env.host)
 
 def _create_directory_structure_if_necessary(site_folder):
@@ -58,6 +60,38 @@ def _update_database(source_folder):
         source_folder,
     ))
 
+def _create_nginx_config_file(site_name, source_folder):
+    # Get nginx.conf template file from source and use sed to update site name
+    run('sed "s/SITENAME/{site_name}/g" '
+        '{source_folder}/deploy_tools/nginx.template.conf | '
+        'sudo tee /etc/nginx/sites-available/{site_name}'.format(
+            site_name=site_name,
+            source_folder=source_folder,
+    ))
+
+    # Create a symlink on nginx config directories, if it doesn't exist yet
+    with settings(warn_only=True):
+        cmd_string = (
+            'sudo ln -s /sites-available/{site_name} '
+            '/etc/nginx/sites-enabled/{site_name}'
+        )
+
+        run(cmd_string.format(site_name=site_name))
+
+def _create_gunicorn_upstart_file(site_name, source_folder):
+    # Get gunicorn.conf template from source and use sed to update site name
+    run('sed "s/SITENAME/{site_name}/g" '
+        '{source_folder}/deploy_tools/gunicorn-upstart.template.conf | '
+        'sudo tee /etc/init/gunicorn-{site_name}'.format(
+            site_name=site_name,
+            source_folder=source_folder,
+    ))
+
 def _restart_nginx_and_gunicorn(site_name):
-    run('sudo service nginx restart')
-    run ('sudo reload gunicorn-%s' % (site_name,))
+    # Starts or restart/reload nginx and gunicorn
+    run('sudo service nginx reload')
+
+    with settings(warn_only=True):
+        gunicorn_cmd = run ('sudo restart gunicorn-%s' % (site_name,))
+    if gunicorn_cmd.failed:
+        run ('sudo start gunicorn-%s' % (site_name,))
