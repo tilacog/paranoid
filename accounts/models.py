@@ -1,4 +1,4 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -30,14 +30,14 @@ class ParanoidUserManager(BaseUserManager):
             email,
             password=password,
             first_name = first_name,
-            last_name = lasst_name
+            last_name = last_name
         )
         user.is_admin = True
         user.save(using=self._db)
         return user
 
 
-class ParanoidUser(AbstractBaseUser):
+class ParanoidUser(AbstractBaseUser, PermissionsMixin):
     """
     Users within the Paranoid system are represented by this model.
     Only email is required. Other fields are optional.
@@ -57,7 +57,7 @@ class ParanoidUser(AbstractBaseUser):
     objects = ParanoidUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRESD_FIELDS = ['email']
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
     def get_full_name(self):
         # The user is identified by their email address
