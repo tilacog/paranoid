@@ -31,7 +31,7 @@
                     <tr class="job-row">
                         <td>{{ job.pk }}</td>
                         <td>{{ job.audit.name }}</td>
-                        <td>{{ job.created_at|date:"SHORT_DATETIME_FORMAT" }}</td>
+                        <td>{{ job.created_at|date:"d/m/Y H:i" }}</td>
                         <td>{{ job.get_state_display }}</td>
                         <td>
                             {% if job.get_report_url %}

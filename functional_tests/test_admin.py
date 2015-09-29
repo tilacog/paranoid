@@ -1,5 +1,5 @@
 from .base import FunctionalTest
- 
+
 
 class PollsTest(FunctionalTest):
 
@@ -11,5 +11,5 @@ class PollsTest(FunctionalTest):
         body = self.browser.find_element_by_tag_name('body')
         self.assertIn('Django administration', body.text)
 
-        # TODO: use the admin site to create an audit 
+        # TODO: use the admin site to create an audit
         self.fail('finish this test')
