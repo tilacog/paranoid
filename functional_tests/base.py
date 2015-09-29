@@ -14,12 +14,11 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 
 from jobs.models import report_filename
+
 from .management.commands.create_session_cookie import create_session_cookie
 from .server_tools import (create_media_file_on_server,
                            create_session_on_server, create_user_on_server,
                            reset_database, send_fixture_file)
-
-
 
 DEFAULT_WAIT = 5
 SCREEN_DUMP_LOCATION = os.path.join(
