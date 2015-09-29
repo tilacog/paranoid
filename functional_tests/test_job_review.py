@@ -50,7 +50,8 @@ class JobReviewTest(FunctionalTest):
             user__password='123',
         )
 
-        self.assign_report_file_to_job_instance(job2)
+        # Use .txt fixture to match profile auto-download options
+        self.assign_report_file_to_job_instance(job2, ext='.txt')
 
         self.send_fixtures('accounts')
         self.send_fixtures('audits')

@@ -84,7 +84,7 @@ def _create_gunicorn_upstart_file(site_name, source_folder):
     # Get gunicorn.conf template from source and use sed to update site name
     run('sed "s/SITENAME/{site_name}/g" '
         '{source_folder}/deploy_tools/gunicorn-upstart.template.conf | '
-        'sudo tee /etc/init/gunicorn-{site_name}'.format(
+        'sudo tee /etc/init/gunicorn-{site_name}.conf'.format(
             site_name=site_name,
             source_folder=source_folder,
     ))

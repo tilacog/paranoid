@@ -150,10 +150,10 @@ class FunctionalTest(StaticLiveServerTestCase):
             assert os.path.exists(fixture_file.name)
             send_fixture_file(self.server_host, fixture_file.name)
 
-    def assign_report_file_to_job_instance(self, job_instance):
+    def assign_report_file_to_job_instance(self, job_instance, ext='.txt'):
         if self.against_staging:
             # Create file on server: /media/ dir
-            file_name = report_filename(job_instance, None)
+            file_name = report_filename(job_instance, None) + ext
             media_file_server_url = create_media_file_on_server(self.server_host, file_name)
             # Assign instance.report_file.name as on server
             job_instance.report_file.name = file_name

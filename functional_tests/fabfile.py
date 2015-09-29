@@ -75,7 +75,7 @@ def create_media_file(file_name):
     ))
 
     # create a dummy file
-    run('touch {media_folder}/{file_name}'.format(
+    run('echo "this is a test" > {media_folder}/{file_name}'.format(
         media_folder=media_folder,
         file_name=file_name,
     ))
