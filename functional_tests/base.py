@@ -157,7 +157,6 @@ class FunctionalTest(StaticLiveServerTestCase):
             media_file_server_url = create_media_file_on_server(self.server_host, file_name)
             # Assign instance.report_file.name as on server
             job_instance.report_file.name = file_name
-            import ipdb; ipdb.set_trace()
 
         else:
             # Assign a simple file

@@ -1,3 +1,8 @@
+import os
+from tempfile import TemporaryDirectory
+
+from selenium import webdriver
+
 from jobs.factories import JobFactory
 from jobs.models import Job
 
@@ -7,6 +12,35 @@ from .job_pages import JobDetailPage, JobListPage
 
 
 class JobReviewTest(FunctionalTest):
+
+    def setUp(self):
+        # Call parent class setUp method before customization
+        super().setUp()
+        # Dismiss the old browser for it can't be assigned with a new profile
+        self.browser.close()
+
+        # Setup a firefox profile to auto-download files
+        fp = webdriver.FirefoxProfile()
+
+        self.temp_dir = TemporaryDirectory(dir=os.getcwd())
+        fp.set_preference("browser.download.folderList",2)
+        fp.set_preference("browser.download.manager.showWhenStarting",False)
+        fp.set_preference("browser.download.dir", self.temp_dir.name) 
+        fp.set_preference(
+            "browser.helperApps.neverAsk.saveToDisk",
+            "text/plain"
+        )
+
+        self.browser = webdriver.Firefox(firefox_profile=fp)
+
+        # Keep a reference to CWD initial state
+        self.initial_file_set = {item for item in os.listdir(self.temp_dir.name)}
+
+    def tearDown(self):
+        self.temp_dir.cleanup()
+
+        # Call parent class tearDown method after customization
+        super().tearDown()
 
     def test_user_can_review_her_jobs(self):
         # Fixtures
@@ -46,12 +80,14 @@ class JobReviewTest(FunctionalTest):
         self.assertTrue(job_list_page.download_links)
 
 
-        ## The final part of this test must be run against a live server.
-        if not self.against_staging:
-            return
-
         # She clicks on it, and her file is saved
         job_list_page.download_links[0].click()
 
-        self.fail('Finish the test! Check that the downloaded file is on user'
-                  ' drive, and its sha1 equals the one on the server')
+        ## Wait for some file to show up in the temporary directory.
+        ## It can be a `.part` file, but that's also ok.
+        self.wait_for(
+            lambda: self.assertGreater(
+                {i for i in os.listdir(self.temp_dir.name)},
+                self.initial_file_set,
+            ),
+        )
