@@ -12,6 +12,9 @@ class Package(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
     description = models.TextField(blank=False, null=False)
 
+    def __str__(self):
+        return self.name
+
 
 class Audit(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
@@ -21,15 +24,8 @@ class Audit(models.Model):
     execution_script = models.CharField(max_length=4096, blank=False, null=False)
     required_doctypes = models.ManyToManyField('Doctype')
 
-    def clean(self):
-        # Don't allow audits to be cleansed without at least one required doctype
-        if not self.required_doctypes.all():
-            raise ValidationError(
-                {'required_doctypes': ("Audits must have at least one "
-                                       "required doctype.")
-                }
-            )
-
+    def __str__(self):
+        return self.name
 
 class Doctype(models.Model):
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
@@ -39,6 +35,8 @@ class Doctype(models.Model):
         max_length=4096, blank=True, null=False
     )
 
+    def __str__(self):
+        return self.name
 
 def document_filename(instance, filename):
     # file will be uploaded to MEDIA_ROOT/uploads/<user.email>/<filename>
@@ -53,3 +51,6 @@ class Document(models.Model):
 
     def basename(self):
         return os.path.basename(self.file.name)
+
+    def __str__(self):
+        return "{} Document".format(self.doctype)
