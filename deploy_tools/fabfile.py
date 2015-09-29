@@ -14,9 +14,11 @@ def deploy():
     _update_virtualenv(source_folder)
     _update_static_files(source_folder)
     _update_database(source_folder)
-    _create_nginx_config_file(env.host, source_folder)
-    _create_gunicorn_upstart_file(env.host, source_folder)
-    _restart_nginx_and_gunicorn(env.host)
+    
+    # Will do the steps below manually
+    #_create_nginx_config_file(env.host, source_folder)
+    #_create_gunicorn_upstart_file(env.host, source_folder)
+    #_restart_nginx_and_gunicorn(env.host)
 
 def _create_directory_structure_if_necessary(site_folder):
     for subfolder in ('database', 'static', 'virtualenv', 'source'):
