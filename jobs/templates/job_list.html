@@ -35,7 +35,7 @@
                         <td>{{ job.get_state_display }}</td>
                         <td>
                             {% if job.get_report_url %}
-                            <a class="download-link" href="{% url 'download_report_file'  job.pk %}" download>Baixar Relatório</a>
+                            <a class="download-link" href="{% url 'download_report'  job.pk %}" download>Baixar Relatório</a>
                             {% endif %}
                         </td>
                     </tr>
