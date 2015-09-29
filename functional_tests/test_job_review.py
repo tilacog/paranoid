@@ -100,6 +100,12 @@ class JobReviewTest(FunctionalTest):
             self.temp_dir.name,
             dir_contents[0]
         )
+        
+        ## Can't test this step on development, since django won't serve
+        ## any media files.
+        if not self.against_staging:
+            return
+
         self.wait_for(lambda: self.assertGreater(
             os.path.getsize(downloaded_file),
             0
