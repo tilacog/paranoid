@@ -14,7 +14,7 @@ def deploy():
     _update_virtualenv(source_folder)
     _update_static_files(source_folder)
     _update_database(source_folder)
-    
+
     # Will do the steps below manually
     #_create_nginx_config_file(env.host, source_folder)
     #_create_gunicorn_upstart_file(env.host, source_folder)

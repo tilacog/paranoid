@@ -8,7 +8,7 @@ from jobs.models import Job
 
 from .base import FunctionalTest
 from .home_page import HomePage
-from .job_pages import JobDetailPage, JobListPage
+from .job_pages import JobListPage
 
 
 class JobReviewTest(FunctionalTest):
@@ -19,13 +19,15 @@ class JobReviewTest(FunctionalTest):
         # Dismiss the old browser for it can't be assigned with a new profile
         self.browser.close()
 
+        # Create a temporary directory to receive downloads
+        self.temp_dir = TemporaryDirectory(dir=os.getcwd())
+
         # Setup a firefox profile to auto-download files
         fp = webdriver.FirefoxProfile()
 
-        self.temp_dir = TemporaryDirectory(dir=os.getcwd())
-        fp.set_preference("browser.download.folderList",2)
-        fp.set_preference("browser.download.manager.showWhenStarting",False)
-        fp.set_preference("browser.download.dir", self.temp_dir.name) 
+        fp.set_preference("browser.download.folderList", 2)
+        fp.set_preference("browser.download.manager.showWhenStarting", False)
+        fp.set_preference("browser.download.dir", self.temp_dir.name)
         fp.set_preference(
             "browser.helperApps.neverAsk.saveToDisk",
             "text/plain"
@@ -33,10 +35,8 @@ class JobReviewTest(FunctionalTest):
 
         self.browser = webdriver.Firefox(firefox_profile=fp)
 
-        # Keep a reference to CWD initial state
-        self.initial_file_set = {item for item in os.listdir(self.temp_dir.name)}
-
     def tearDown(self):
+        # Remove the temporary directory and all its contents
         self.temp_dir.cleanup()
 
         # Call parent class tearDown method after customization
@@ -74,21 +74,33 @@ class JobReviewTest(FunctionalTest):
         for row, job in check_pairs:
             self.assertIn(str(job.pk), row.text)
             self.assertIn(job.audit.name, row.text)
-            self.assertIn(job.created_at.astimezone().strftime("%d/%m/%Y %H:%M"), row.text)
+            self.assertIn(
+                job.created_at.astimezone().strftime("%d/%m/%Y %H:%M"),
+                row.text
+            )
             self.assertIn(job.get_state_display(), row.text)
 
         # She can see that a download link for her finished report is available
         self.assertTrue(job_list_page.download_links)
 
-
-        # She clicks on it, and her file is saved
+        # She clicks on it, and her file is downloaded
         job_list_page.download_links[0].click()
 
-        ## Wait for some file to show up in the temporary directory.
-        ## It can be a `.part` file, but that's also ok.
-        self.wait_for(
-            lambda: self.assertGreater(
-                {i for i in os.listdir(self.temp_dir.name)},
-                self.initial_file_set,
-            ),
+        # She notices a file apperared on her download directory...
+        ## Check that the temp directory is not empty
+        dir_contents = os.listdir(self.temp_dir.name)
+        self.wait_for(lambda: self.assertGreater(
+            len(dir_contents),
+            0
+        ))
+
+        # ... and it isn't empty
+        ## Check that the downloaded file is not empty
+        downloaded_file = os.path.join(
+            self.temp_dir.name,
+            dir_contents[0]
         )
+        self.wait_for(lambda: self.assertGreater(
+            os.path.getsize(downloaded_file),
+            0
+        ))
