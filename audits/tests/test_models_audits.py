@@ -29,17 +29,6 @@ class AuditTestCase(TestCase):
         audit.full_clean()
         audit.save()
 
-    def test_audits_cannot_be_cleansed_without_required_doctypes(self):
-        audit = Audit(
-            name="Papel de trabalho da ECF",
-            description="bla bla bla",
-            package=self.package,
-            execution_script ='/path/to/somewhere/script.py',
-        )
-        audit.save()
-        with self.assertRaises(ValidationError):
-            audit.full_clean()
-
     @skip('future tests')
     def test_execution_script_file_exists(self):
         pass

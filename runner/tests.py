@@ -8,6 +8,11 @@ from runner.document_validation import (DocumentTypeError,
 
 class BaseClassTest(TestCase):
 
+
+    def setUp(self):
+        # Reset base class registered subclasses
+        DocumentValidatorProvider.plugins = []
+
     def tearDown(self):
 
         # Reset base class registered subclasses
@@ -28,9 +33,10 @@ class BaseClassTest(TestCase):
 class DocumentValidatorProviderTest(TestCase):
 
     def setUp(self):
-        patcher = patch('runner.document_validation.Document', autospec=True)
+        patcher = patch('runner.document_validation.apps.get_model', autospec=True)
         self.addCleanup(patcher.stop)
-        self.mock_doc_cls = patcher.start()
+        self.mock_get_model = patcher.start()
+        self.mock_doc_cls = self.mock_get_model.return_value
 
         self.mock_doc = self.mock_doc_cls.objects.get.return_value
         self.mock_doc.pk = 1
@@ -51,7 +57,7 @@ class DocumentValidatorProviderTest(TestCase):
             expected_file_path,
             mime=True,
         )
-    
+
     @override_settings(MEDIA_ROOT='')
     @patch('runner.document_validation.magic', autospec=True)
     def test_can_detect_invalid_mime(self, mock_magic):
@@ -67,14 +73,13 @@ class DocumentValidatorProviderTest(TestCase):
         _check_type=DEFAULT,
         validate=DEFAULT,
     )
-    def test_can_dispatch_validation(self, _check_type, validate): 
-        
+    def test_can_dispatch_validation(self, _check_type, validate):
+
         # Shorter name for the document file context manager
         doc_file_cm = self.mock_doc.file.__enter__.return_value
 
         dvp = DocumentValidatorProvider(1)
         dvp.run()
-        
+
         _check_type.assert_called_with()
         validate.assert_called_with(doc_file_cm)
-

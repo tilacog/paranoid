@@ -1,11 +1,9 @@
 import os.path
-from inspect import getmembers
-from itertools import chain
 
-from django import forms
 from django.conf import settings
-from django.core.exceptions import ValidationError
 from django.db import models
+
+from runner.document_validation import DocumentValidatorProvider
 
 
 class Package(models.Model):
@@ -28,11 +26,15 @@ class Audit(models.Model):
         return self.name
 
 class Doctype(models.Model):
-    name = models.CharField(max_length=30, blank=False, null=False, unique=True)
 
-    # Upgrade to FilePathFiled in the future
-    parsing_instructions = models.CharField(
-        max_length=4096, blank=True, null=False
+    validator_choices = lambda: (
+        (p.__name__, p.__name__) for p in DocumentValidatorProvider.plugins
+    )
+
+    name = models.CharField(max_length=30, blank=False, null=False, unique=True)
+    validator = models.CharField(
+        max_length=120,
+        choices=validator_choices(),
     )
 
     def __str__(self):

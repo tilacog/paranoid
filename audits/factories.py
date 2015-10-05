@@ -61,7 +61,6 @@ class DoctypeFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'Doctype #%s' % (n,))
 
 
-
 class DocumentFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'audits.Document'
