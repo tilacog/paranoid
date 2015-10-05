@@ -26,5 +26,5 @@ class JobFactory(factory.DjangoModelFactory):
         if extracted:
             assert isinstance(extracted, int)
             for i in range(extracted):
-                document = DocumentFactory()
+                document = DocumentFactory(user=self.user)
                 self.documents.add(document)
