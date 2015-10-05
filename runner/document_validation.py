@@ -32,7 +32,7 @@ class DocumentValidatorProvider(metaclass=PluginMount):
     def __init__(self, document_pk):
         self.document_pk = document_pk
         self.error = None
-        self.clean = False
+        self.cleaned = False
 
     def _check_type(self):
         document_instance = Document.objects.get(pk=self.document_pk)
@@ -49,20 +49,15 @@ class DocumentValidatorProvider(metaclass=PluginMount):
         raise NotImplementedError
 
     def run(self):
-        # Validate file tipe
-        try:
-            self._check_type()
-        except DocumentTypeError as e:
-            self.error = e
-            return
-    
-        # Validate file content
+        # Expect exceptions to be raised for each `try` clause statement, 
+        # respectively
         with Document.objects.get(pk=self.document_pk).file as document_file:
             try:
+                self._check_type()
                 self.validate(document_file)
-            except ValidationError as e:
-                self.error = (e)
+            except (DocumentTypeError, ValidationError) as e:
+                self.error = e
                 return
-        
+    
         # If no errors were captured, update validator status
-        self.clean = True
+        self.cleaned = True

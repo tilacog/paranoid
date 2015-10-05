@@ -37,17 +37,19 @@ class DocumentValidatorProviderTest(TestCase):
         self.mock_doc.doctype.mime = 'text/plain'
         self.mock_doc.file.url = 'foo'
 
-    @override_settings(MEDIA_ROOT='')
+    @override_settings(MEDIA_ROOT='/fake-media-path/')
     @patch('runner.document_validation.magic', autospec=True)
     def test_can_check_mime(self, mock_magic):
+        # Set return value to match mock doctype's
         mock_magic.from_file.return_value = 'text/plain'
+        expected_file_path = '/fake-media-path/' + self.mock_doc.file.url
 
         dvp = DocumentValidatorProvider(1)
         dvp._check_type()
 
         mock_magic.from_file.assert_called_with(
-            self.mock_doc.file.url,
-            mime=True
+            expected_file_path,
+            mime=True,
         )
     
     @override_settings(MEDIA_ROOT='')
