@@ -7,6 +7,7 @@ from django.conf import settings
 import factory
 import factory.fuzzy
 from accounts.factories import UserFactory
+from audits.models import Doctype
 
 
 def random_string(length=10):
@@ -59,6 +60,7 @@ class DoctypeFactory(factory.DjangoModelFactory):
         model = 'audits.Doctype'
 
     name = factory.Sequence(lambda n: 'Doctype #%s' % (n,))
+    validator = factory.fuzzy.FuzzyChoice(Doctype.validator_choices)
 
 
 class DocumentFactory(factory.DjangoModelFactory):

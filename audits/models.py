@@ -27,14 +27,14 @@ class Audit(models.Model):
 
 class Doctype(models.Model):
 
-    validator_choices = lambda: (
-        (p.__name__, p.__name__) for p in DocumentValidatorProvider.plugins
-    )
+    validator_choices = [
+        (p.__name__,)*2 for p in DocumentValidatorProvider.plugins
+    ]
 
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
     validator = models.CharField(
         max_length=120,
-        choices=validator_choices(),
+        choices=validator_choices,
     )
 
     def __str__(self):
