@@ -5,7 +5,6 @@ from jobs.models import Job
 from runner.document_validation import (DocumentValidatorProvider,
                                         ValidationError)
 
-
 @task
 def process_job(job_pk):
     job = Job.objects.get(pk=job_pk)
@@ -13,11 +12,15 @@ def process_job(job_pk):
     validation = group(
         validate_document.s(doc.pk)
         for doc in job.documents.all()
-    )
-    valid_result = validation.apply_async()
-    if 'ERROR' in valid_result.get():
-        # TODO: put some cleanup logic here
-        return
+    ).delay()
+
+    # Collect errors
+    validation_errors = [
+        error for error in validation.get(propagate=False)
+        if isinstance(error, ValidationError)
+    ]
+
+    return validation_errors
 
     # run audit
     # update job
@@ -31,7 +34,14 @@ def validate_document(document_pk):
     ]
     try:
         validator(document_pk)
-    except ValidationError as e:
-        return 'ERROR'
-    else:
-        return 'OK'
+    except ValidationError:
+        return ValidationError(document_pk)
+
+
+@task
+def update_job():
+    pass
+
+@task
+def update_document():
+    pass
