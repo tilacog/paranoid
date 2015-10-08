@@ -20,22 +20,31 @@ def process_job(job_pk):
         if isinstance(error, ValidationError)
     ]
 
-    return validation_errors
-
+    if validation_errors:
+        update_documents.delay(errors=validation_errors)
+            # TODO: update job (FAILURE)
+        return
     # run audit
     # update job
 
 @task
 def validate_document(document_pk):
+    # Get document instance
     document = Document.objects.get(pk=document_pk)
-    (validator,) = [
+
+    # Get appropriate validator class for this document instance
+    (validator_cls,) = [
         v for v in DocumentValidatorProvider.plugins
         if v.__name__ == document.doctype.validator
     ]
-    try:
-        validator(document_pk)
-    except ValidationError:
-        return ValidationError(document_pk)
+    # Create a validator instance
+    validator = validator_cls(document_pk)
+    validator.run()
+
+    # Propagate any errors from validator
+    if validator.error:
+        raise validator.error
+
 
 
 @task
@@ -43,5 +52,5 @@ def update_job():
     pass
 
 @task
-def update_document():
+def update_documents(document_pk, update_message, errors=None):
     pass

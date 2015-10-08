@@ -3,7 +3,8 @@ from unittest.mock import Mock, patch
 
 from jobs.factories import JobFactory
 from jobs.tasks import process_job, validate_document
-from runner.document_validation import (DocumentValidatorProvider,
+from runner.document_validation import (DocumentFormatError, DocumentTypeError,
+                                        DocumentValidatorProvider,
                                         ValidationError)
 
 
@@ -26,23 +27,36 @@ class ValidateDocumentUnitTest(TestCase):
         self.addCleanup(provider_patcher.stop)
         self.mock_provider = provider_patcher.start()
 
-        # Create a mock validator
-        self.mock_validator = Mock(name='ValidatorMock')
-        self.mock_validator.__name__='dummy validator'
-        self.mock_provider.plugins = [self.mock_validator]
+        # Create a mock validator class
+        self.mock_validator_cls = Mock(name='MockValidatorClass')
+        self.mock_validator_cls.__name__='dummy validator'
+        self.mock_provider.plugins = [self.mock_validator_cls]
+
+        # Create a mock validator instance
+        self.mock_validator = Mock(name='MockValidatorInstance')
+        self.mock_validator.error = None  # raise no errors by default
+        self.mock_validator_cls.return_value = self.mock_validator
 
     def test_can_fetch_the_right_document(self):
         validate_document(self.mock_doc.pk)
         self.mock_doc_get.assert_called_once_with(pk=self.mock_doc.pk)
 
-    def test_can_fetch_the_right_validator(self):
+    def test_calls_validator_run_method(self):
         validate_document(self.mock_doc.pk)
-        self.mock_validator.assert_called_once_with(self.mock_doc.pk)
+        self.mock_validator.run.assert_called_once_with()
 
-    def test_raises_error_on_invalid_document(self):
-        self.mock_validator.side_effect = ValidationError
-        with self.assertRaises(ValidationError):
+    def test_propagates_errors_with_document_pk(self):
+        # Check if propagates DocumentTypeErrors
+        self.mock_validator.error = DocumentTypeError(self.mock_doc.pk)
+        with self.assertRaises(DocumentTypeError) as cm1:
             validate_document(self.mock_doc.pk)
+        self.assertEqual(cm1.exception.args, (self.mock_doc.pk,))
+
+        # Check if propagates DocumentTypeErrors
+        self.mock_validator.error = DocumentFormatError(self.mock_doc.pk)
+        with self.assertRaises(DocumentFormatError) as cm2:
+            validate_document(self.mock_doc.pk)
+        self.assertEqual(cm2.exception.args, (self.mock_doc.pk,))
 
 
 class AuditRunnerUnitTest(TestCase):
@@ -69,20 +83,24 @@ class ProcessJobTest(TestCase):
         mock_async_result.get.called_once_with(propagate=False)
 
     @patch('jobs.tasks.group')
-    def test_returns_pks_of_invalid_documents(self, mock_group):
-        # Create some fake document pks for the invalid mocked documents
-        invalid_documents_pks = range(3)
+    @patch('jobs.tasks.update_documents')
+    def test_updates_status_of_invalid_documents(
+        self,
+        mock_update_documents,
+        mock_group
+    ):
 
-        # Mock celery.group so that it returns some validation errors
+        # Create some fake errors
+        errors = [DocumentFormatError(pk) for pk in range(3)]
+        errors += [DocumentTypeError(pk) for pk in range(2)]
+
+        # Mock celery.group so that it returns those errors
         mock_grouped_task = mock_group.return_value
         mock_async_result = mock_grouped_task.delay.return_value
-        mock_async_result.get.return_value = [
-            ValidationError(pk) for pk in invalid_documents_pks
-        ]
+        mock_async_result.get.return_value = errors
 
         result = process_job(1)  # magic number
 
-        # Grab the pks inside each exception arguments and assert they're
-        # the excpected pks
-        returned_pks = [exception.args[0] for exception in result]
-        self.assertEqual(returned_pks, list(invalid_documents_pks))
+        # Check if update_documents was called with the right collection
+        # of errors
+        mock_update_documents.delay.assert_called_once_with(errors=errors)

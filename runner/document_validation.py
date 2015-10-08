@@ -7,10 +7,16 @@ from django.conf import settings
 from runner.plugin_mount import PluginMount
 
 
-class DocumentTypeError(Exception):
+class ValidationError(Exception):
+    "Base exception for validation-phase errors"
     pass
 
-class ValidationError(Exception):
+class DocumentTypeError(ValidationError):
+    "To be raised when file has the wrong mime"
+    pass
+
+class DocumentFormatError(ValidationError):
+    "To be raised when file format doesn't comply with validation rules"
     pass
 
 class DocumentValidatorProvider(metaclass=PluginMount):
@@ -26,15 +32,15 @@ class DocumentValidatorProvider(metaclass=PluginMount):
     -------
 
     validate : method to validate the file. Should return the file if ok, or
-               raise an appropriate valdiation error.
+               raise a DocumentFormatError.
 
     """
     def __init__(self, document_pk):
         self.document_pk = document_pk
         self.error = None
-        self.cleaned = False
 
     def _check_type(self):
+        "Validates document file type using python-magic"
         # Getting model class dynamically to avoid circular imports
         Document = apps.get_model('audits', 'Document')
         document_instance = Document.objects.get(pk=self.document_pk)
@@ -51,17 +57,16 @@ class DocumentValidatorProvider(metaclass=PluginMount):
         raise NotImplementedError
 
     def run(self):
+        "Validates document file and stores errors if any"
         # Getting model class dynamically to avoid circular imports
         Document = apps.get_model('audits', 'Document')
-        # Expect exceptions to be raised for each `try` clause statement,
-        # respectively
+
         with Document.objects.get(pk=self.document_pk).file as document_file:
             try:
                 self._check_type()
                 self.validate(document_file)
-            except (DocumentTypeError, ValidationError) as e:
-                self.error = e
-                return
 
-        # If no errors were captured, update validator status
-        self.cleaned = True
+            except ValidationError as exception:
+                # Catches both DocumentTypeError or DocumentFormatError
+                exception.args = (self.document_pk,)
+                self.error = exception
