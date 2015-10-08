@@ -7,6 +7,9 @@ from runner.document_validation import (DocumentValidatorProvider,
 
 @task
 def process_job(job_pk):
+    """
+    Main task to process a created job.
+    """
     job = Job.objects.get(pk=job_pk)
     # get and validate documents
     validation = group(
@@ -21,11 +24,16 @@ def process_job(job_pk):
     ]
 
     if validation_errors:
-        update_documents.delay(errors=validation_errors)
-            # TODO: update job (FAILURE)
+        update_documents(errors=validation_errors)
+        update_job(invalid_documents=True)
         return
-    # run audit
-    # update job
+
+    # If documents are ok, run the audit task
+    audit_pk = job.audit.pk
+    run_audit.delay(audit_pk=audit_pk)
+    # TODO: try to catch system errors and retry, etc...
+
+    update_job(success=True)
 
 @task
 def validate_document(document_pk):
@@ -45,12 +53,15 @@ def validate_document(document_pk):
     if validator.error:
         raise validator.error
 
-
-
-@task
-def update_job():
+def update_job(invalid_documents=False):
+    """
+    Updates job state based on given parameters and through document inspection.
+    """
     pass
 
-@task
-def update_documents(document_pk, update_message, errors=None):
+def update_documents(errors=None):
+    pass
+
+
+def run_audit():
     pass
