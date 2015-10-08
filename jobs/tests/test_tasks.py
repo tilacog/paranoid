@@ -1,8 +1,8 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from jobs.factories import JobFactory
-from jobs.tasks import process_job, validate_document
+from jobs.models import Job
+from jobs.tasks import process_job, update_job, validate_document
 from runner.document_validation import (DocumentFormatError, DocumentTypeError,
                                         DocumentValidatorProvider,
                                         ValidationError)
@@ -62,8 +62,40 @@ class ValidateDocumentUnitTest(TestCase):
 class AuditRunnerUnitTest(TestCase): # TODO
     pass
 
-class JobUpdaterUnitTest(TestCase): # TODO
-    pass
+class JobUpdaterUnitTest(TestCase):
+
+    def setUp(self):
+        # Patch jobs.Job
+        job_patcher = patch('jobs.tasks.Job')
+        self.addCleanup(job_patcher.stop)
+        self.mock_job_cls = job_patcher.start()
+        self.mock_job_cls.SUCCESS_STATE = Job.SUCCESS_STATE
+        self.mock_job_cls.FAILURE_STATE = Job.FAILURE_STATE
+
+        # Mock Job instance
+        self.mock_job = Mock(name='MockJob', pk=1)
+        self.mock_job_cls.objects.get.return_value = self.mock_job
+
+    def test_can_get_a_job(self):
+        update_job(self.mock_job.pk, success=True)
+        self.mock_job_cls.objects.get.assert_called_once_with(pk=self.mock_job.pk)
+
+    def test_can_update_a_job_if_it_has_invalid_documents(self):
+        self.mock_job.state = None
+        update_job(self.mock_job.pk, invalid_documents=True)
+        self.assertEqual(self.mock_job.state, Job.FAILURE_STATE)
+
+        # Checks if model instance was saved afterwards
+        self.assertTrue(self.mock_job.save.called)
+
+    def test_can_update_a_job_if_audit_sucessfull(self):
+        self.mock_job.state = None
+        update_job(self.mock_job.pk, success=True)
+        self.assertEqual(self.mock_job.state, Job.SUCCESS_STATE)
+
+        # Checks if model instance was saved afterwards
+        self.assertTrue(self.mock_job.save.called)
+
 
 
 class ProcessJobUnitTest(TestCase):
@@ -75,7 +107,7 @@ class ProcessJobUnitTest(TestCase):
         ## Patch jobs.Job
         job_patcher = patch('jobs.tasks.Job')
         self.addCleanup(job_patcher.stop)
-        self.mock_job = job_patcher.start()
+        self.mock_job_cls = job_patcher.start()
 
         ## Patch celery.group
         group_patcher = patch('jobs.tasks.group')
@@ -112,6 +144,9 @@ class ProcessJobUnitTest(TestCase):
         On the face of invalid documents, each invalid document must have
         their status updated, and so must be the job instance's state.
         """
+        # Fake job pk
+        job_pk = 1
+
         # Create some fake errors
         errors = [DocumentFormatError(pk) for pk in range(3)]
         errors += [DocumentTypeError(pk) for pk in range(2)]
@@ -120,14 +155,14 @@ class ProcessJobUnitTest(TestCase):
         self.mock_async_result.get.return_value = errors
 
         # Call the task
-        process_job(1)  # magic number
+        process_job(job_pk)
 
         # Check if update_documents was called with the right collection
         # of errors
         self.mock_update_documents.assert_called_once_with(errors=errors)
 
         # Check if update_job was called also.
-        self.mock_update_job.assert_called_once_with(invalid_documents=True)
+        self.mock_update_job.assert_called_once_with(job_pk, invalid_documents=True)
 
     def test_run_audit_isnt_called_if_invalid_documents(self):
         # Create a fake validation error for a document of pk=1
@@ -147,7 +182,7 @@ class ProcessJobUnitTest(TestCase):
     def test_audit_run_was_called_if_documents_are_okay(self):
         # Mock an audit
         mock_audit = Mock(name='MockAudit', pk=1)
-        mock_job =  self.mock_job.objects.get.return_value
+        mock_job =  self.mock_job_cls.objects.get.return_value
         mock_job.audit = mock_audit
 
         # Call the task
@@ -157,11 +192,13 @@ class ProcessJobUnitTest(TestCase):
         self.mock_run_audit.delay.assert_called_once_with(audit_pk=mock_audit.pk)
 
     def test_jobs_are_updated_as_success_on_audit_success(self):
+        # Fake job pk
+        job_pk = 1
         # Call the task
-        process_job(1)  # magic number
+        process_job(job_pk)  # magic number
 
         # Check if update_job was called with a success indicator
-        self.mock_update_job.assert_called_once_with(success=True)
+        self.mock_update_job.assert_called_once_with(job_pk, success=True)
 
     def test_jobs_are_updated_as_system_failure_on_audit_error(self):
         pass

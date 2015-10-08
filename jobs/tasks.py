@@ -25,7 +25,7 @@ def process_job(job_pk):
 
     if validation_errors:
         update_documents(errors=validation_errors)
-        update_job(invalid_documents=True)
+        update_job(job_pk, invalid_documents=True)
         return
 
     # If documents are ok, run the audit task
@@ -33,7 +33,7 @@ def process_job(job_pk):
     run_audit.delay(audit_pk=audit_pk)
     # TODO: try to catch system errors and retry, etc...
 
-    update_job(success=True)
+    update_job(job_pk, success=True)
 
 @task
 def validate_document(document_pk):
@@ -53,11 +53,20 @@ def validate_document(document_pk):
     if validator.error:
         raise validator.error
 
-def update_job(invalid_documents=False):
+def update_job(job_pk, invalid_documents=False, success=False):
     """
     Updates job state based on given parameters and through document inspection.
     """
-    pass
+    args = [invalid_documents, success]
+    if not any(args) or all(args):
+        raise ValueError('kwags must be mutually exclusive')
+
+    job = Job.objects.get(pk=job_pk)
+    if invalid_documents:
+        job.state = Job.FAILURE_STATE
+    elif success:
+        job.state = Job.SUCCESS_STATE
+    job.save()
 
 def update_documents(errors=None):
     pass
