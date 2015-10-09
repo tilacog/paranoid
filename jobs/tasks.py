@@ -1,9 +1,10 @@
 from celery import group, shared_task, task
 
-from audits.models import Document
+from audits.models import Audit, Document
 from jobs.models import Job
 from runner.document_validation import (DocumentValidatorProvider,
                                         ValidationError)
+
 
 @task
 def process_job(job_pk):
@@ -72,5 +73,5 @@ def update_documents(errors=None):
     pass
 
 
-def run_audit():
-    pass
+def run_audit(audit_pk):
+    audit = Audit.objects.get(pk=audit_pk)
