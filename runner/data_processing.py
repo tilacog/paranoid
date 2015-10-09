@@ -39,3 +39,4 @@ class AuditRunnerProvider(PluginMount):
         raise NotImplementedError
 
     def run(self):
+        pass

@@ -62,6 +62,7 @@ class ValidateDocumentUnitTest(TestCase):
 class AuditRunnerUnitTest(TestCase): # TODO
 
     def setUp(self):
+
         ## Patch audits.Audit
         audit_patcher = patch('jobs.tasks.Audit')
         self.addCleanup(audit_patcher.stop)
@@ -70,6 +71,16 @@ class AuditRunnerUnitTest(TestCase): # TODO
         # Mock Audit instance
         self.mock_audit = self.mock_audit_cls.objects.get.return_value
         self.mock_audit.pk = 1
+        self.mock_audit.audit_runner = 'dummy audit runner'
+        ## Patch jobs.Job
+        job_patcher = patch('jobs.tasks.Job')
+        self.addCleanup(job_patcher.stop)
+        self.mock_job_cls = job_patcher.start()
+
+        # Mock Job instance
+        self.mock_job = self.mock_job_cls.objects.get.return_value
+        self.mock_job.pk = 1
+        self.mock_job.audit = self.mock_audit
 
         ## Patch AuditRunnerProvider class and plugins
         provider_patcher = patch('jobs.tasks.AuditRunnerProvider')
@@ -78,20 +89,15 @@ class AuditRunnerUnitTest(TestCase): # TODO
 
         # Create a mock AuditRunner class/plugin
         self.mock_audit_runner_cls = Mock(name='MockAuditRunnerClass')
-        self.mock_audit_runner_cls.__name__='dummy audit runner'
+        self.mock_audit_runner_cls.__name__ = self.mock_audit.audit_runner
         self.mock_provider.plugins = [self.mock_audit_runner_cls]
 
         # Create a mock validator instance
         self.mock_audit_runner = Mock(name='MockAuditRunnerInstance')
         self.mock_audit_runner_cls.return_value = self.mock_audit_runner
 
-    def test_can_get_audit(self):
-        run_audit(self.mock_audit.pk)
-        self.mock_audit_cls.objects.get.assert_called_once_with(
-            pk=self.mock_audit.pk
-        )
-
     def test_calls_audit_run_method(self):
+
         run_audit(self.mock_audit.pk)
         self.mock_audit_runner.run.assert_called_once_with()
 
@@ -217,15 +223,13 @@ class ProcessJobUnitTest(TestCase):
 
     def test_audit_run_was_called_if_documents_are_okay(self):
         # Mock an audit
-        mock_audit = Mock(name='MockAudit', pk=1)
         mock_job =  self.mock_job_cls.objects.get.return_value
-        mock_job.audit = mock_audit
-
+        mock_job.pk = 1
         # Call the task
-        process_job(1)  # magic number
+        process_job(mock_job.pk)
 
         # Check if run_audit was called with job.audit.pk
-        self.mock_run_audit.delay.assert_called_once_with(audit_pk=mock_audit.pk)
+        self.mock_run_audit.delay.assert_called_once_with(job_pk=mock_job.pk)
 
     def test_jobs_are_updated_as_success_on_audit_success(self):
         # Fake job pk

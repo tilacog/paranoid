@@ -4,6 +4,7 @@ from audits.models import Audit, Document
 from jobs.models import Job
 from runner.document_validation import (DocumentValidatorProvider,
                                         ValidationError)
+from runner.data_processing import AuditRunnerProvider
 
 
 @task
@@ -30,10 +31,9 @@ def process_job(job_pk):
         return
 
     # If documents are ok, run the audit task
-    audit_pk = job.audit.pk
-    run_audit.delay(audit_pk=audit_pk)
-    # TODO: try to catch system errors and retry, etc...
+    run_audit.delay(job_pk=job_pk)
 
+    # Update the job on success
     update_job(job_pk, success=True)
 
 @task
@@ -42,6 +42,7 @@ def validate_document(document_pk):
     document = Document.objects.get(pk=document_pk)
 
     # Get appropriate validator class for this document instance
+    # TODO: put plugin retrieval logic inside the Model class
     (validator_cls,) = [
         v for v in DocumentValidatorProvider.plugins
         if v.__name__ == document.doctype.validator
@@ -73,5 +74,17 @@ def update_documents(errors=None):
     pass
 
 
-def run_audit(audit_pk):
-    audit = Audit.objects.get(pk=audit_pk)
+@task
+def run_audit(job_pk):
+    job = Job.objects.get(pk=job_pk)
+    audit_runner_name = job.audit.audit_runner
+
+    # Get AuditRunner class and instantiate it
+    # TODO: put plugin retrieval logic inside the Model class
+    (runner_cls,) = [
+        r for r in AuditRunnerProvider.plugins
+        if r.__name__ == audit_runner_name
+    ]
+    # Run it
+    runner = runner_cls(job_pk)
+    runner.run()
