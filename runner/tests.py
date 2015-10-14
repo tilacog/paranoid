@@ -107,11 +107,8 @@ class DocumentValidatorProviderTest(TestCase):
 
 class AuditRunnerTestCase(TestCase):  # TODO
 
-    def test_can_be_instantiated(self):
-        pass
-
-    def test_can_get_job_files(self):
-        pass
-
-    def test_returns_an_existing_file_path(self):
-        pass
+    def test_can_be_instantiated(self):pass
+    def test_run_calls_anciliary_methods(self):pass
+    def test_provides_a_temporary_workspace(self):pass
+    def test_report_file_is_persisted_elsewhere(self):pass
+    def test_run_returns_the_path_to_the_new_file(self):pass
