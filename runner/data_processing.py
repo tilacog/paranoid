@@ -1,4 +1,7 @@
 import os.path
+import shutil
+import types
+from tempfile import TemporaryDirectory
 
 from django.apps import apps
 from django.conf import settings
@@ -6,7 +9,7 @@ from django.conf import settings
 from runner.plugin_mount import PluginMount
 
 
-class AuditRunnerProvider(PluginMount):
+class AuditRunnerProvider(metaclass=PluginMount):
     """
     Mount point for audit runner plugins.
     Plugins implementing this reference should provide the following
@@ -16,6 +19,9 @@ class AuditRunnerProvider(PluginMount):
     ---------------
     job_pk : a unique identifier of the job to have it's documents processed.
 
+
+    Attributes
+    ----------
     file_manager :  a FileManager instance to be responsible for arranging
                     the files extactly the way the data processor will need
 
@@ -26,17 +32,44 @@ class AuditRunnerProvider(PluginMount):
 
     """
 
+    file_manager = None
+    workspace = None
+    job_cls = apps.get_model('jobs', 'Job')
+
+
     def __init__(self, job_pk):
         self.job_pk = job_pk
-
-        self.files = {
-            document.doctype.name: os.path.abspath(document.file.url)
-            for document in Job.objects.get(pk=job_pk).documents.all()
-        }
+        if not isinstance(self.file_manager, types.FunctionType):
+            raise TypeError("Must be implemented with a file_manager object")
 
     def process_data(self):
         # This method should be defined in subclasses
         raise NotImplementedError
 
+    def organize_files(self):
+        self.files = self.file_manager(self)
+
+    def get_persistent_path(self, report_path):
+        "Rename report file to "
+        report_abspath = os.path.abspath(report_path)
+        extension = os.path.splitext(report_abspath)
+
+        new_basename = "{job_pk}.{ext}".format(job_pk=self.job_pk, ext=extension)
+        new_filename = os.path.join(settings.FINISHED_REPORTS, new_basename)
+
+        return new_filename
+
     def run(self):
-        pass
+        with TemporaryDirectory() as tmp:
+            # Set up tmp directory access to audit process at runtime
+            self.workspace = tmp
+
+            self.organize_files()
+            report_path = self.process_data()
+            persistent_path = self.get_persistent_path(report_path)
+
+            # move report to a persistent location
+            shutil.move(src=report_path, dst=persistent_path)
+
+            # Revert to avoid confusion
+            self.workspace = None

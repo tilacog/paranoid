@@ -101,6 +101,10 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = os.path.join(BASE_DIR, '../media')
 MEDIA_URL = '/media/'
 
+# Home for finished report files
+FINISHED_REPORTS = os.path.join(MEDIA_ROOT, 'reports')
+
+
 # More detailed logging
 LOGGING = {
     'version': 1,
