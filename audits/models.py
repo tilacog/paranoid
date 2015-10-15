@@ -3,6 +3,7 @@ import os.path
 from django.conf import settings
 from django.db import models
 
+from runner.data_processing import AuditRunnerProvider
 from runner.document_validation import DocumentValidatorProvider
 
 
@@ -15,12 +16,16 @@ class Package(models.Model):
 
 
 class Audit(models.Model):
+
+    runner_choices = [
+        (p.__name__,)*2 for p in AuditRunnerProvider.plugins
+    ]
+
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
     description = models.TextField(blank=False, null=False)
     package = models.ForeignKey('Package')
-    # Upgrade 'execution_script' to FilePathFiled in the future
-    execution_script = models.CharField(max_length=4096, blank=False, null=False)
     required_doctypes = models.ManyToManyField('Doctype')
+    runner = models.CharField(max_length=120, choices=runner_choices)
 
     def __str__(self):
         return self.name
@@ -32,10 +37,7 @@ class Doctype(models.Model):
     ]
 
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
-    validator = models.CharField(
-        max_length=120,
-        choices=validator_choices,
-    )
+    validator = models.CharField(max_length=120, choices=validator_choices)
 
     def __str__(self):
         return self.name
@@ -53,6 +55,10 @@ class Document(models.Model):
 
     def basename(self):
         return os.path.basename(self.file.name)
+
+    def get_absolute_path(self):
+        # the first `file` is the FileField, and the second is the `FieldFile`
+        return self.file.file.name
 
     def __str__(self):
         return "{} Document".format(self.doctype)

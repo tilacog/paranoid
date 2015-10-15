@@ -7,7 +7,7 @@ from django.conf import settings
 import factory
 import factory.fuzzy
 from accounts.factories import UserFactory
-from audits.models import Doctype
+from audits.models import Audit, Doctype
 
 
 def random_string(length=10):
@@ -28,7 +28,10 @@ class AuditFactory(factory.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: 'Audit #%s' % (n,))
     description = factory.Faker('text', locale='pt_BR')
-    execution_script = factory.Sequence(lambda n: 'Script #%s' % (n,))
+    runner = factory.fuzzy.FuzzyChoice(
+        # Must pick the first element as Django choices come in pairs
+        [i[0] for i in Audit.runner_choices]
+    )
     package = factory.SubFactory(PackageFactory)
 
     ## Many to Many fields ##
@@ -60,7 +63,10 @@ class DoctypeFactory(factory.DjangoModelFactory):
         model = 'audits.Doctype'
 
     name = factory.Sequence(lambda n: 'Doctype #%s' % (n,))
-    validator = factory.fuzzy.FuzzyChoice(Doctype.validator_choices)
+    validator  = factory.fuzzy.FuzzyChoice(
+        # Must pick the first element as Django choices come in pairs
+        [i[0] for i in Doctype.validator_choices]
+    )
 
 
 class DocumentFactory(factory.DjangoModelFactory):

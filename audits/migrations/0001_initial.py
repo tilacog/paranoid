@@ -4,7 +4,6 @@ from __future__ import unicode_literals
 from django.db import models, migrations
 import audits.models
 from django.conf import settings
-import runner.plugins
 
 
 class Migration(migrations.Migration):
@@ -17,24 +16,24 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Audit',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=30, unique=True)),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
+                ('name', models.CharField(unique=True, max_length=30)),
                 ('description', models.TextField()),
-                ('execution_script', models.CharField(max_length=4096)),
+                ('runner', models.CharField(max_length=120, choices=[('MinimalAuditRunner', 'MinimalAuditRunner')])),
             ],
         ),
         migrations.CreateModel(
             name='Doctype',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=30, unique=True)),
-                ('validator', models.CharField(max_length=120, choices=[('PlainTextValidator', runner.plugins.PlainTextValidator)])),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
+                ('name', models.CharField(unique=True, max_length=30)),
+                ('validator', models.CharField(max_length=120, choices=[('PlainTextValidator', 'PlainTextValidator')])),
             ],
         ),
         migrations.CreateModel(
             name='Document',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
                 ('file', models.FileField(upload_to=audits.models.document_filename)),
                 ('checksum', models.CharField(max_length=40, blank=True)),
                 ('doctype', models.ForeignKey(to='audits.Doctype')),
@@ -44,8 +43,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Package',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
-                ('name', models.CharField(max_length=30, unique=True)),
+                ('id', models.AutoField(verbose_name='ID', primary_key=True, serialize=False, auto_created=True)),
+                ('name', models.CharField(unique=True, max_length=30)),
                 ('description', models.TextField()),
             ],
         ),

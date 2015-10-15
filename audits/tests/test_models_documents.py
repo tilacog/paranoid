@@ -1,3 +1,4 @@
+import os.path
 from unittest import skip
 from unittest.mock import Mock, patch
 
@@ -5,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
+from audits.factories import DocumentFactory
 from audits.models import Doctype, Document
 
 User = get_user_model()
@@ -41,3 +43,10 @@ class DocumentTest(TestCase):
         phase [?]
         """
         pass
+
+    def test_can_access_full_path_once_created(self):
+        doc = DocumentFactory()
+
+        file_path = doc.get_absolute_path()
+
+        self.assertTrue(os.path.exists(file_path))

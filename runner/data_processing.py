@@ -32,11 +32,11 @@ class AuditRunnerProvider(metaclass=PluginMount):
     """
 
     workspace = None
-    job_cls = apps.get_model('jobs', 'Job')
 
 
     def __init__(self, job_pk):
         self.job_pk = job_pk
+        self.job_cls = apps.get_model('jobs', 'Job')
 
         if not hasattr(self, 'file_manager') or not callable(self.file_manager):
             raise TypeError("Must be implemented with a file_manager callable object")
