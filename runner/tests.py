@@ -121,7 +121,8 @@ class AuditRunnerTestCase(TestCase):  # TODO
         file_manager_patcher = patch.object(
             AuditRunnerProvider,
             'file_manager',
-            new=self.mock_file_manager
+            new=self.mock_file_manager,
+            create=True,
         )
         self.addCleanup(file_manager_patcher.stop)
         self.mock_file_manager = file_manager_patcher.start()
@@ -225,6 +226,7 @@ class ConcreteAuditRunnerTest(TestCase):
 
     def test_cant_instantiate_without_file_manager(self):
         class TestAudit(AuditRunnerProvider):
+            # file_manager is absent
             pass
 
         with self.assertRaises(TypeError):

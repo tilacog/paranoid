@@ -1,6 +1,5 @@
 import os.path
 import shutil
-import types
 from tempfile import TemporaryDirectory
 
 from django.apps import apps
@@ -32,15 +31,15 @@ class AuditRunnerProvider(metaclass=PluginMount):
 
     """
 
-    file_manager = None
     workspace = None
     job_cls = apps.get_model('jobs', 'Job')
 
 
     def __init__(self, job_pk):
         self.job_pk = job_pk
-        if not isinstance(self.file_manager, types.FunctionType):
-            raise TypeError("Must be implemented with a file_manager object")
+
+        if not hasattr(self, 'file_manager') or not callable(self.file_manager):
+            raise TypeError("Must be implemented with a file_manager callable object")
 
     def process_data(self):
         # This method should be defined in subclasses
@@ -51,10 +50,11 @@ class AuditRunnerProvider(metaclass=PluginMount):
 
     def get_persistent_path(self, report_path):
         "Rename report file to "
+        import ipdb; ipdb.set_trace()
         report_abspath = os.path.abspath(report_path)
-        extension = os.path.splitext(report_abspath)
+        (_, extension) = os.path.splitext(report_abspath)
 
-        new_basename = "{job_pk}.{ext}".format(job_pk=self.job_pk, ext=extension)
+        new_basename = str(self.job_pk) + extension
         new_filename = os.path.join(settings.FINISHED_REPORTS, new_basename)
 
         return new_filename
