@@ -2,10 +2,7 @@ from celery import group, shared_task, task
 
 from audits.models import Audit, Document
 from jobs.models import Job
-from runner.document_validation import (DocumentValidatorProvider,
-                                        ValidationError)
-from runner.data_processing import AuditRunnerProvider
-
+from runner.document_validation import ValidationError
 
 @task
 def process_job(job_pk):
@@ -20,6 +17,7 @@ def process_job(job_pk):
     ).delay()
 
     # Collect errors
+    # TODO: Use json response instead of pickling Exceptions
     validation_errors = [
         error for error in validation.get(propagate=False)
         if isinstance(error, ValidationError)
@@ -43,12 +41,7 @@ def validate_document(document_pk):
     document = Document.objects.get(pk=document_pk)
 
     # Get appropriate validator class for this document instance
-    # TODO: put plugin retrieval logic inside the Model class
-    (validator_cls,) = [
-        v for v in DocumentValidatorProvider.plugins
-        if v.__name__ == document.doctype.validator
-    ]
-    # Create a validator instance
+    validator_cls = document.doctype.get_validator()
     validator = validator_cls(document_pk)
     validator.run()
 
@@ -83,14 +76,7 @@ def run_audit(job_pk):
     job = Job.objects.get(pk=job_pk)
 
     # Get AuditRunner class and instantiate it
-    # TODO: put plugin retrieval logic inside the Model class
-    audit_runner_name = job.audit.runner
-    (runner_cls,) = [
-        r for r in AuditRunnerProvider.plugins
-        if r.__name__ == audit_runner_name
-    ]
-    # Run it
-    # TODO: handle possible errrors
+    runner_cls = job.audit.get_runner()
     runner = runner_cls(job_pk)
     runner.run()
 

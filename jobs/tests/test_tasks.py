@@ -4,7 +4,6 @@ from unittest.mock import Mock, patch
 from jobs.models import Job
 from jobs.tasks import process_job, run_audit, update_job, validate_document
 from runner.document_validation import (DocumentFormatError, DocumentTypeError,
-                                        DocumentValidatorProvider,
                                         ValidationError)
 
 
@@ -20,17 +19,10 @@ class ValidateDocumentUnitTest(TestCase):
         self.mock_doc = Mock(name='DocumentMock')
         self.mock_doc_get.return_value = self.mock_doc
         self.mock_doc.pk = 1
-        self.mock_doc.doctype.validator = 'dummy validator'
-
-        ## Patch DocumentValidatorProvider class and plugins
-        provider_patcher = patch('jobs.tasks.DocumentValidatorProvider')
-        self.addCleanup(provider_patcher.stop)
-        self.mock_provider = provider_patcher.start()
 
         # Create a mock validator class/plugin
         self.mock_validator_cls = Mock(name='MockValidatorClass')
-        self.mock_validator_cls.__name__='dummy validator'
-        self.mock_provider.plugins = [self.mock_validator_cls]
+        self.mock_doc.doctype.get_validator.return_value = self.mock_validator_cls
 
         # Create a mock validator instance
         self.mock_validator = Mock(name='MockValidatorInstance')
@@ -82,24 +74,18 @@ class AuditRunnerUnitTest(TestCase): # TODO
         self.mock_job.pk = 1
         self.mock_job.audit = self.mock_audit
 
-        ## Patch AuditRunnerProvider class and plugins
-        provider_patcher = patch('jobs.tasks.AuditRunnerProvider')
-        self.addCleanup(provider_patcher.stop)
-        self.mock_provider = provider_patcher.start()
 
         # Create a mock AuditRunner class/plugin
-        self.mock_audit_runner_cls = Mock(name='MockAuditRunnerClass')
-        self.mock_audit_runner_cls.__name__ = self.mock_audit.audit_runner
-        self.mock_provider.plugins = [self.mock_audit_runner_cls]
-
+        self.mock_runner_cls = Mock(name='MockAuditRunnerClass')
+        self.mock_job.audit.get_runner.return_value = self.mock_runner_cls
         # Create a mock validator instance
-        self.mock_audit_runner = Mock(name='MockAuditRunnerInstance')
-        self.mock_audit_runner_cls.return_value = self.mock_audit_runner
+        self.mock_runner = Mock(name='MockAuditRunnerInstance')
+        self.mock_runner_cls.return_value = self.mock_runner
 
     def test_calls_audit_run_method(self):
 
         run_audit(self.mock_audit.pk)
-        self.mock_audit_runner.run.assert_called_once_with()
+        self.mock_runner.run.assert_called_once_with()
 
 class DocumentUpdaterUnitTest(TestCase): # TODO
     pass
