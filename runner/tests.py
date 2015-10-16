@@ -12,23 +12,26 @@ class BaseClassTest(TestCase):
 
     def setUp(self):
         # Reset base class registered subclasses
-        DocumentValidatorProvider.plugins = []
+        DocumentValidatorProvider.plugins = {}
 
     def tearDown(self):
         # Reset base class registered subclasses
-        DocumentValidatorProvider.plugins = []
+        DocumentValidatorProvider.plugins = {}
 
     def test_subclasses_are_registered(self):
 
         # No subclass is registered at the begining
-        self.assertEqual(DocumentValidatorProvider.plugins, [])
+        self.assertEqual(DocumentValidatorProvider.plugins, {})
 
         # Create a subclass
         class test_class(DocumentValidatorProvider):
             pass
 
         # Now subclass must be registered
-        self.assertIn(test_class, DocumentValidatorProvider.plugins)
+        self.assertDictEqual(
+            {'test_class': test_class},
+            DocumentValidatorProvider.plugins
+        )
 
 
 class DocumentValidatorProviderTest(TestCase):
