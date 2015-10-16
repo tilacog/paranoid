@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import skip, TestCase
 from unittest.mock import Mock, patch
 
 from jobs.models import Job
@@ -132,8 +132,13 @@ class JobUpdaterUnitTest(TestCase):
 
     def test_can_update_a_job_if_audit_sucessfull(self):
         self.mock_job.state = None
-        update_job(self.mock_job.pk, success=True)
+        fake_report_path = '/fake/path/'
+
+        update_job(self.mock_job.pk, success=True, report_path=fake_report_path)
+
         self.assertEqual(self.mock_job.state, Job.SUCCESS_STATE)
+        self.assertEqual(self.mock_job.report_file.name, fake_report_path)
+        #TODO review if I am pointing to the same thing here...
 
         # Checks if model instance was saved afterwards
         self.assertTrue(self.mock_job.save.called)
@@ -229,16 +234,26 @@ class ProcessJobUnitTest(TestCase):
         process_job(mock_job.pk)
 
         # Check if run_audit was called with job.audit.pk
-        self.mock_run_audit.delay.assert_called_once_with(job_pk=mock_job.pk)
+        self.mock_run_audit.assert_called_once_with(job_pk=mock_job.pk)
 
-    def test_jobs_are_updated_as_success_on_audit_success(self):
-        # Fake job pk
-        job_pk = 1
+    @patch('jobs.tasks.run_audit')
+    def test_jobs_are_updated_on_audit_success(self, mock_run_audit):
+        """
+        Jobs must have their STATE and REPORT_FILE fields updated on audit success.
+        """
+        fake_job_pk = 1
+
         # Call the task
-        process_job(job_pk)  # magic number
+        process_job(fake_job_pk)  # magic number
 
         # Check if update_job was called with a success indicator
-        self.mock_update_job.assert_called_once_with(job_pk, success=True)
+        self.mock_update_job.assert_called_once_with(
+            fake_job_pk,
+            success=True,
+            report_path=mock_run_audit.return_value
+        )
 
-    def test_jobs_are_updated_as_system_failure_on_audit_error(self):
+    @skip("Haven't decided on how to handle audit errors yet")
+    def test_jobs_are_updated_on_audit_error(self):
+
         pass

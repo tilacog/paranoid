@@ -219,6 +219,7 @@ class AuditRunnerTestCase(TestCase):  # TODO
             dst=mock_get_persistent_path.return_value
         )
 
+
 class ConcreteAuditRunnerTest(TestCase):
     """
     Tests for minimal audit runner implementations

@@ -31,10 +31,11 @@ def process_job(job_pk):
         return
 
     # If documents are ok, run the audit task
-    run_audit.delay(job_pk=job_pk)
+    # TODO: use JSON return values between processess
+    report_path = run_audit(job_pk=job_pk)
 
     # Update the job on success
-    update_job(job_pk, success=True)
+    update_job(job_pk, success=True, report_path = report_path)
 
 @task
 def validate_document(document_pk):
@@ -55,36 +56,42 @@ def validate_document(document_pk):
     if validator.error:
         raise validator.error
 
-def update_job(job_pk, invalid_documents=False, success=False):
+def update_job(job_pk, invalid_documents=False, success=False, report_path=None):
     """
     Updates job state based on given parameters and through document inspection.
     """
     args = [invalid_documents, success]
     if not any(args) or all(args):
-        raise ValueError('kwags must be mutually exclusive')
+        raise ValueError('`invalid_documents` and `success` kwargs must be mutually exclusive')
+    # TODO: Raise if success is true and report_path isn't, and vice-versa
 
     job = Job.objects.get(pk=job_pk)
     if invalid_documents:
         job.state = Job.FAILURE_STATE
     elif success:
         job.state = Job.SUCCESS_STATE
+        job.report_file.name = report_path # NEEDS TESTING!
     job.save()
 
 def update_documents(errors=None):
+    # TODO
     pass
 
 
 @task
 def run_audit(job_pk):
     job = Job.objects.get(pk=job_pk)
-    audit_runner_name = job.audit.audit_runner
 
     # Get AuditRunner class and instantiate it
     # TODO: put plugin retrieval logic inside the Model class
+    audit_runner_name = job.audit.runner
     (runner_cls,) = [
         r for r in AuditRunnerProvider.plugins
         if r.__name__ == audit_runner_name
     ]
     # Run it
+    # TODO: handle possible errrors
     runner = runner_cls(job_pk)
     runner.run()
+
+    return runner.get_persistent_path()

@@ -27,6 +27,10 @@ class Audit(models.Model):
     required_doctypes = models.ManyToManyField('Doctype')
     runner = models.CharField(max_length=120, choices=runner_choices)
 
+    
+    def get_runner(self):
+        AuditRunnerProvider.get_plugin_by_name(self.runner)
+
     def __str__(self):
         return self.name
 

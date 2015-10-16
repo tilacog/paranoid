@@ -72,4 +72,3 @@ class AuditRunnerProvider(metaclass=PluginMount):
             shutil.move(src=report_path, dst=persistent_path)
 
             # Revert to avoid confusion
-            self.workspace = None
