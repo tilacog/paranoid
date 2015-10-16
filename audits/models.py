@@ -18,7 +18,8 @@ class Package(models.Model):
 class Audit(models.Model):
 
     runner_choices = [
-        (p.__name__,)*2 for p in AuditRunnerProvider.plugins
+        # Django choices come in pairs
+        (plugin,)*2 for plugin in AuditRunnerProvider.plugins.keys()
     ]
 
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
@@ -27,9 +28,9 @@ class Audit(models.Model):
     required_doctypes = models.ManyToManyField('Doctype')
     runner = models.CharField(max_length=120, choices=runner_choices)
 
-    
+
     def get_runner(self):
-        AuditRunnerProvider.get_plugin_by_name(self.runner)
+        return AuditRunnerProvider.plugins[self.runner]
 
     def __str__(self):
         return self.name
@@ -37,11 +38,15 @@ class Audit(models.Model):
 class Doctype(models.Model):
 
     validator_choices = [
-        (p.__name__,)*2 for p in DocumentValidatorProvider.plugins
+        # Django choices come in pairs
+        (plugin,)*2 for plugin in DocumentValidatorProvider.plugins.keys()
     ]
 
     name = models.CharField(max_length=30, blank=False, null=False, unique=True)
     validator = models.CharField(max_length=120, choices=validator_choices)
+
+    def get_validator(self):
+        return DocumentValidatorProvider.plugins[self.validator]
 
     def __str__(self):
         return self.name
