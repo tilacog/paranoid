@@ -51,7 +51,7 @@ class ValidateDocumentUnitTest(TestCase):
         self.assertEqual(cm2.exception.args, (self.mock_doc.pk,))
 
 
-class AuditRunnerUnitTest(TestCase): # TODO
+class AuditRunnerUnitTest(TestCase):
 
     def setUp(self):
 

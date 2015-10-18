@@ -168,6 +168,10 @@ class AuditRunnerTestCase(TestCase):  # TODO
             self.mock_file_manager.return_value
         )
 
+    @skip('not a priority right now')
+    def test_organize_files_handles_errors_from_file_manager(self):
+        pass
+
 
     @patch('runner.data_processing.TemporaryDirectory')
     def test_provides_temporary_workspace_at_runtime(self, mock_tempdir):

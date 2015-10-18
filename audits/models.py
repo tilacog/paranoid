@@ -1,4 +1,4 @@
-import os.path
+
 
 from django.conf import settings
 from django.db import models
@@ -42,7 +42,7 @@ class Doctype(models.Model):
         (plugin,)*2 for plugin in DocumentValidatorProvider.plugins.keys()
     ]
 
-    name = models.CharField(max_length=30, blank=False, null=False, unique=True)
+    name = models.CharField(max_length=30, primary_key=True)
     validator = models.CharField(max_length=120, choices=validator_choices)
 
     def get_validator(self):

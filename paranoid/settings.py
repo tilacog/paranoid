@@ -114,6 +114,11 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
         },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'paranoid.log',
+        },
     },
     'loggers': {
         'django': {
@@ -122,7 +127,7 @@ LOGGING = {
         'accounts': {
             'handlers': ['console'],
         },
-        'lists': {
+        'jobs': {
             'handlers': ['console'],
         },
     },

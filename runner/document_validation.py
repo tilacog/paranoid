@@ -19,6 +19,7 @@ class DocumentFormatError(ValidationError):
     "To be raised when file format doesn't comply with validation rules"
     pass
 
+# TODO: Decouple from django. Use json only
 class DocumentValidatorProvider(metaclass=PluginMount):
     """
     Mount point for plugins which refer to validations that can be performed.

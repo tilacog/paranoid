@@ -8,6 +8,7 @@ from django.conf import settings
 from runner.plugin_mount import PluginMount
 
 
+# TODO: Decouple from django. Use json only
 class AuditRunnerProvider(metaclass=PluginMount):
     """
     Mount point for audit runner plugins.
