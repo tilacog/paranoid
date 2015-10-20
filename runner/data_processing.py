@@ -33,6 +33,7 @@ class AuditRunnerProvider(metaclass=PluginMount):
     """
 
     workspace = None
+    report_path = None
 
 
     def __init__(self, job_pk):
@@ -47,17 +48,16 @@ class AuditRunnerProvider(metaclass=PluginMount):
         raise NotImplementedError
 
     def organize_files(self):
-        self.files = self.file_manager(self)
+        # file_manager is defined inside subclass
+        self.files = self.file_manager()
 
     def get_persistent_path(self, report_path):
         "Rename report file to "
-        import ipdb; ipdb.set_trace()
         report_abspath = os.path.abspath(report_path)
         (_, extension) = os.path.splitext(report_abspath)
 
         new_basename = str(self.job_pk) + extension
         new_filename = os.path.join(settings.FINISHED_REPORTS, new_basename)
-
         return new_filename
 
     def run(self):
@@ -66,10 +66,14 @@ class AuditRunnerProvider(metaclass=PluginMount):
             self.workspace = tmp
 
             self.organize_files()
+            # process_data is defined inside subclass
             report_path = self.process_data()
             persistent_path = self.get_persistent_path(report_path)
-
             # move report to a persistent location
             shutil.move(src=report_path, dst=persistent_path)
 
+            # keep reference to the report file final path
+            self.report_path = persistent_path
+
             # Revert to avoid confusion
+            self.workspace = None

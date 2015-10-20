@@ -46,6 +46,7 @@ def validate_document(document_pk):
     validator.run()
 
     # Propagate any errors from validator
+    # TODO: Use json response instead of pickling Exceptions
     if validator.error:
         raise validator.error
 
@@ -80,4 +81,4 @@ def run_audit(job_pk):
     runner = runner_cls(job_pk)
     runner.run()
 
-    return runner.get_persistent_path()
+    return runner.report_path

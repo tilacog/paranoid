@@ -16,7 +16,7 @@ class MinimalAuditRunner(AuditRunnerProvider):
 
     def file_manager(self):
         # get files from job
-        job = self.job_cls.objects.get(self.job_pk)
+        job = self.job_cls.objects.get(pk=self.job_pk)
         docs = job.documents.all()
         # arrange files in a list and return it
         files = [document.file.file.name for document in docs]
@@ -25,7 +25,7 @@ class MinimalAuditRunner(AuditRunnerProvider):
     def process_data(self):
         # just show some info about the job
 
-        job = self.job_cls.objects.get(self.job_pk)
+        job = self.job_cls.objects.get(pk=self.job_pk)
         audit_name = job.audit.name
 
         # use self.workspace to save files

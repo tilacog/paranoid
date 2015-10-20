@@ -1,4 +1,5 @@
 import types
+from unittest import skip
 from unittest.mock import DEFAULT, Mock, mock_open, patch
 
 from django.test import TestCase, override_settings
@@ -155,7 +156,7 @@ class AuditRunnerTestCase(TestCase):  # TODO
         self.mock_file_manager.return_value = {'fake': 'files'}
 
         self.runner.organize_files()
-        self.mock_file_manager.assert_called_once_with(self.runner)
+        self.mock_file_manager.assert_called_once_with()
 
     def test_provides_files_at_runtime(self):
         """
@@ -224,6 +225,26 @@ class AuditRunnerTestCase(TestCase):  # TODO
         self.mock_shutil.move.assert_called_once_with(
             src=mock_process_data.return_value,
             dst=mock_get_persistent_path.return_value
+        )
+
+    def test_runner_keeps_reference_to_report_path(self):
+        """
+        At the end of the data processing, the runner instance should keep
+        a reference to the final report (final) path.
+        """
+        mock_process_data = Mock(return_value='old_file_path')
+        mock_get_persistent_path = Mock(return_value='new_file_path')
+        with patch.multiple(
+            self.runner,
+            organize_files=DEFAULT,
+            process_data=mock_process_data,
+            get_persistent_path=mock_get_persistent_path,
+        ):
+            self.runner.run()
+
+        self.assertEqual(
+            self.runner.report_path,
+            mock_get_persistent_path.return_value
         )
 
 

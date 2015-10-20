@@ -75,7 +75,7 @@ class AuditPageGETTest(TestCase):
 
         # And those are the doctypes defined by the Audit instance.
         expected_doctype_ids = {
-            doctype.id for doctype in self.audit.required_doctypes.all()
+            doctype.pk for doctype in self.audit.required_doctypes.all()
         }
 
         self.assertSetEqual(formset_doctype_ids, expected_doctype_ids)
@@ -128,12 +128,13 @@ class AuditPagePOSTTest(TestCase):
         self.audit = AuditFactory(num_doctypes=1)
         self.user = UserFactory(password='123')
         self.client.login(email=self.user.email, password='123')
+        doctype = DoctypeFactory()
 
         self.post_data = {
             'form-TOTAL_FORMS': 1,
             'form-INITIAL_FORMS': 0,
             'form-MAX_NUM_FORMS': '',
-            'form-0-doctype': 1,
+            'form-0-doctype': doctype.pk,
         }
         self.post_files = {
             'form-0-file': MagicMock(spec=File)

@@ -33,10 +33,10 @@ class DocumentFormTest(TestCase):
 
 
     def test_form_can_validate(self):
-        DoctypeFactory()  # needed to set the choices of the doctype field.
+        d = DoctypeFactory()
         mock_file = MagicMock()
 
-        post_data = {'doctype': 1}
+        post_data = {'doctype': d.pk}
         post_files = {'file': mock_file}
 
         form = DocumentForm(post_data, post_files)
@@ -62,15 +62,15 @@ class DocumentFormsetTest(TestCase):
         self.assertSetEqual(expected_doctype_pks, forms_pks)
 
     def create_formset_data(self):
-        DoctypeFactory()
+        d = DoctypeFactory()
         mock_file = MagicMock()
 
         post_data = {
             'form-TOTAL_FORMS': 2,
             'form-INITIAL_FORMS': 0,
             'form-MAX_NUM_FORMS':'',
-            'form-0-doctype': 1,
-            'form-1-doctype': 1,
+            'form-0-doctype': d.pk,
+            'form-1-doctype': d.pk,
         }
 
         file_data = {
