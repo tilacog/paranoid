@@ -45,6 +45,7 @@ class DocumentValidatorProvider(metaclass=PluginMount):
         document_instance = Document.objects.get(pk=document_pk)
 
         self.file_path = document_instance.file.path
+        import ipdb; idpb.set_trace()
         self.document_pk = document_pk
         self.expected_mime = document_instance.doctype.mime
 
