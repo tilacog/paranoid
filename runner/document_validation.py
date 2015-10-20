@@ -70,7 +70,8 @@ class DocumentValidatorProvider(metaclass=PluginMount):
                 self._check_type()
                 self.validate(document_file)
 
-            except ValidationError as exception:
-                # Catches both DocumentTypeError or DocumentFormatError
-                exception.args = (self.document_pk,)
-                self.error = exception
+            except ValidationError as e:
+                # Catch and return error name and document pk
+                return {'error': e.__class__.__name__, 'pk':  self.document_pk}
+            else:
+                return {'error': None, 'pk':  self.document_pk}

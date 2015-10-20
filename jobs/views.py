@@ -24,9 +24,10 @@ def download_report(request, job_pk):
     # Someday this will change in order to enable group sharing of reports.
     job = get_object_or_404(Job, pk=job_pk, user=request.user)
 
+    # Let nginx handle file downloads
     response = HttpResponse()
     response['Content-Type'] = ''
     response['X-Accel-Redirect'] = "/protected/{0}".format(
-        job.report_file.name
+        job.report_file.path.split('/media/')[-1]
     )
     return response

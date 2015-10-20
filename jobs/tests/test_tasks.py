@@ -37,19 +37,6 @@ class ValidateDocumentUnitTest(TestCase):
         validate_document(self.mock_doc.pk)
         self.mock_validator.run.assert_called_once_with()
 
-    def test_propagates_errors_with_document_pk(self):
-        # Check if propagates DocumentTypeErrors
-        self.mock_validator.error = DocumentTypeError(self.mock_doc.pk)
-        with self.assertRaises(DocumentTypeError) as cm1:
-            validate_document(self.mock_doc.pk)
-        self.assertEqual(cm1.exception.args, (self.mock_doc.pk,))
-
-        # Check if propagates DocumentTypeErrors
-        self.mock_validator.error = DocumentFormatError(self.mock_doc.pk)
-        with self.assertRaises(DocumentFormatError) as cm2:
-            validate_document(self.mock_doc.pk)
-        self.assertEqual(cm2.exception.args, (self.mock_doc.pk,))
-
 
 class AuditRunnerUnitTest(TestCase):
 
@@ -142,15 +129,6 @@ class ProcessJobUnitTest(TestCase):
         self.addCleanup(job_patcher.stop)
         self.mock_job_cls = job_patcher.start()
 
-        ## Patch celery.group
-        group_patcher = patch('jobs.tasks.group')
-        self.addCleanup(group_patcher.stop)
-        self.mock_group = group_patcher.start()
-
-        # Isolate return values from celery.group
-        mock_grouped_task = self.mock_group.return_value
-        self.mock_async_result = mock_grouped_task.delay.return_value
-
         ## Patch jobs.tasks.update_documents
         update_docs_patcher = patch('jobs.tasks.update_documents')
         self.addCleanup(update_docs_patcher.stop)
@@ -166,46 +144,51 @@ class ProcessJobUnitTest(TestCase):
         self.addCleanup(run_audit_patcher.stop)
         self.mock_run_audit = run_audit_patcher.start()
 
-    def test_document_validation_is_called(self):
+    @patch('jobs.tasks.validate_document')
+    def test_document_validation_is_called(self, mock_validate):
+        mock_job = self.mock_job_cls.objects.get.return_value
+        mock_job.pk = 1
+        fake_documents_pks = list(range(3))
+        mock_job.documents.all.return_value = [
+            Mock(pk=i) for i in fake_documents_pks
+        ]
 
-        process_job(1)  # magic number
+        process_job(mock_job.pk)
 
-        self.mock_async_result.get.called_once_with(propagate=False)
+        self.assertEqual(len(fake_documents_pks), mock_validate.call_count)
+        for i in fake_documents_pks:
+            mock_validate.assert_any_calls(i)
 
-    def test_updates_status_of_invalid_documents_and_job(self):
+    @patch('jobs.tasks.validate_document')
+    def test_updates_status_of_invalid_documents_and_job(self, mock_validate):
         """
         On the face of invalid documents, each invalid document must have
         their status updated, and so must be the job instance's state.
         """
-        # Fake job pk
-        job_pk = 1
+        mock_job = Mock(pk=1)
+        mock_job.documents.all.return_value = [Mock()]
+        self.mock_job_cls.objects.get.return_value = mock_job
 
-        # Create some fake errors
-        errors = [DocumentFormatError(pk) for pk in range(3)]
-        errors += [DocumentTypeError(pk) for pk in range(2)]
-
-        # Mock celery.group so that it returns those errors
-        self.mock_async_result.get.return_value = errors
+        error = {'error': 'ValidationError', 'pk': mock_job.pk}
+        mock_validate.return_value = error
 
         # Call the task
-        process_job(job_pk)
+        process_job(mock_job.pk)
 
         # Check if update_documents was called with the right collection
         # of errors
-        self.mock_update_documents.assert_called_once_with(errors=errors)
+        self.mock_update_documents.assert_called_once_with(errors=[error])
 
         # Check if update_job was called also.
-        self.mock_update_job.assert_called_once_with(job_pk, invalid_documents=True)
+        self.mock_update_job.assert_called_once_with(mock_job.pk, invalid_documents=True)
 
-    def test_run_audit_isnt_called_if_invalid_documents(self):
-        # Create a fake validation error for a document of pk=1
-        error = ValidationError(1)
-
-        # Mock celery.group so that it returns those errors
-        self.mock_async_result.get.return_value = [error]
+    @patch('jobs.tasks.validate_document')
+    def test_run_audit_isnt_called_if_invalid_documents(self, mock_validate):
+        mock_job = Mock(pk=1)
+        mock_validate.return_value = {'error': 'ValidationError', 'pk': mock_job.pk}
 
         # Call the task
-        process_job(1)  # magic number
+        process_job(mock_job.pk)
 
         # Check if run_audit was not called
         assert not self.mock_run_audit.delay.called, (
