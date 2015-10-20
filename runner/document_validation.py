@@ -44,10 +44,7 @@ class DocumentValidatorProvider(metaclass=PluginMount):
         Document = apps.get_model('audits', 'Document')
         document_instance = Document.objects.get(pk=document_pk)
 
-        self.file_path = os.path.join(
-            settings.MEDIA_ROOT,
-            document_instance.file.url,
-        )
+        self.file_path = document_instance.file.path
         self.document_pk = document_pk
         self.expected_mime = document_instance.doctype.mime
 
