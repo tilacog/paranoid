@@ -67,7 +67,7 @@ def update_job(job_pk, invalid_documents=False, success=False, report_path=None)
         job.report_file.name = report_path # NEEDS TESTING!
     job.save()
 
-def update_documents():
+def update_documents(*args, **kwargs):
     # TODO
     pass
 

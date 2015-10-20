@@ -45,14 +45,13 @@ class DocumentValidatorProvider(metaclass=PluginMount):
         document_instance = Document.objects.get(pk=document_pk)
 
         self.file_path = document_instance.file.path
-        import ipdb; idpb.set_trace()
         self.document_pk = document_pk
         self.expected_mime = document_instance.doctype.mime
 
     def _check_type(self):
         "Validates document file type using python-magic"
         mime = magic.from_file(self.file_path, mime=True)
-        if mime != self.expected_mime:
+        if mime.decode() != self.expected_mime:
             raise DocumentTypeError(self.document_pk)
 
     def validate(self):
