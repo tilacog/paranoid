@@ -149,3 +149,4 @@ if 'test' in sys.argv:
 # CELERY SETTINGS
 BROKER_URL = 'amqp://'
 CELERY_RESULT_BACKEND = 'amqp'
+CELERY_TASK_SERIALIZER = 'json'
