@@ -30,6 +30,7 @@ TEMPLATE_DEBUG = True
 AUTH_USER_MODEL = 'accounts.ParanoidUser'
 AUTHENTICATION_BACKENDS = (
     'accounts.authentication.ParanoidAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
 

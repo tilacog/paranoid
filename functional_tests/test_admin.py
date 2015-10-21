@@ -1,6 +1,5 @@
 from .base import FunctionalTest
 
-
 class PollsTest(FunctionalTest):
 
     def test_can_create_new_audit_via_admin_site(self):
@@ -11,5 +10,8 @@ class PollsTest(FunctionalTest):
         body = self.browser.find_element_by_tag_name('body')
         self.assertIn('Django administration', body.text)
 
-        # TODO: use the admin site to create an audit
-        self.fail('finish this test')
+        #login
+        #create new audit
+        #visit home page
+        #confirm new audit is there
+        test.fail('finish the test')

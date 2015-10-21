@@ -6,6 +6,7 @@ from django.test import TestCase
 
 from accounts.factories import UserFactory
 from jobs.factories import JobFactory
+from audits.factories import DocumentFactory
 from jobs.views import download_report
 
 
@@ -72,9 +73,7 @@ class ReportDownloadView(TestCase):
         self.user = UserFactory(email='test@user.com', password='123')
         self.client.login(email=self.user.email, password='123')
 
-        self.job = JobFactory(num_documents=3, user=self.user)
-        self.job.report_file = Mock()
-        self.job.report_file.name = 'mock_filename'
+        self.job = JobFactory(num_documents=3, user=self.user, has_report=True)
 
     def test_users_cant_download_other_users_report_files(self):
         """

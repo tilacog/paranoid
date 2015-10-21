@@ -4,7 +4,8 @@ from django.db import models
 
 
 def report_filename(instance, filename):
-    return 'Report-{job_pk}'.format(
+    return '{report_root}/Report-{job_pk}'.format(
+        report_root=settings.FINISHED_REPORTS,
         job_pk=instance.pk
     )
 

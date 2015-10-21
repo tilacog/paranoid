@@ -36,6 +36,7 @@ class AuditFactory(factory.DjangoModelFactory):
 
     ## Many to Many fields ##
 
+    #TODO delete this method, its obsolete.
     @factory.post_generation
     def required_doctypes(self, create, extracted, **kwargs):
         """Passes a list of specific Doctypes to be related with this audit."""
