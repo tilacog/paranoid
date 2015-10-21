@@ -57,18 +57,17 @@ def update_job(job_pk, invalid_documents=False, success=False, report_path=None)
     args = [invalid_documents, success]
     if not any(args) or all(args):
         raise ValueError('`invalid_documents` and `success` kwargs must be mutually exclusive')
-    # TODO: Raise if success is true and report_path isn't, and vice-versa
+    # TODO: Improve the parsing of arguments, since some are mutually exclusive or mutually inclusive
 
     job = Job.objects.get(pk=job_pk)
     if invalid_documents:
         job.state = Job.FAILURE_STATE
     elif success:
         job.state = Job.SUCCESS_STATE
-        job.report_file.name = report_path # NEEDS TESTING!
+        job.report_file.name = report_path  # TODO: check if has been tested
     job.save()
 
-def update_documents(*args, **kwargs):
-    # TODO
+def update_documents(*args, **kwargs):  #TODO
     pass
 
 

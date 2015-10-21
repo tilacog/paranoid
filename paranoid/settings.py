@@ -8,16 +8,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-# Test-specific configs
 import sys
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '&*j6py4zmaemppv%#q1tf@&*ii1@riw41#*3i)7qjz1&r2(e+s'
@@ -33,14 +28,11 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-
 # This setting is changed by the deploy script
 DOMAIN = "localhost"
 ALLOWED_HOSTS = [DOMAIN]
 
-
 # Application definition
-
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -70,8 +62,6 @@ WSGI_APPLICATION = 'paranoid.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -92,7 +82,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, '../static')
 STATICFILES_DIRS = (
@@ -136,6 +125,7 @@ LOGGING = {
 }
 
 
+#Test specific settings
 if 'test' in sys.argv:
     # Ignore naive datetime warning from IPython
     import warnings
@@ -150,3 +140,7 @@ if 'test' in sys.argv:
 BROKER_URL = 'amqp://'
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_TASK_SERIALIZER = 'json'
+
+# Assets folder (AuditRunners and DocumentValidators)
+ASSETS_MODULE_PATH= os.path.abspath(os.path.join(BASE_DIR, '../assets/plugins.py'))
+PLUGINS_VARIABLE_NAME = 'plugins'

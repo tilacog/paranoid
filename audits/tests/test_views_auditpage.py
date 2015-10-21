@@ -24,9 +24,7 @@ class AuditPageGETTest(TestCase):
 
     def setUp(self):
         # Setup Audit instance with some doctypes
-        self.audit = AuditFactory(
-            required_doctypes=DoctypeFactory.create_batch(3)
-        )
+        self.audit = AuditFactory(num_doctypes=3)
 
         # Some shortcuts
         self.url = reverse('audit_page', args=[self.audit.pk])

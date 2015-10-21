@@ -25,9 +25,7 @@ class HomePageTest(TestCase):
         User.objects.create_user(email='test@user.com', password='123')
         self.client.login(email='test@user.com', password='123')
 
-        audit = AuditFactory(
-            required_doctypes=DoctypeFactory.create_batch(3)
-        )
+        audit = AuditFactory(num_doctypes=3)
 
         response = self.client.get(reverse('home_page'))
 
@@ -39,9 +37,7 @@ class HomePageTest(TestCase):
         User.objects.create_user(email='test@user.com', password='123')
         self.client.login(email='test@user.com', password='123')
 
-        audit = AuditFactory(
-            required_doctypes=DoctypeFactory.create_batch(3)
-        )
+        audit = AuditFactory(num_doctypes=3)
 
         response = self.client.get(reverse('home_page'))
 

@@ -111,7 +111,6 @@ class JobUpdaterUnitTest(TestCase):
 
         self.assertEqual(self.mock_job.state, Job.SUCCESS_STATE)
         self.assertEqual(self.mock_job.report_file.name, fake_report_path)
-        #TODO review if I am pointing to the same thing here...
 
         # Checks if model instance was saved afterwards
         self.assertTrue(self.mock_job.save.called)

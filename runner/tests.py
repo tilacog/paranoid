@@ -8,7 +8,6 @@ from runner.data_processing import AuditRunnerProvider
 from runner.document_validation import (DocumentTypeError,
                                         DocumentValidatorProvider)
 
-
 class BaseClassTest(TestCase):
 
     def setUp(self):
@@ -108,7 +107,7 @@ class DocumentValidatorProviderTest(TestCase):
             validate.assert_called_with(mock_file)
 
 
-class AuditRunnerTestCase(TestCase):  # TODO
+class AuditRunnerTestCase(TestCase):
 
     def setUp(self):
 
@@ -259,3 +258,16 @@ class ConcreteAuditRunnerTest(TestCase):
         with self.assertRaises(TypeError):
             fake_job_pk = 1
             TestAudit(fake_job_pk)
+
+class ExternalPluginLoadTest(TestCase):
+    """
+    Tests for the external plugin loader.
+    """
+    def test_can_fetch_external_plugins(self):
+        self.fail('write me')
+
+    def test_can_create_new_subclasses_dynamically(self):
+        self.fail('write me')
+
+    def test_wont_load_plugins_with_missing_methods(self):
+        self.fail('write me')

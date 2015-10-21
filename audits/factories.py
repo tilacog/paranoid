@@ -35,18 +35,6 @@ class AuditFactory(factory.DjangoModelFactory):
     package = factory.SubFactory(PackageFactory)
 
     ## Many to Many fields ##
-
-    #TODO delete this method, its obsolete.
-    @factory.post_generation
-    def required_doctypes(self, create, extracted, **kwargs):
-        """Passes a list of specific Doctypes to be related with this audit."""
-        if not create:
-            return  # Simple build, do nothing.
-        if extracted:
-            # A list of related_doctypes were passed in, use them
-            for doctype in extracted:
-                self.required_doctypes.add(doctype)
-
     @factory.post_generation
     def num_doctypes(self, create, extracted, **kwargs):
         """Creates a number of related doctypes for this audit."""
