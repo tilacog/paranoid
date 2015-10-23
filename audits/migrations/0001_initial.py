@@ -16,26 +16,26 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Audit',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(unique=True, max_length=30)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
+                ('name', models.CharField(max_length=30, unique=True)),
                 ('description', models.TextField()),
-                ('runner', models.CharField(choices=[('MinimalAuditRunner', 'MinimalAuditRunner')], max_length=120)),
+                ('runner', models.CharField(max_length=120)),
             ],
         ),
         migrations.CreateModel(
             name='Doctype',
             fields=[
                 ('name', models.CharField(serialize=False, primary_key=True, max_length=30)),
-                ('validator', models.CharField(choices=[('PlainTextValidator', 'PlainTextValidator')], max_length=120)),
-                ('mime', models.CharField(max_length=60, default='text/plain')),
+                ('validator', models.CharField(max_length=120)),
+                ('mime', models.CharField(default='text/plain', max_length=60)),
             ],
         ),
         migrations.CreateModel(
             name='Document',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
                 ('file', models.FileField(upload_to=audits.models.document_filename)),
-                ('checksum', models.CharField(blank=True, max_length=40)),
+                ('checksum', models.CharField(max_length=40, blank=True)),
                 ('doctype', models.ForeignKey(to='audits.Doctype')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
@@ -43,8 +43,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Package',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(unique=True, max_length=30)),
+                ('id', models.AutoField(verbose_name='ID', auto_created=True, serialize=False, primary_key=True)),
+                ('name', models.CharField(max_length=30, unique=True)),
                 ('description', models.TextField()),
             ],
         ),
