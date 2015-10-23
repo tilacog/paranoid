@@ -150,5 +150,5 @@ sys.path.extend([PLUGINS_PATH, '.'])
 try:
     from runner.plugins import load_plugins
     load_plugins()
-except ImportError:
-    logger.warning('Could not import external plugins.')
+except ImportError as e:
+    logger.warning('Could not import external plugins. ({})'.format(e))
