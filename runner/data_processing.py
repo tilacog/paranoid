@@ -8,7 +8,17 @@ from django.conf import settings
 from runner.plugin_mount import PluginMount
 
 
-# TODO: Decouple from django. Use json only
+# TODO: Decouple from django.
+
+# TODO:       Files should be ready for 'file_manager' at self.raw_files,
+# TODO(cont): presented as tuple pairs of ('doctype.name', 'file_path')
+
+# TODO:       Consider calling `self.process_data` using the return of
+# TODO(cont): `self.file_manager`, like 'def process_data(self, file_store):`
+
+# TODO:       Consider using a pre-defined final file path for
+# TODO(cont): `self.process_data` to use, like `luigi.Task.output` does
+
 class AuditRunnerProvider(metaclass=PluginMount):
     """
     Mount point for audit runner plugins.

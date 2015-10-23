@@ -35,7 +35,7 @@ class MinimalAuditRunner(AuditRunnerProvider):
             final_file.write('Audit name: %s\n\n' % (audit_name,))
             final_file.write('Job files:\n')
             for f in self.files:
-                final_file.write('\t' +  f)
+                final_file.write('\t' +  f + '\n')
 
         # return the final file full-path
         return final_file_path

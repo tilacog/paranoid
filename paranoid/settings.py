@@ -1,15 +1,13 @@
 """
 Django settings for paranoid project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.7/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
 import os
 import sys
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -107,7 +105,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'paranoid.log',
+            'filename': 'site_logfile.log',
         },
     },
     'loggers': {
@@ -125,7 +123,7 @@ LOGGING = {
 }
 
 
-#Test specific settings
+# Test specific settings
 if 'test' in sys.argv:
     # Ignore naive datetime warning from IPython
     import warnings
@@ -141,6 +139,14 @@ BROKER_URL = 'amqp://'
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_TASK_SERIALIZER = 'json'
 
-# Assets folder (AuditRunners and DocumentValidators)
-ASSETS_MODULE_PATH= os.path.abspath(os.path.join(BASE_DIR, '../assets/plugins.py'))
-PLUGINS_VARIABLE_NAME = 'plugins'
+# Add external plugins directory to PATH as a namespace package under "runner"
+# module
+PLUGINS_PATH = os.path.join(BASE_DIR, '../plugins')
+sys.path.extend([PLUGINS_PATH, '.'])
+
+# Load external plugins
+try:
+    from runner.plugins import load_plugins
+    load_plugins()
+except ImportError:
+    logger.warning('Could not import external plugins.')

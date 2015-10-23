@@ -20,6 +20,10 @@ class DocumentFormatError(ValidationError):
     pass
 
 # TODO: Decouple from django. Use json only
+# TODO: Rename '_check_type' to 'has_right_type'
+# TODO: Rename 'validate' to 'has_right_format'
+# TODO: 'has_right_*' methods should return True/False
+# TODO: Validation Errors should be handled at 'run' time
 class DocumentValidatorProvider(metaclass=PluginMount):
     """
     Mount point for plugins which refer to validations that can be performed.
