@@ -3,13 +3,16 @@ import random
 from fabric.api import env, local, run, settings
 from fabric.contrib.files import append, exists, sed
 
+
 REPO_URL = 'https://github.com/tilacog/paranoid.git'
+PLUGIN_REPO_URL = 'git@bitbucket.org:tilacog/titan_plugins.git'
 
 def deploy():
     site_folder = '/home/%s/sites/%s' % (env.user, env.host)
     source_folder = site_folder + '/source'
     _create_directory_structure_if_necessary(site_folder)
     _get_latest_source(source_folder)
+    _get_latest_plugin_source(source_folder)
     _update_settings(source_folder, env.host)
     _update_virtualenv(source_folder)
     _update_static_files(source_folder)
@@ -31,6 +34,19 @@ def _get_latest_source(source_folder):
         run('git clone %s %s' % (REPO_URL, source_folder))
     current_commit = local('git log -n 1 --format=%H', capture=True)
     run('cd %s && git reset --hard %s' % (source_folder, current_commit))
+
+
+def _get_latest_plugin_source(source_folder):
+    plugin_folder = source_folder.replace('source', 'plugins')
+    if exists(plugin_folder+ '/.git'):
+        run('cd %s && git fetch' % (plugin_folder,))
+    else:
+        run('git clone %s %s' % (PLUGIN_REPO_URL, plugin_folder))
+    current_commit = local(
+        'git -C ../plugins log -n 1 --format=%H', capture=True
+    )
+    run('cd %s && git reset --hard %s' % (plugin_folder, current_commit))
+
 
 def _update_settings(source_folder, site_name):
     settings_path = source_folder + '/paranoid/settings.py'
