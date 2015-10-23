@@ -141,7 +141,9 @@ CELERY_TASK_SERIALIZER = 'json'
 
 # Add external plugins directory to PATH as a namespace package under "runner"
 # module
-PLUGINS_PATH = os.path.join(BASE_DIR, '../plugins')
+PLUGINS_PATH = os.path.abspath(
+    os.path.join(BASE_DIR, '../plugins')
+)
 sys.path.extend([PLUGINS_PATH, '.'])
 
 # Load external plugins
