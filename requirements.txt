@@ -1,6 +1,6 @@
-Django==1.8
-gunicorn==19.3.0
--e git+https://github.com/rbarrois/factory_boy.git#egg=factory_boy
 celery==3.1.18
-
+Django==1.8
+-e git+https://github.com/rbarrois/factory_boy.git#egg=factory_boy
+gunicorn==19.3.0
+pandas==0.17.0
 python-magic==0.4.6
