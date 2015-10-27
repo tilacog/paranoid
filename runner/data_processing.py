@@ -27,6 +27,10 @@ from runner.plugin_mount import PluginMount
 # do that?). If implemented, users wont have to figure out the path to the
 # final file, just point to `self.output' on audit definition.
 
+#!TODO: AuditRunner should have post_processing hooks, for manipulating the
+# result file before the workspace is destroyed.
+
+
 class AuditRunnerProvider(metaclass=PluginMount):
     """
     Mount point for audit runner plugins.

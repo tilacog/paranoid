@@ -45,6 +45,7 @@ class Doctype(models.Model):
     name = models.CharField(max_length=30, primary_key=True)
     validator = models.CharField(max_length=120, choices=validator_choices)
     mime = models.CharField(max_length=60, default='text/plain')
+    # TODO: Doctypes should have a "expected_encoding" field, and raise errors accordingly
 
     def get_validator(self):
         return DocumentValidatorProvider.plugins[self.validator]

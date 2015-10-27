@@ -33,6 +33,7 @@ def process_job(job_pk):
     # If documents are ok, run the audit task
     report_path = run_audit(job_pk=job_pk)
 
+    # TODO: Update job.STATE on FAILURE (like SystemFailure)
     # Update the job on success
     update_job(job_pk, success=True, report_path = report_path)
 

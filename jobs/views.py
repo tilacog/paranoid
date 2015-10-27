@@ -25,6 +25,7 @@ def download_report(request, job_pk):
     job = get_object_or_404(Job, pk=job_pk, user=request.user)
 
     # Let nginx handle file downloads
+    # TODO: Fix random filename issue.
     response = HttpResponse()
     response['Content-Type'] = ''
     response['X-Accel-Redirect'] = "/protected/{0}".format(
