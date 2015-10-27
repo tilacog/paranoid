@@ -66,7 +66,7 @@ class DocumentValidatorProvider(metaclass=PluginMount):
         "Validates document file and stores errors if any"
         # Getting model class dynamically to avoid circular imports
 
-        with open(self.file_path) as document_file:
+        with open(self.file_path, 'rb') as document_file:
             try:
                 self._check_type()
                 self.validate(document_file)

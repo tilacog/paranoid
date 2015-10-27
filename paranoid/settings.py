@@ -146,9 +146,13 @@ PLUGINS_PATH = os.path.abspath(
 )
 sys.path.extend([PLUGINS_PATH, '.'])
 
+#TODO: Move plugin import logic to the runner.app module
 # Load external plugins
 try:
     from runner.plugins import load_plugins
     load_plugins()
 except ImportError as e:
     logger.warning('Could not import external plugins. ({})'.format(e))
+
+# Load local plugins
+import runner.plugins_local
