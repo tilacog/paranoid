@@ -6,7 +6,6 @@ from django.conf import settings
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'paranoid.settings')
 
 app = Celery('paranoid_celery_app')
-# TODO: Use a JSON serializer
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.

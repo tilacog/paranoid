@@ -37,15 +37,29 @@ class Audit(models.Model):
 
 class Doctype(models.Model):
 
+    # Django choices come in pairs, so we need to duplicate each choice
+    # value.
     validator_choices = [
-        # Django choices come in pairs
         (plugin,)*2 for plugin in DocumentValidatorProvider.plugins.keys()
     ]
+
+    encoding_choices = (
+        ('', '-----'),  # option for binary files
+        ('utf_8', 'utf-8'),
+        ('iso8859-1', 'latin-1'),
+        ('cp1252', 'windows_1252' ),
+        ('cp850', 'cp850'),
+    )
 
     name = models.CharField(max_length=30, primary_key=True)
     validator = models.CharField(max_length=120, choices=validator_choices)
     mime = models.CharField(max_length=60, default='text/plain')
-    # TODO: Doctypes should have a "expected_encoding" field, and raise errors accordingly
+    expected_encoding = models.CharField(
+        blank=True,
+        max_length=25,
+        choices=encoding_choices,
+        default='utf_8'
+    )
 
     def get_validator(self):
         return DocumentValidatorProvider.plugins[self.validator]
