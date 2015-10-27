@@ -1,3 +1,5 @@
+#!TODO: Try to transform this into an Abstract Base Class. Maybe by
+# directly inherit from abc.ABCMeta?
 class PluginMount(type):
     def __init__(cls, name, bases, attrs):
         if not hasattr(cls, 'plugins'):

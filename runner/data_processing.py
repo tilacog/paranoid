@@ -8,16 +8,24 @@ from django.conf import settings
 from runner.plugin_mount import PluginMount
 
 
-# TODO: Decouple from django.
+# TODO: Decouple from Django.
 
-# TODO:       Files should be ready for 'file_manager' at self.raw_files,
-# TODO(cont): presented as tuple pairs of ('doctype.name', 'file_path')
+#!TODO: `file_manager` should be an instance of a FileManager object, so many
+# audits could benefit from a single FileManager class. ("Favor composition
+# inheritance"). If implemented, most of SPED audits would use a file_manager
+# that will convert the sped-file into a hdf5 store.
 
-# TODO:       Consider calling `self.process_data` using the return of
-# TODO(cont): `self.file_manager`, like 'def process_data(self, file_store):`
+#!TODO: Files should be ready for 'process_data' at `self.files`,presented as
+# tuple pairs of ('doctype.name', 'file_path'). To do so, the file_manager
+# should be called at the beggining of `self.run`. If implemented, we would
+# decouple the "audit definition/development" from Django.
 
-# TODO:       Consider using a pre-defined final file path for
-# TODO(cont): `self.process_data` to use, like `luigi.Task.output` does
+#!TODO: Consider using a pre-defined final file path for `self.process_data`
+# to use, like `luigi.Task.output` does. It could be a class attribute with
+# a string, like `self.output`. It could be defined as a simple basename-like
+# string, and to be returned as an absolute path when called (Can @property
+# do that?). If implemented, users wont have to figure out the path to the
+# final file, just point to `self.output' on audit definition.
 
 class AuditRunnerProvider(metaclass=PluginMount):
     """
@@ -48,6 +56,7 @@ class AuditRunnerProvider(metaclass=PluginMount):
 
     def __init__(self, job_pk):
         self.job_pk = job_pk
+        # TODO: This attribute belongs to the module, not to the class.
         self.job_cls = apps.get_model('jobs', 'Job')
 
         if not hasattr(self, 'file_manager') or not callable(self.file_manager):
