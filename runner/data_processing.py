@@ -1,24 +1,13 @@
 import os.path
+import random
 import shutil
+import string
 from tempfile import TemporaryDirectory
 
-from django.apps import apps
 from django.conf import settings
 
 from runner.plugin_mount import PluginMount
 
-
-# TODO: Decouple from Django.
-
-#!TODO: `file_manager` should be an instance of a FileManager object, so many
-# audits could benefit from a single FileManager class. ("Favor composition
-# inheritance"). If implemented, most of SPED audits would use a file_manager
-# that will convert the sped-file into a hdf5 store.
-
-#!TODO: Files should be ready for 'process_data' at `self.files`,presented as
-# tuple pairs of ('doctype.name', 'file_path'). To do so, the file_manager
-# should be called at the beggining of `self.run`. If implemented, we would
-# decouple the "audit definition/development" from Django.
 
 #!TODO: Consider using a pre-defined final file path for `self.process_data`
 # to use, like `luigi.Task.output` does. It could be a class attribute with
@@ -27,27 +16,38 @@ from runner.plugin_mount import PluginMount
 # do that?). If implemented, users wont have to figure out the path to the
 # final file, just point to `self.output' on audit definition.
 
+def random_string(length=12):
+    random_str = ''.join(
+        random.choice(string.ascii_letters) for i in range(length)
+    )
+    return random_str
+
 
 class AuditRunnerProvider(metaclass=PluginMount):
     """
     Mount point for audit runner plugins.
-    Plugins implementing this reference should provide the following
-    attributes:
+    Plugins implementing this reference should define the following:
 
     Init Parameters
     ---------------
-    job_pk : a unique identifier of the job to have it's documents processed.
-
+    raw_files : a list of tuples
+        This is a list of tuples, each containing the doctype name and the absolute
+        path to the file.
 
     Attributes
     ----------
-    file_manager :  a FileManager instance to be responsible for arranging
-                    the files extactly the way the data processor will need
+    file_manager :  callable
+        Any callable that takes the runner instance as an argument
+        and returns a "container" object to be accessed directly by
+        the `process_data` method. It should arrange the files exactly the way the data
+        processor will need to.
+
 
     Methods
     -------
-    process_data : method to process all given files data. Should return
-                   the path to the report file.
+    process_data : method
+        A method to process all given files data. Should return
+        the path to the report file.
 
     """
 
@@ -55,10 +55,8 @@ class AuditRunnerProvider(metaclass=PluginMount):
     report_path = None
 
 
-    def __init__(self, job_pk):
-        self.job_pk = job_pk
-        # TODO: This attribute belongs to the module, not to the class.
-        self.job_cls = apps.get_model('jobs', 'Job')
+    def __init__(self, raw_files):
+        self.raw_files = raw_files
 
         if not hasattr(self, 'file_manager') or not callable(self.file_manager):
             raise TypeError("Must be implemented with a file_manager callable object")
@@ -80,7 +78,7 @@ class AuditRunnerProvider(metaclass=PluginMount):
         report_abspath = os.path.abspath(report_path)
         (_, extension) = os.path.splitext(report_abspath)
 
-        new_basename = str(self.job_pk) + extension
+        new_basename = random_string() + extension
         new_filename = os.path.join(settings.FINISHED_REPORTS, new_basename)
         return new_filename
 

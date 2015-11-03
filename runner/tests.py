@@ -129,20 +129,35 @@ class AuditRunnerTestCase(TestCase):
         self.mock_file_manager = file_manager_patcher.start()
 
         # Use this runner implementation for the next tests
-        fake_job_pk = 1
-        self.runner = AuditRunnerProvider(fake_job_pk)
+        self.initial_data = [('doctype1','file/path/1'),('doctype2','file/path/2')]
+        self.runner = AuditRunnerProvider(self.initial_data)
+
+
+    def test_instantiation(self):
+        """
+        Concrete runner should be instantiated with a raw file list,
+        which will be stored at `self.raw_files`
+        """
+        self.assertEqual(
+            self.initial_data,
+            self.runner.raw_files
+        )
+
 
     def test_run_calls_anciliary_methods(self):
-        """
-        runner.run must call `organize_files` and `process_data`
-        """
+        "runner.run must call a series of anciliary methods"
+
+        # patch anciliary methods
         with patch.multiple(self.runner, organize_files=DEFAULT,
-                            process_data=DEFAULT, get_persistent_path=DEFAULT):
+                            process_data=DEFAULT, get_persistent_path=DEFAULT,
+                            post_process=DEFAULT):
 
             self.runner.run()
 
+            # Check calls on anciliary methods
             self.runner.organize_files.assert_called_once_with()
             self.runner.process_data.assert_called_once_with()
+            self.runner.post_process.assert_called_once_with()
             self.runner.get_persistent_path.assert_called_once_with(
                 self.runner.process_data.return_value
             )
@@ -250,12 +265,28 @@ class ConcreteAuditRunnerTest(TestCase):
     Tests for minimal audit runner implementations
     """
 
+    def setUp(self):
+        self.initial_data = [('doctype','fake_path')]
+
     def test_cant_instantiate_without_file_manager(self):
+        "Trying to instantiate a concrete runner should raise a TypeError"
+
+        # Define a concrete implementation.
         class TestAudit(AuditRunnerProvider):
-            # file_manager is absent
+            # Note that file_manager is absent
             pass
 
         with self.assertRaises(TypeError):
-            fake_job_pk = 1
-            TestAudit(fake_job_pk)
+            TestAudit(self.initial_data)
 
+    def test_can_use_a_file_manager(self):
+        """
+        If a file_manager is declared, instantiation should not raise any
+        errors
+        """
+        fmgr = lambda x: None
+
+        class TestAudit(AuditRunnerProvider):
+            file_manager = fmgr
+
+        TestAudit(self.initial_data)  # should not raise
