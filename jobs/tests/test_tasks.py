@@ -4,22 +4,24 @@ from unittest.mock import Mock, patch
 from jobs.models import Job
 from jobs.tasks import (prepare_documents, process_job, run_audit, update_job,
                         validate_document)
-from runner.document_validation import (DocumentFormatError, DocumentTypeError,
-                                        ValidationError)
 
 
 class ValidateDocumentUnitTest(TestCase):
 
     def setUp(self):
         # Patch Document model class and instance
-        doc_patcher = patch('jobs.tasks.Document.objects.get')
+        doc_patcher = patch('jobs.tasks.Document')
         self.addCleanup(doc_patcher.stop)
-        self.mock_doc_get = doc_patcher.start()
+        self.mock_doc_cls= doc_patcher.start()
 
         # Create mocks for validator name
         self.mock_doc = Mock(name='DocumentMock')
-        self.mock_doc_get.return_value = self.mock_doc
         self.mock_doc.pk = 1
+        self.mock_doc.file.name = 'path/to/mock_doc_file'
+        self.mock_doc.expected_encoding = 'utf-8'
+        self.mock_doc.expected_mime = 'text/plain'
+
+        self.mock_doc_cls.objects.get.return_value = self.mock_doc
 
         # Create a mock validator class/plugin
         self.mock_validator_cls = Mock(name='MockValidatorClass')
@@ -34,9 +36,17 @@ class ValidateDocumentUnitTest(TestCase):
 
     def test_can_fetch_the_right_document(self):
         validate_document(self.mock_doc.pk)
-        self.mock_doc_get.assert_called_once_with(pk=self.mock_doc.pk)
+        self.mock_doc_cls.objects.get.assert_called_once_with(pk=self.mock_doc.pk)
 
-    def test_calls_validator_run_method(self):
+    def test_validator_is_instantiated_with_the_right_arguments(self):
+        validate_document(self.mock_doc.pk)
+        self.mock_validator_cls.assert_called_once_with(
+            file_path = self.mock_doc.file.name,
+            mime=self.mock_doc.expected_mime,
+            encoding=self.mock_doc.expected_encoding,
+        )
+
+    def test_validator_run_method_is_called(self):
         validate_document(self.mock_doc.pk)
         self.mock_validator.run.assert_called_once_with()
 

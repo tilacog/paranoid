@@ -5,89 +5,71 @@ from unittest.mock import DEFAULT, Mock, mock_open, patch
 from django.test import TestCase, override_settings
 
 from runner.data_processing import AuditRunnerProvider
-from runner.document_validation import (DocumentTypeError,
-                                        DocumentValidatorProvider)
+from runner.document_validation import DocumentValidatorProvider
 
 class BaseClassTest(TestCase):
 
-    def setUp(self):
-        # Reset base class registered subclasses
-        DocumentValidatorProvider.plugins = {}
-
     def tearDown(self):
-        # Reset base class registered subclasses
-        DocumentValidatorProvider.plugins = {}
+        # Remove inserted classes to preserve test isolation
+        DocumentValidatorProvider.plugins.pop('test_class')
 
     def test_subclasses_are_registered(self):
 
-        # No subclass is registered at the begining
-        self.assertEqual(DocumentValidatorProvider.plugins, {})
+        # Subclass isn't registered at the begining
+        self.assertNotIn(
+            'test_class',
+            DocumentValidatorProvider.plugins.keys()
+        )
 
         # Create a subclass
         class test_class(DocumentValidatorProvider):
             pass
 
-        # Now subclass must be registered
-        self.assertDictEqual(
-            {'test_class': test_class},
-            DocumentValidatorProvider.plugins
+        # Now subclass is registered
+        self.assertEqual(
+            test_class,
+            DocumentValidatorProvider.plugins['test_class']
         )
 
 
 class DocumentValidatorProviderTest(TestCase):
 
     def setUp(self):
-        # Patch apps.get_model to return a mock of audits.Document
-        patcher = patch('runner.document_validation.apps.get_model')
-        self.addCleanup(patcher.stop)
-        self.mock_get_model = patcher.start()
-        self.mock_doc_cls = self.mock_get_model.return_value
-
-        # Mock Document instance
-        self.mock_doc = self.mock_doc_cls.objects.get.return_value
-        self.mock_doc.pk = 1
-        self.mock_doc.doctype.mime = 'text/plain'
-        self.mock_doc.file.path = 'foo'
+        self.initial_data = ('/fake/path', 'fake_mime', 'fake_encoding')
 
     @patch('runner.document_validation.magic', autospec=True)
     def test_can_check_mime(self, mock_magic):
-        # Set return value to match mock doctype's
-        mock_magic.from_file.return_value = b'text/plain'
+        "Validator must call `magic.from_file` using it's file_path attribute"
 
-        dvp = DocumentValidatorProvider(1)
-        dvp._check_type()
+        validator = DocumentValidatorProvider(*self.initial_data)
+        validator._has_right_type()
 
-        mock_magic.from_file.assert_called_with(
-            self.mock_doc.file.path,
+        mock_magic.from_file.assert_called_once_with(
+            self.initial_data[0],
             mime=True,
         )
 
     @patch('runner.document_validation.magic', autospec=True)
     def test_can_detect_invalid_mime(self, mock_magic):
         """
-        If given an invalid document, Validator should raise an exception
-        containing the document pk.
+        If given an invalid document `validator.has_right_type` method should
+        return False
         """
-        # Create mocks and fakes
-        fake_document_pk = 1
+
+        # magic.from_file return bytes
         mock_magic.from_file.return_value = b'invalid/mime'
 
         # Run validation
-        dvp = DocumentValidatorProvider(fake_document_pk)
+        validator = DocumentValidatorProvider(*self.initial_data)
 
-        # Check if raises the right exception
-        with self.assertRaises(DocumentTypeError) as cm:
-            dvp._check_type()
+        result = validator._has_right_type()
+        self.assertFalse(result)
 
-        # Check if exception contais document_pk
-        self.assertEqual(cm.exception.args, (fake_document_pk,))
-
-    @patch.multiple(DocumentValidatorProvider, _check_type=DEFAULT,
+    @patch.multiple(DocumentValidatorProvider, _has_right_type=DEFAULT,
                     validate=DEFAULT)
-    def test_can_dispatch_validation(self, _check_type, validate):
+    def test_can_dispatch_validation(self, _has_right_type, validate):
         """
-        Validator must call two methods: one to check file type and another to
-        run the main validation.
+        Validator must call methods to check the file type and format.
         """
         # Patch `open` built-in on target module
         m = mock_open()
@@ -95,16 +77,18 @@ class DocumentValidatorProviderTest(TestCase):
         with patch.object(runner.document_validation, 'open', m, create=True):
 
             # Create a mock file (for the context manager)
-            mock_file = m.return_value
+            mock_file_pointer = m.return_value
 
-            # Create an abstract validator instance
-            # (it's ok since it's methods are mocked)
-            validator = DocumentValidatorProvider(1)
+            validator = DocumentValidatorProvider(*self.initial_data)
             validator.run()
 
-            # assert the two required methods were called
-            _check_type.assert_called_with()
-            validate.assert_called_with(mock_file)
+            # Assert that the required methods were called
+            _has_right_type.assert_called_once_with()
+            validate.assert_called_with(mock_file_pointer)
+
+    @skip
+    def test_validation_results(self):  # TODO
+        pass
 
 
 class AuditRunnerTestCase(TestCase):
@@ -267,6 +251,10 @@ class ConcreteAuditRunnerTest(TestCase):
 
     def setUp(self):
         self.initial_data = [('doctype','fake_path')]
+
+    def tearDown(self):
+        # Remove inserted classes to preserve test isolation
+        AuditRunnerProvider.plugins.pop('TestAudit')
 
     def test_cant_instantiate_without_file_manager(self):
         "Trying to instantiate a concrete runner should raise a TypeError"

@@ -1,78 +1,83 @@
 import os.path
 
 import magic
-from django.apps import apps
-from django.conf import settings
 
 from runner.plugin_mount import PluginMount
 
 
 class ValidationError(Exception):
-    "Base exception for validation-phase errors"
-    pass
-
-class DocumentTypeError(ValidationError):
-    "To be raised when file has the wrong mime"
-    pass
-
-class DocumentFormatError(ValidationError):
     "To be raised when file format doesn't comply with validation rules"
     pass
 
-# TODO: Decouple from django. Use json only
-# TODO: Rename '_check_type' to 'has_right_type'
-# TODO: Rename 'validate' to 'has_right_format'
-# TODO: 'has_right_*' methods should return True/False
-# TODO: Validation Errors should be handled at 'run' time
+
 class DocumentValidatorProvider(metaclass=PluginMount):
     """
     Mount point for plugins which refer to validations that can be performed.
-    Plugins implementing this reference should provide the following attributes:
+    Plugins implementing this reference should define the following:
 
     Init Parameters
     ---------------
-    document_pk : the unique identifier of the document under validation.
+
+     file_path : the absolute path to the file,
+     mime : the expected mime type for the file,
+     encoding : the encoding to be used when reading the file.
 
     Methods
     -------
-    validate : method to validate the file. Should return the file if ok, or
-               raise a DocumentFormatError.
-               A reference to the file path can be found at `self.file_path`
-
+    validate : method
+        Override this in subclasses to define the validation logic for the 
+        doctype. It takes an open file pointer object as argument, and should
+        raise a ValidationError if the file is found to be invalid or simply
+        return if not.
     """
-    def __init__(self, document_pk):
-        self.error = None
 
-        # Keep a reference to the file path
-        # (Getting model class dynamically to avoid circular imports)
-        Document = apps.get_model('audits', 'Document')
-        document_instance = Document.objects.get(pk=document_pk)
+    def __init__(self, file_path, mime, encoding):
+        self.file_path = file_path
+        self.mime = mime
+        self.encoding = encoding
 
-        self.file_path = document_instance.file.path
-        self.document_pk = document_pk
-        self.expected_mime = document_instance.doctype.mime
-
-    def _check_type(self):
-        "Validates document file type using python-magic"
+    def _has_right_type(self):
+        "Check if the document is of the right media type"
         mime = magic.from_file(self.file_path, mime=True)
-        if mime.decode() != self.expected_mime:
-            raise DocumentTypeError(self.document_pk)
+        if mime.decode() != self.mime:
+            return False
+        else:
+            return True
+
+    def _has_right_format(self, file_pointer):
+        "Check if the file has the expected format"
+        try:
+            self.validate(file_pointer)
+
+        except ValidationError:
+            return False
+
+        else:
+            return True
 
     def validate(self):
         # This method should be defined in subclasses
         raise NotImplementedError
 
     def run(self):
-        "Validates document file and stores errors if any"
-        # Getting model class dynamically to avoid circular imports
+        "Perform full validation on document and return a result dict"
 
-        with open(self.file_path, 'rb') as document_file:
+        # Perform type validation first
+        if not self._has_right_type():
+            return {'error': 'invalid type'}
+
+        with open(self.file_path, encoding=self.encoding) as fp:
+
+
+            # Run format validation while trying to catch invalid encoding
+            # exceptions
             try:
-                self._check_type()
-                self.validate(document_file)
+                right_format = self._has_right_format(fp)
+            except UnicodeDecodeError:
+                return {'error': 'invalid encoding'}
 
-            except ValidationError as e:
-                # Catch and return error name and document pk
-                return {'error': e.__class__.__name__, 'pk':  self.document_pk}
-            else:
-                return {'error': None, 'pk':  self.document_pk}
+            if not right_format:
+                return {'error': 'invalid format'}
+
+            # Return no errors if everyting is OK
+            return {'error': None}

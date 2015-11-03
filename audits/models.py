@@ -54,7 +54,7 @@ class Doctype(models.Model):
     name = models.CharField(max_length=30, primary_key=True)
     validator = models.CharField(max_length=120, choices=validator_choices)
     mime = models.CharField(max_length=60, default='text/plain')
-    expected_encoding = models.CharField(
+    encoding = models.CharField(
         blank=True,
         max_length=25,
         choices=encoding_choices,

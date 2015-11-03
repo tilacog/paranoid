@@ -1,4 +1,7 @@
+import os.path
+
 from celery import group, shared_task, task
+from django.conf import settings
 
 from audits.models import Audit, Document
 from jobs.models import Job
@@ -41,10 +44,27 @@ def validate_document(document_pk):
     # Get document instance
     document = Document.objects.get(pk=document_pk)
 
-    # Get appropriate validator class for this document instance
-    validator_cls = document.doctype.get_validator()
-    validator = validator_cls(document_pk)
+    # Get data for the validator instance
 
+
+    file_path = os.path.abspath(os.path.join(
+        settings.MEDIA_ROOT,
+        document.file.name
+    ))
+    mime = document.doctype.mime
+    encoding = document.doctype.encoding
+
+    # Get appropriate validator class for this document type
+    validator_cls = document.doctype.get_validator()
+
+    # Instantiate the validator
+    validator = validator_cls(
+        file_path=file_path,
+        mime=mime,
+        encoding=encoding
+    )
+
+    # Run the document validation
     result = validator.run()
 
     return result

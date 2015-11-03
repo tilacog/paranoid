@@ -16,27 +16,27 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Audit',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
-                ('name', models.CharField(max_length=30, unique=True)),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('name', models.CharField(unique=True, max_length=30)),
                 ('description', models.TextField()),
-                ('runner', models.CharField(max_length=120, choices=[('DummyAudit', 'DummyAudit'), ('EfdContribuicoesRunner', 'EfdContribuicoesRunner'), ('MinimalAuditRunner', 'MinimalAuditRunner')])),
+                ('runner', models.CharField(choices=[('MinimalAuditRunner', 'MinimalAuditRunner'), ('EfdContribuicoesRunner', 'EfdContribuicoesRunner'), ('DummyAudit', 'DummyAudit')], max_length=120)),
             ],
         ),
         migrations.CreateModel(
             name='Doctype',
             fields=[
                 ('name', models.CharField(max_length=30, serialize=False, primary_key=True)),
-                ('validator', models.CharField(max_length=120, choices=[('DummyValidator', 'DummyValidator'), ('PlainTextValidator', 'PlainTextValidator')])),
-                ('mime', models.CharField(max_length=60, default='text/plain')),
-                ('expected_encoding', models.CharField(max_length=25, choices=[('', '-----'), ('utf_8', 'utf-8'), ('iso8859-1', 'latin-1'), ('cp1252', 'windows_1252'), ('cp850', 'cp850')], blank=True, default='utf_8')),
+                ('validator', models.CharField(choices=[('DummyValidator', 'DummyValidator'), ('PlainTextValidator', 'PlainTextValidator')], max_length=120)),
+                ('mime', models.CharField(default='text/plain', max_length=60)),
+                ('encoding', models.CharField(default='utf_8', blank=True, choices=[('', '-----'), ('utf_8', 'utf-8'), ('iso8859-1', 'latin-1'), ('cp1252', 'windows_1252'), ('cp850', 'cp850')], max_length=25)),
             ],
         ),
         migrations.CreateModel(
             name='Document',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
                 ('file', models.FileField(upload_to=audits.models.document_filename)),
-                ('checksum', models.CharField(max_length=40, blank=True)),
+                ('checksum', models.CharField(blank=True, max_length=40)),
                 ('doctype', models.ForeignKey(to='audits.Doctype')),
                 ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
@@ -44,8 +44,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Package',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, primary_key=True, auto_created=True)),
-                ('name', models.CharField(max_length=30, unique=True)),
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('name', models.CharField(unique=True, max_length=30)),
                 ('description', models.TextField()),
             ],
         ),
