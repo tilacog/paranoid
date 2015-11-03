@@ -27,9 +27,6 @@ from runner.plugin_mount import PluginMount
 # do that?). If implemented, users wont have to figure out the path to the
 # final file, just point to `self.output' on audit definition.
 
-#!TODO: AuditRunner should have post_processing hooks, for manipulating the
-# result file before the workspace is destroyed.
-
 
 class AuditRunnerProvider(metaclass=PluginMount):
     """
@@ -74,6 +71,10 @@ class AuditRunnerProvider(metaclass=PluginMount):
         # file_manager is defined inside subclass
         self.files = self.file_manager()
 
+    def post_process(self):
+        # post processing hook to be optinally implemented by subclasses
+        pass
+
     def get_persistent_path(self, report_path):
         "Rename report file to "
         report_abspath = os.path.abspath(report_path)
@@ -88,10 +89,16 @@ class AuditRunnerProvider(metaclass=PluginMount):
             # Set up tmp directory access to audit process at runtime
             self.workspace = tmp
 
+            # call the file manager to prepare the files
             self.organize_files()
+
             # process_data is defined inside subclass
             report_path = self.process_data()
             persistent_path = self.get_persistent_path(report_path)
+
+            # post-processing hook
+            self.post_process()
+
             # move report to a persistent location
             shutil.move(src=report_path, dst=persistent_path)
 
