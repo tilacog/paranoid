@@ -5,7 +5,6 @@ from jobs.models import Job
 from runner.document_validation import ValidationError
 
 
-# TODO: Decouple runner module from django objects.
 @task
 def process_job(job_pk):
     """
@@ -38,7 +37,6 @@ def process_job(job_pk):
     update_job(job_pk, success=True, report_path = report_path)
 
 
-@task
 def validate_document(document_pk):
     # Get document instance
     document = Document.objects.get(pk=document_pk)
@@ -73,7 +71,15 @@ def update_documents(*args, **kwargs):  #TODO
 
 def prepare_documents(job_pk):
     "Fetch jobs document files and return them as a list of tuples"
-    return
+    job = Job.objects.get(pk=job_pk)
+    documents = job.documents.all()
+
+    docs_as_tuples = [
+        (doc.doctype.name, doc.file.file.name)
+        for doc in documents
+    ]
+
+    return docs_as_tuples
 
 def run_audit(job_pk):
     job = Job.objects.get(pk=job_pk)

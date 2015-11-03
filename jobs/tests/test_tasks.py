@@ -1,8 +1,9 @@
-from unittest import skip, TestCase
+from unittest import TestCase, skip
 from unittest.mock import Mock, patch
 
 from jobs.models import Job
-from jobs.tasks import process_job, run_audit, update_job, validate_document
+from jobs.tasks import (prepare_documents, process_job, run_audit, update_job,
+                        validate_document)
 from runner.document_validation import (DocumentFormatError, DocumentTypeError,
                                         ValidationError)
 
@@ -40,7 +41,7 @@ class ValidateDocumentUnitTest(TestCase):
         self.mock_validator.run.assert_called_once_with()
 
 
-class AuditRunnerUnitTest(TestCase):
+class RunAuditUnitTest(TestCase):
 
     def setUp(self):
 
@@ -86,6 +87,35 @@ class AuditRunnerUnitTest(TestCase):
         run_audit(self.mock_job.pk)
         self.mock_runner.run.assert_called_once_with()
 
+
+class PrepareDocumentsUnitTest(TestCase):
+
+    @patch('jobs.tasks.Job')
+    def test_returns_job_documents_as_list_of_tuples(self, job_cls):
+
+
+        mock_document_1 = Mock(name='MockDoc_1')
+        mock_document_1.doctype.name = 'MockDoctype_1'
+        mock_document_1.file.file.name = 'path/to/file/MockDoc_1'
+
+        mock_document_2 = Mock(name='MockDocument_2')
+        mock_document_2.doctype.name = 'MockDoctype_2'
+        mock_document_2.file.file.name = 'path/to/file/MockDoc_2'
+
+        mock_job = Mock(name='MockJob')
+        mock_job.pk = 1
+        mock_job.documents.all.return_value = [mock_document_1, mock_document_2]
+
+        job_cls.objects.get.return_value = mock_job
+
+        expected_output = [
+            (mock.doctype.name, mock.file.file.name)
+            for mock in [mock_document_1, mock_document_2]
+        ]
+
+        docs = prepare_documents(mock_job.pk)
+
+        self.assertEqual(docs, expected_output)
 
 class DocumentUpdaterUnitTest(TestCase):  # TODO
     pass
