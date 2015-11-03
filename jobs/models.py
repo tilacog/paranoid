@@ -1,3 +1,4 @@
+import os.path
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -44,9 +45,3 @@ class Job(models.Model):
         self.state = Job.SUCCESS_STATE
         self.full_clean()
         self.save()
-
-    def get_report_url(self):
-        try:
-            return self.report_file.url
-        except ValueError:
-            return

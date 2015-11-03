@@ -34,7 +34,7 @@
                         <td>{{ job.created_at|date:"d/m/Y H:i" }}</td>
                         <td>{{ job.get_state_display }}</td>
                         <td>
-                            {% if job.get_report_url %}
+                            {% if job.report_file %}
                             <a class="download-link" href="{% url 'download_report'  job.pk %}" download>Baixar Relatório</a>
                             {% endif %}
                         </td>

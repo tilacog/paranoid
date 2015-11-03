@@ -25,10 +25,20 @@ def download_report(request, job_pk):
     job = get_object_or_404(Job, pk=job_pk, user=request.user)
 
     # Let nginx handle file downloads
-    # TODO: Fix random filename issue.
     response = HttpResponse()
     response['Content-Type'] = ''
-    response['X-Accel-Redirect'] = "/protected/{0}".format(
+
+    file_extension = job.report_file.name.split('.')[-1]
+    file_name = "Report #{num}.{ext}".format(
+        num=job.pk,
+        ext=file_extension,
+    )
+
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(
+        file_name,
+    )
+
+    response['X-Accel-Redirect'] = "/protected/{}".format(
         job.report_file.path.split('/media/')[-1]
     )
     return response
