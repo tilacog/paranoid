@@ -63,7 +63,7 @@ def update_job(job_pk, invalid_documents=False, success=False, report_path=None)
         job.state = Job.FAILURE_STATE
     elif success:
         job.state = Job.SUCCESS_STATE
-        job.report_file.name = report_path  # TODO: check if has been tested
+        job.report_file.name = report_path
     job.save()
 
 def update_documents(*args, **kwargs):  #TODO
