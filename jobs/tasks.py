@@ -71,14 +71,17 @@ def update_job(job_pk, invalid_documents=False, success=False, report_path=None)
 def update_documents(*args, **kwargs):  #TODO
     pass
 
+def prepare_documents(job_pk):
+    "Fetch jobs document files and return them as a list of tuples"
+    return
 
-@task
 def run_audit(job_pk):
     job = Job.objects.get(pk=job_pk)
 
     # Get AuditRunner class and instantiate it
     runner_cls = job.audit.get_runner()
-    runner = runner_cls(job_pk)
+    documents = prepare_documents(job_pk)
+    runner = runner_cls(documents)
     runner.run()
 
     return runner.report_path
