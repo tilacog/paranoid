@@ -8,5 +8,3 @@ class DummyValidator(DocumentValidatorProvider):
     """
     def validate(self, file_obj):
         pass
-
-

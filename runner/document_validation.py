@@ -25,7 +25,7 @@ class DocumentValidatorProvider(metaclass=PluginMount):
     Methods
     -------
     validate : method
-        Override this in subclasses to define the validation logic for the 
+        Override this in subclasses to define the validation logic for the
         doctype. It takes an open file pointer object as argument, and should
         raise a ValidationError if the file is found to be invalid or simply
         return if not.
