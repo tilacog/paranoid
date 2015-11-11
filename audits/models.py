@@ -86,4 +86,4 @@ class Document(models.Model):
         return self.file.file.name
 
     def __str__(self):
-        return "{} Document".format(self.doctype)
+        return "{} Document (pk={})".format(self.doctype, self.pk)
