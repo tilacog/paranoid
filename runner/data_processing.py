@@ -16,6 +16,18 @@ from runner.plugin_mount import PluginMount
 # do that?). If implemented, users wont have to figure out the path to the
 # final file, just point to `self.output' on audit definition.
 
+
+#!TODO: Create familiy of Error objects to be used in audit runs. Those errors
+# will be handled gracefully by the AuditRunnerProvider.
+# Suggestions:
+#   AuditRuntimeError (something went wrong during dataframe handling)
+#   EmptyDataFrameError (Lack of workable data)
+#   HDF5KeyError (for when a file doesn't have a record/block)
+#   ... (be creative)
+#
+# Any other type of error will be treated as a SystemError.
+
+
 def random_string(length=12):
     random_str = ''.join(
         random.choice(string.ascii_letters) for i in range(length)
