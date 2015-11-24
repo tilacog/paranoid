@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load markdown %}
 
 
 {% block title %}{{ audit.name }} | Titan{% endblock title %}
@@ -13,7 +14,7 @@
     <div class="col-md-8">
         <div class="page-header">
             <h1 id="id_audit_name">{{ audit.name }}</h1>
-            <small id="id_audit_description">{{ audit.description }}</small>
+            <small id="id_audit_description">{{ audit.description|markdown }}</small>
         </div>
     </div>
 </div>
