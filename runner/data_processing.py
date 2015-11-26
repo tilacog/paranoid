@@ -108,6 +108,7 @@ class AuditRunnerProvider(metaclass=PluginMount):
             self.post_process()
 
             # move report to a persistent location
+            # TODO: Create destination directory if it doesn't exists
             shutil.move(src=report_path, dst=persistent_path)
 
             # keep reference to the report file final path
