@@ -9,12 +9,10 @@ from django.conf import settings
 from runner.plugin_mount import PluginMount
 
 
-#!TODO: Consider using a pre-defined final file path for `self.process_data`
-# to use, like `luigi.Task.output` does. It could be a class attribute with
-# a string, like `self.output`. It could be defined as a simple basename-like
-# string, and to be returned as an absolute path when called (Can @property
-# do that?). If implemented, users wont have to figure out the path to the
-# final file, just point to `self.output' on audit definition.
+#!TODO: Define the following attrs in the parent class:
+# 1. self.workspace [ok]
+# 2. self.report_name (like "final.xlsx". It will be just a pointer)
+# 3. self.output (a getter, to call os.path.join(self.workspace, self.report_name)
 
 
 #!TODO: Create familiy of Error objects to be used in audit runs. Those errors
