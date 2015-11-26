@@ -7,6 +7,16 @@ from fabric.contrib.files import append, exists, sed
 REPO_URL = 'https://github.com/tilacog/paranoid.git'
 PLUGIN_REPO_URL = 'git@bitbucket.org:tilacog/titan_plugins.git'
 
+# TODO: Put gunicorn under supervisor control
+# The following deploy steps are currently made manually:
+    # Create/Update nginx config file
+    # Create/Update gunicorn config file
+    # Create/Update celery supervisor config file
+    # Create/Update rabbitmq supervisor config file
+    # Create rabbitmq v_host
+    # Restart Gunicorn
+    # Restart Celery
+
 def deploy():
     site_folder = '/home/%s/sites/%s' % (env.user, env.host)
     source_folder = site_folder + '/source'
@@ -18,14 +28,11 @@ def deploy():
     _update_static_files(source_folder)
     _update_database(source_folder)
 
-    # Will do the steps below manually
-    #_create_nginx_config_file(env.host, source_folder)
-    #_create_gunicorn_upstart_file(env.host, source_folder)
-    #_restart_nginx_and_gunicorn(env.host)
 
 def _create_directory_structure_if_necessary(site_folder):
     for subfolder in ('database', 'static', 'virtualenv', 'source'):
         run('mkdir -p %s/%s' % (site_folder, subfolder))
+
 
 def _get_latest_source(source_folder):
     if exists(source_folder + '/.git'):
@@ -50,15 +57,27 @@ def _get_latest_plugin_source(source_folder):
 
 def _update_settings(source_folder, site_name):
     settings_path = source_folder + '/paranoid/settings.py'
-    if not 'staging' in env.host:  # Let DEBUG=True on staging server
+
+    # Let DEBUG=True on staging server
+    if not 'staging' in env.host:
         sed(settings_path, 'DEBUG = True', 'DEBUG = False')
+
+    # Update DOMAIN to match site_name
     sed(settings_path, 'DOMAIN = "localhost"', 'DOMAIN = "%s"' % (site_name,))
+
+    # Import a new SECRET_KEY name with a randomly generated value
     secret_key_file = source_folder + '/paranoid/secret_key.py'
     if not exists(secret_key_file):
         chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
         key = ''.join(random.SystemRandom().choice(chars) for _ in range(50))
         append(secret_key_file, "SECRET_KEY = '%s'" % (key,))
     append(settings_path, '\nfrom .secret_key import SECRET_KEY')
+
+    # Update BROKER_URL to point to the correct (rabbitmq) v_host
+    v_host = '/staging' if 'staging' in env.host else '/main'
+    broker_url = 'amqp://guest@localhost:5672/' + v_host
+    sed(settings_path, 'amqp://', broker_url)
+
 
 def _update_virtualenv(source_folder):
     virtualenv_folder = source_folder + '/../virtualenv'
@@ -68,48 +87,14 @@ def _update_virtualenv(source_folder):
             virtualenv_folder, source_folder
     ))
 
+
 def _update_static_files(source_folder):
     run('cd %s && ../virtualenv/bin/python3 manage.py collectstatic --noinput' %(
         source_folder,
     ))
 
+
 def _update_database(source_folder):
     run('cd %s && ../virtualenv/bin/python3 manage.py migrate --noinput' % (
         source_folder,
     ))
-
-def _create_nginx_config_file(site_name, source_folder):
-    # Get nginx.conf template file from source and use sed to update site name
-    run('sed "s/SITENAME/{site_name}/g" '
-        '{source_folder}/deploy_tools/nginx.template.conf | '
-        'sudo tee /etc/nginx/sites-available/{site_name}'.format(
-            site_name=site_name,
-            source_folder=source_folder,
-    ))
-
-    # Create a symlink on nginx config directories, if it doesn't exist yet
-    with settings(warn_only=True):
-        cmd_string = (
-            'sudo ln -s /sites-available/{site_name} '
-            '/etc/nginx/sites-enabled/{site_name}'
-        )
-
-        run(cmd_string.format(site_name=site_name))
-
-def _create_gunicorn_upstart_file(site_name, source_folder):
-    # Get gunicorn.conf template from source and use sed to update site name
-    run('sed "s/SITENAME/{site_name}/g" '
-        '{source_folder}/deploy_tools/gunicorn-upstart.template.conf | '
-        'sudo tee /etc/init/gunicorn-{site_name}.conf'.format(
-            site_name=site_name,
-            source_folder=source_folder,
-    ))
-
-def _restart_nginx_and_gunicorn(site_name):
-    # Starts or restart/reload nginx and gunicorn
-    run('sudo service nginx reload')
-
-    with settings(warn_only=True):
-        gunicorn_cmd = run ('sudo restart gunicorn-%s' % (site_name,))
-    if gunicorn_cmd.failed:
-        run ('sudo start gunicorn-%s' % (site_name,))
