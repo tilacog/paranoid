@@ -11,12 +11,11 @@ from runner.plugin_mount import PluginMount
 
 #!TODO: Define the following attrs in the parent class:
 # 1. self.workspace [ok]
-# 2. self.report_name (like "final.xlsx". It will be just a pointer)
-# 3. self.output (a getter, to call os.path.join(self.workspace, self.report_name)
+# 2. self.report_extension
+# 3. self.output (a getter, to call os.path.join(self.workspace, 'dummy_filename' + self.extension)
 
-
-#!TODO: Create familiy of Error objects to be used in audit runs. Those errors
-# will be handled gracefully by the AuditRunnerProvider.
+#!TODO: Create familiy of Error objects to be raised by `.process_data`.
+# Those errors would  be handled gracefully by the AuditRunnerProvider.
 # Suggestions:
 #   AuditRuntimeError (something went wrong during dataframe handling)
 #   EmptyDataFrameError (Lack of workable data)
@@ -24,6 +23,17 @@ from runner.plugin_mount import PluginMount
 #   ... (be creative)
 #
 # Any other type of error will be treated as a SystemError.
+
+#!TODO: Consider using a DSL to define audits.
+# Benefits:
+#   1. Convert code to data
+#   2. Reduce duplication
+#   3. Simpler implementations
+
+# TODO: Think about how to handle colossal files (+1M lines)
+
+# TODO: `.process_data` should not return anything. The return value is
+# irrelevant if the class already knows where the output file is.
 
 
 def random_string(length=12):
