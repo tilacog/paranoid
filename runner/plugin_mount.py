@@ -1,3 +1,4 @@
+# TODO: Add support for Meta/Abstract subclasses, to promote inheritance
 class PluginMount(type):
     def __init__(cls, name, bases, attrs):
         if not hasattr(cls, 'plugins'):
