@@ -135,7 +135,7 @@ if 'test' in sys.argv:
     )
 
 # CELERY SETTINGS
-BROKER_URL = 'amqp://'
+BROKER_URL = 'amqp://'  # TODO: Put broker url on supervisord.conf file
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_TASK_SERIALIZER = 'json'
 

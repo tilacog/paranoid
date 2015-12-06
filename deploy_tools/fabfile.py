@@ -7,7 +7,6 @@ from fabric.contrib.files import append, exists, sed
 REPO_URL = 'https://github.com/tilacog/paranoid.git'
 PLUGIN_REPO_URL = 'git@bitbucket.org:tilacog/titan_plugins.git'
 
-# TODO: Put gunicorn under supervisor control
 # The following deploy steps are currently made manually:
     # Create/Update nginx config file
     # Create/Update gunicorn config file
