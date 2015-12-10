@@ -112,6 +112,16 @@ class AuditRunnerTestCase(TestCase):
         self.addCleanup(file_manager_patcher.stop)
         self.mock_file_manager = file_manager_patcher.start()
 
+        # Patch AuditRunner's extension attribute
+        ext_patcher = patch.object(
+            AuditRunnerProvider,
+            'extension',
+            new='test',
+            create=True,
+        )
+        self.addCleanup(ext_patcher.stop)
+        self.mock_extension = ext_patcher.start()
+
         # Use this runner implementation for the next tests
         self.initial_data = [('doctype1','file/path/1'),('doctype2','file/path/2')]
         self.runner = AuditRunnerProvider(self.initial_data)
@@ -133,8 +143,7 @@ class AuditRunnerTestCase(TestCase):
 
         # patch anciliary methods
         with patch.multiple(self.runner, organize_files=DEFAULT,
-                            process_data=DEFAULT, get_persistent_path=DEFAULT,
-                            post_process=DEFAULT):
+                            process_data=DEFAULT, post_process=DEFAULT):
 
             self.runner.run()
 
@@ -142,9 +151,6 @@ class AuditRunnerTestCase(TestCase):
             self.runner.organize_files.assert_called_once_with()
             self.runner.process_data.assert_called_once_with()
             self.runner.post_process.assert_called_once_with()
-            self.runner.get_persistent_path.assert_called_once_with(
-                self.runner.process_data.return_value
-            )
 
     def test_organize_files_dispatches_file_manager_function(self):
 
@@ -184,7 +190,6 @@ class AuditRunnerTestCase(TestCase):
             self.runner,
             organize_files=DEFAULT,
             process_data=DEFAULT,
-            get_persistent_path=DEFAULT
         ):
             # Inject an assertion about runner.workspace state, to be verified
             # when runner.process_data gets called.
@@ -205,43 +210,33 @@ class AuditRunnerTestCase(TestCase):
 
     def test_report_file_is_persisted_elsewhere(self):
         """
-        `shutil.move` must be called using the filepath returned from the
-        `process_data` method.
+        `shutil.move` must be called using the filepath from runner.output
+        and runner.report_path.
         """
-        mock_process_data = Mock(return_value='old_file_path')
-        mock_get_persistent_path = Mock(return_value='new_file_path')
+        mock_output = Mock(return_value='new_file_path')
         with patch.multiple(
             self.runner,
             organize_files=DEFAULT,
-            process_data=mock_process_data,
-            get_persistent_path=mock_get_persistent_path,
+            process_data=DEFAULT,
         ):
             self.runner.run()
 
         self.mock_shutil.move.assert_called_once_with(
-            src=mock_process_data.return_value,
-            dst=mock_get_persistent_path.return_value
+            src=self.runner.output,
+            dst=self.runner.report_path
         )
 
     def test_runner_keeps_reference_to_report_path(self):
         """
-        At the end of the data processing, the runner instance should keep
-        a reference to the final report (final) path.
+        The runner instance keeps a reference to the report final after the
+        data processing phase.
         """
-        mock_process_data = Mock(return_value='old_file_path')
-        mock_get_persistent_path = Mock(return_value='new_file_path')
-        with patch.multiple(
-            self.runner,
-            organize_files=DEFAULT,
-            process_data=mock_process_data,
-            get_persistent_path=mock_get_persistent_path,
-        ):
-            self.runner.run()
+        with patch.multiple(self.runner, organize_files=DEFAULT,
+                            process_data=DEFAULT):
 
-        self.assertEqual(
-            self.runner.report_path,
-            mock_get_persistent_path.return_value
-        )
+            self.assertIsNone(self.runner.report_path)
+            self.runner.run()
+            self.assertIsNotNone(self.runner.report_path)
 
 
 class ConcreteAuditRunnerTest(TestCase):
@@ -252,29 +247,25 @@ class ConcreteAuditRunnerTest(TestCase):
     def setUp(self):
         self.initial_data = [('doctype','fake_path')]
 
-    def tearDown(self):
-        # Remove inserted classes to preserve test isolation
-        AuditRunnerProvider.plugins.pop('TestAudit')
-
-    def test_cant_instantiate_without_file_manager(self):
+    def test_cant_instantiate_without_file_manager_or_extension(self):
         "Trying to instantiate a concrete runner should raise a TypeError"
 
-        # Define a concrete implementation.
-        class TestAudit(AuditRunnerProvider):
-            # Note that file_manager is absent
-            pass
+        NoFileMgr= type('NoFileMgr', (AuditRunnerProvider,),
+                        {'extension':'X'})
+
+        NoExt = type('NoExt', (AuditRunnerProvider,),
+                     {'file_manager':lambda x:x})
 
         with self.assertRaises(TypeError):
-            TestAudit(self.initial_data)
+            NoFileMgr(self.initial_data)
+            NoExt(self.initial_data)
 
-    def test_can_use_a_file_manager(self):
-        """
-        If a file_manager is declared, instantiation should not raise any
-        errors
-        """
-        fmgr = lambda x: None
+        # The following should not raise
+        OkAuditRunner = type('OkAuditRunner', (AuditRunnerProvider,),
+                             {'file_manager': lambda x:x,
+                              'extension': 'txt'})
 
-        class TestAudit(AuditRunnerProvider):
-            file_manager = fmgr
-
-        TestAudit(self.initial_data)  # should not raise
+        # Remove inserted classes to preserve test isolation
+        AuditRunnerProvider.plugins.pop('NoFileMgr')
+        AuditRunnerProvider.plugins.pop('NoExt')
+        AuditRunnerProvider.plugins.pop('OkAuditRunner')

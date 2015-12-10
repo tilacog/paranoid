@@ -8,12 +8,6 @@ from django.conf import settings
 
 from runner.plugin_mount import PluginMount
 
-
-#!TODO: Define the following attrs in the parent class:
-# 1. self.workspace [ok]
-# 2. self.report_extension
-# 3. self.output (a getter, to call os.path.join(self.workspace, 'dummy_filename' + self.extension)
-
 #!TODO: Create familiy of Error objects to be raised by `.process_data`.
 # Those errors would  be handled gracefully by the AuditRunnerProvider.
 # Suggestions:
@@ -31,10 +25,6 @@ from runner.plugin_mount import PluginMount
 #   3. Simpler implementations
 
 # TODO: Think about how to handle colossal files (+1M lines)
-
-# TODO: `.process_data` should not return anything. The return value is
-# irrelevant if the class already knows where the output file is.
-
 
 def random_string(length=12):
     random_str = ''.join(
@@ -61,6 +51,8 @@ class AuditRunnerProvider(metaclass=PluginMount):
         and returns a "container" object to be accessed directly by
         the `process_data` method. It should arrange the files exactly the way the data
         processor will need to.
+    extension : string
+        The extension of the final file, like "zip" or "xlsx".
 
 
     Methods
@@ -80,6 +72,9 @@ class AuditRunnerProvider(metaclass=PluginMount):
 
         if not hasattr(self, 'file_manager') or not callable(self.file_manager):
             raise TypeError("Must be implemented with a file_manager callable object")
+        if not hasattr(self, 'extension') or not isinstance(self.extension, str):
+            raise TypeError("Must be implemented with an `extension` attribute")
+
 
     def process_data(self):
         # This method should be defined in subclasses
@@ -93,36 +88,41 @@ class AuditRunnerProvider(metaclass=PluginMount):
         # post processing hook to be optinally implemented by subclasses
         pass
 
-    def get_persistent_path(self, report_path):
-        "Rename report file to "
-        report_abspath = os.path.abspath(report_path)
-        (_, extension) = os.path.splitext(report_abspath)
-
-        new_basename = random_string() + extension
-        new_filename = os.path.join(settings.FINISHED_REPORTS, new_basename)
-        return new_filename
+    @property
+    def output(self):
+        """Points to the temporary file path.
+        To be used during the audit running phase.
+        """
+        if not hasattr(self, '_output'):
+            rand_str = random_string()
+            filename = 'report-{}.{}'.format(rand_str, self.extension)
+            self._output = os.path.join(self.workspace, filename)
+        return self._output
 
     def run(self):
         with TemporaryDirectory() as tmp:
-            # Set up tmp directory access to audit process at runtime
+            # Keep a reference to the temporary directory
             self.workspace = tmp
 
             # call the file manager to prepare the files
             self.organize_files()
 
             # process_data is defined inside subclass
-            report_path = self.process_data()
-            persistent_path = self.get_persistent_path(report_path)
+            self.process_data()
 
             # post-processing hook
             self.post_process()
 
-            # move report to a persistent location
-            # TODO: Create destination directory if it doesn't exists
-            shutil.move(src=report_path, dst=persistent_path)
+            # move report to a persistent location and keep reference to the
+            # report file final path
+            self.report_path = os.path.join(
+                settings.FINISHED_REPORTS,
+                os.path.basename(self.output)
+            )
 
-            # keep reference to the report file final path
-            self.report_path = persistent_path
+            # Create destination directory if it doesn't exist
+            os.makedirs(settings.FINISHED_REPORTS, exist_ok=True)
+            shutil.move(src=self.output, dst=self.report_path)
 
             # Revert to avoid confusion
             self.workspace = None
