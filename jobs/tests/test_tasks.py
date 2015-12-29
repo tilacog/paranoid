@@ -1,3 +1,4 @@
+import os
 from unittest import TestCase, skip
 from unittest.mock import Mock, patch
 
@@ -18,8 +19,8 @@ class ValidateDocumentUnitTest(TestCase):
         self.mock_doc = Mock(name='DocumentMock')
         self.mock_doc.pk = 1
         self.mock_doc.file.name = 'path/to/mock_doc_file'
-        self.mock_doc.expected_encoding = 'utf-8'
-        self.mock_doc.expected_mime = 'text/plain'
+        self.mock_doc.doctype.encoding = 'utf-8'
+        self.mock_doc.doctype.mime = 'text/plain'
 
         self.mock_doc_cls.objects.get.return_value = self.mock_doc
 
@@ -41,9 +42,11 @@ class ValidateDocumentUnitTest(TestCase):
     def test_validator_is_instantiated_with_the_right_arguments(self):
         validate_document(self.mock_doc.pk)
         self.mock_validator_cls.assert_called_once_with(
-            file_path = self.mock_doc.file.name,
-            mime=self.mock_doc.expected_mime,
-            encoding=self.mock_doc.expected_encoding,
+            file_path = os.path.abspath(os.path.join(
+                '../media', self.mock_doc.file.name
+            )),
+            mime=self.mock_doc.doctype.mime,
+            encoding=self.mock_doc.doctype.encoding,
         )
 
     def test_validator_run_method_is_called(self):

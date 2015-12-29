@@ -50,7 +50,7 @@ class AdminTest(FunctionalTest):
         doctype_selection.select_by_visible_text('TestDoctype')
 
         runner_dropdown = Select(self.browser.find_element_by_id('id_runner'))
-        runner_dropdown.select_by_visible_text('MinimalAuditRunner')
+        runner_dropdown.select_by_visible_text('DummyAudit')
 
         # She then saves her new audit by clicking on the Save button
         self.browser.find_element_by_css_selector('.default').click()
