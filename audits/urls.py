@@ -1,5 +1,8 @@
-from django.conf.urls import include, patterns, url
+from django.conf.urls import url
 
-urlpatterns = patterns('',
-    url(r'^(\d+)/$', 'audits.views.audit_page', name='audit_page'),
-)
+from audits import views
+
+
+urlpatterns = [
+    url(r'^(\d+)/$', views.audit_page, name='audit_page'),
+]

@@ -1,8 +1,10 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-urlpatterns = patterns('',
-    url(r'^$', 'jobs.views.job_list', name='job_list'),
-    url(r'^new/(\d+)/$', 'jobs.views.new_job', name='new_job'),
-    url('^download/(\d+)/$', 'jobs.views.download_report', name='download_report'),
+from jobs import views
 
-)
+urlpatterns = [
+    url(r'^$', views.job_list, name='job_list'),
+    url(r'^new/(\d+)/$', views.new_job, name='new_job'),
+    url('^download/(\d+)/$', views.download_report, name='download_report'),
+
+]
