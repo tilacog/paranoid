@@ -2,7 +2,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth.views import logout
 
-import audits
+import audits.views
 
 urlpatterns = [
     url(r'^$', audits.views.home_page, name='home_page'),

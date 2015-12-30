@@ -59,6 +59,6 @@ class AdminTest(FunctionalTest):
         self.assertTrue(self.browser.find_element_by_link_text('A new test audit'))
 
         # Finally, she visits to the home page to check if her new audit is displayed
-        self.browser.find_element_by_link_text('View site').click()
+        self.browser.find_element_by_link_text('VIEW SITE').click()
         page_text = self.browser.find_element_by_tag_name('body').text
         self.assertIn('A new test audit', page_text)
