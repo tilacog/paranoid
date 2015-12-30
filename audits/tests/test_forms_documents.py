@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock, patch
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ModelForm, widgets
 from django.forms.formsets import BaseFormSet
 from django.test import TestCase
@@ -63,7 +64,7 @@ class DocumentFormsetTest(TestCase):
 
     def create_formset_data(self):
         d = DoctypeFactory()
-        mock_file = MagicMock()
+        test_file = SimpleUploadedFile('file_name', b'file_content')
 
         post_data = {
             'form-TOTAL_FORMS': 2,
@@ -74,8 +75,8 @@ class DocumentFormsetTest(TestCase):
         }
 
         file_data = {
-            'form-0-file': mock_file,
-            'form-1-file': mock_file,
+            'form-0-file': test_file,
+            'form-1-file': test_file,
         }
 
         return (post_data, file_data)
