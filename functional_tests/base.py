@@ -48,7 +48,12 @@ class FunctionalTest(StaticLiveServerTestCase):
     def setUp(self):
         if self.against_staging:
             reset_database(self.server_host)
-        self.browser = webdriver.Firefox()
+
+        # Create custom profile for keeping startup fast
+        profile = webdriver.FirefoxProfile()
+        profile.set_preference('startup.homepage_welcome_url.additional', '')
+
+        self.browser = webdriver.Firefox(profile)
         self.browser.implicitly_wait(DEFAULT_WAIT)
 
     def tearDown(self):
