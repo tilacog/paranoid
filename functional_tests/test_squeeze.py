@@ -1,4 +1,4 @@
-from base import FunctionalTest
+from .base import FunctionalTest
 
 from accounts.factories import UserFactory
 from audits.factories import AuditFactory
@@ -21,17 +21,31 @@ class SqueezeTest(FunctionalTest):
         """Users should be able to opt-in and schedule an audit.
         """
         # User visits the squeeze page URL
+        self.browser.get(self.server_url + '/titan-analises-sped')
 
         # The page will have:
-        # - an email form
-        # - an audit select
-        # - an upload button
+        # an intro text
+        intro_text = self.browser.find_element_by_id('id_intro_text')
+        # an email form
+        email_form = self.browser.find_element_by_id('id_email_form')
+        # audit selection radio inputs 
+        audit_selection = self.browser.find_elements_by_css_selector(
+            'input[type="radio"]'
+        )
+        
+        # an upload button
+        upload_button = self.browser.find_elements_by_css_selector(
+            'button[type="submit"]'
+        )
 
         # The user will submit the form with an invalid email address
+        email_form.send_keys('blarhg@\n')
 
         # The site returns a warning about the invalid email
+        self.wait_for_element_with_id('id_invalid_email_error')
 
         # The user will then submit a valid form
+        email_form.send_keys('testtitan@mailinator.com\n')
 
         # After submitting the valid form, the user is taken to a confirmation
         # page.
