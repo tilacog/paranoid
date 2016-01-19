@@ -1,7 +1,11 @@
-from .base import FunctionalTest
+from django.core.urlresolvers import reverse
 
 from accounts.factories import UserFactory
 from audits.factories import AuditFactory
+
+from .base import FunctionalTest
+
+SQUEEZE_PAGE_VIEW_NAME = 'squeeze_page'
 
 
 class SqueezeTest(FunctionalTest):
@@ -21,7 +25,7 @@ class SqueezeTest(FunctionalTest):
         """Users should be able to opt-in and schedule an audit.
         """
         # User visits the squeeze page URL
-        self.browser.get(self.server_url + '/titan-analises-sped')
+        self.browser.get(self.server_url + reverse(SQUEEZE_PAGE_VIEW_NAME))
 
         # The page will have:
         # a verbose title
