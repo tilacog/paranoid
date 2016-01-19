@@ -24,15 +24,20 @@ class SqueezeTest(FunctionalTest):
         self.browser.get(self.server_url + '/titan-analises-sped')
 
         # The page will have:
+        # a verbose title
+        title = self.browser.find_element_by_name('h1')
+        for keyword in ['titan', 'sped', 'análise', 'excel']:
+            self.assertIn(keyword.lower(), title.text.lower())
+
         # an intro text
         intro_text = self.browser.find_element_by_id('id_intro_text')
         # an email form
         email_form = self.browser.find_element_by_id('id_email_form')
-        # audit selection radio inputs 
+        # audit selection radio inputs
         audit_selection = self.browser.find_elements_by_css_selector(
             'input[type="radio"]'
         )
-        
+
         # an upload button
         upload_button = self.browser.find_elements_by_css_selector(
             'button[type="submit"]'
