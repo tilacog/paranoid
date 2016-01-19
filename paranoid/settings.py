@@ -63,6 +63,7 @@ INSTALLED_APPS = (
     'audits',
     'functional_tests',
     'jobs',
+    'squeeze',
 )
 
 MIDDLEWARE_CLASSES = (

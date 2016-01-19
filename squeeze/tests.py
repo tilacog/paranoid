@@ -10,4 +10,4 @@ class SqueezePageTest(TestCase):
 
     def test_view_renders_right_template(self):
         response = self.client.get(reverse('squeeze_page'))
-        self.assertTemplateUsed(response, 'squeeze.html')
+        self.assertTemplateUsed(response, 'landing.html')
