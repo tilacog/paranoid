@@ -1,5 +1,9 @@
+from unittest import skip
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+
+from squeeze.forms import OptInForm
 
 
 class SqueezePageTest(TestCase):
@@ -25,13 +29,44 @@ class SqueezePageTest(TestCase):
         self.assertContains(self.response, 'type="file"')
         self.assertContains(self.response, 'type="submit"')
 
-class FormTest(TestCase):
-            
+class OptInFormTest(TestCase):
+
+
+    @skip('Will write later')
     def test_email_field_is_required(self):
         pass
 
+    @skip('Will write later')
     def test_name_field_is_required(self):
         pass
+
+    @skip('Will write later')
     def test_file_upload_restrict_extensions(self):
         pass
 
+    def test_form_renders_login_fields(self):
+        "OptInForm must render email and password fields"
+        form = OptInForm()
+        form_html = form.as_p()
+
+        # Name
+        self.assertIn('id="id_name"', form_html)
+        self.assertIn('name="name"', form_html)
+        self.assertIn('type="text"', form_html)
+        self.assertIn('placeholder="Seu nome"', form_html)
+
+        # Email
+        self.assertIn('id="id_email"', form_html)
+        self.assertIn('name="email"', form_html)
+        self.assertIn('type="email"', form_html)
+        self.assertIn('placeholder="Email"', form_html)
+
+        # Audit Selection
+        self.assertIn('id="id_audit"', form_html)
+        self.assertIn('name="audit"', form_html)
+        self.assertIn('type="radio"', form_html)
+
+        # File Upload
+        self.assertIn('id="id_file"', form_html)
+        self.assertIn('name="document"', form_html)
+        self.assertIn('type="file"', form_html)
