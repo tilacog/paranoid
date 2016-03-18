@@ -35,18 +35,6 @@ class SqueezePageTest(TestCase):
 class OptInFormTest(TestCase):
     """Tests for the opt-in form.
     """
-    @skip('Will write later')
-    def test_email_field_is_required(self):
-        pass
-
-    @skip('Will write later')
-    def test_name_field_is_required(self):
-        pass
-
-    @skip('Will write later')
-    def test_file_upload_restrict_extensions(self):
-        pass
-
     def test_form_renders_login_fields(self):
         "OptInForm must render email and password fields"
         form = OptInForm()
@@ -73,6 +61,21 @@ class OptInFormTest(TestCase):
         self.assertIn('id="id_file"', form_html)
         self.assertIn('name="document"', form_html)
         self.assertIn('type="file"', form_html)
+
+    def test_all_required_fields(self):
+        form = OptInForm({
+            'name':'',
+            'email':'',
+            'audit':'',
+            'document':'',
+        })
+
+        form.is_valid()
+
+        self.assertIn('name', form.errors)
+        self.assertIn('email', form.errors)
+        self.assertIn('audit', form.errors)
+        self.assertIn('document', form.errors)
 
     def test_form_validation(self):
         self.fail('write this test!')
