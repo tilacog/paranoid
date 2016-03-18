@@ -16,13 +16,7 @@ Titan ipsum dolor sit amet, consectetur adipiscing elit. Proin magna massa, blan
 
 {% block form %}
 <form id="id_email_form">
-  <input placeholder="Seu nome" id="id_name_field" type="text" name="firstname" required>
-  <input placeholder="Seu e-mail" id="id_email_field" type="email" name="email" required>
-
-  <input type="radio" name="gender" value="male"> Male<br>
-  <input type="radio" name="gende" value="female"> Female<br>
-  <input type="radio" name="gender" value="other"> Other
-  <input id="id_upload" type="file">
+  {{ form }}
   <input type="submit" value="Analisar arquivo">
 </form>
 {% endblock %}

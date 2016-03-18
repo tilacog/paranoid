@@ -19,17 +19,9 @@ class SqueezePageTest(TestCase):
     def test_view_renders_right_template(self):
         self.assertTemplateUsed(self.response, 'landing.html')
 
-    def test_form_contains_basic_elements(self):
-        self.assertContains(self.response, '<h1')
-        self.assertContains(self.response, 'id="id_about_text"')
-        self.assertContains(self.response, '<form')
-        self.assertContains(self.response, 'id="id_email_form"')
-        self.assertContains(self.response, 'id="id_name_field"')
-        self.assertContains(self.response, 'id="id_email_field"')
-        self.assertContains(self.response, 'type="email"')
-        self.assertContains(self.response, 'type="radio"')
-        self.assertContains(self.response, 'type="file"')
-        self.assertContains(self.response, 'type="submit"')
+    def test_view_context_has_correct_form(self):
+        form = self.response.context['form']
+        self.assertIsInstance(form, OptInForm)
 
 
 class OptInFormTest(TestCase):
@@ -77,9 +69,19 @@ class OptInFormTest(TestCase):
         self.assertIn('audit', form.errors)
         self.assertIn('document', form.errors)
 
-    def test_form_validation(self):
-        self.fail('write this test!')
-        # Use factory_boy
+    def test_form_validation_for_valid_data(self):
+        valid_post_data = {
+            'name':'José Teste',
+            'email':'jose@teste.com.br',
+            'audit':'1',
+        }
+        valid_file_data = {
+            'document': SimpleUploadedFile("file.txt", b"file_content")
+        }
+
+        form = OptInForm(valid_post_data, valid_file_data)
+        self.assertTrue(form.is_valid())
+
 
 
 class ReceiveSqueezejobTest(TestCase):
