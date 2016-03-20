@@ -1,4 +1,19 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+
+from audits.models import Audit, Doctype, Document
+from jobs.models import Job
+from squeeze.models import SqueezeJob, random_key
+
+
+# Define a default beta user for all the squeezejobs.
+User = get_user_model()
+BETA_USER, created = User.objects.get_or_create(
+    email='beta@paranoidlabs.com.br',
+    defaults={
+        'password': random_key(),
+    })
 
 
 CHOICES = (
@@ -27,6 +42,28 @@ class OptInForm(forms.Form):
     document = forms.FileField(
         widget=forms.ClearableFileInput(attrs={'id': 'id_file'}))
 
+
     def save(self):
-        #TODO
-        pass
+        if not self.is_valid():
+            raise ValidationError("Can't save a form with invalid data.")
+
+        # Get audit.Audit instance
+        audit = Audit.objects.get(runner=self.data['audit'])
+        document = Document.objects.create(
+            doctype = audit.required_doctypes.first(),
+            file = self.files['document'],
+            user = BETA_USER,
+        )
+
+        # Instantiate jobs.Job and pass document id to it
+        job = Job.objects.create(audit=audit, user=BETA_USER)
+        job.documents.add(document.pk)
+
+        # Instantiate squeeze.SqueezeJob
+        squeezejob = SqueezeJob.objects.create(
+            job = job,
+            real_user_email=self.data['email'],
+
+        )
+
+        return squeezejob
