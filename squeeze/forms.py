@@ -40,7 +40,7 @@ class OptInForm(forms.Form):
         widget=forms.RadioSelect(attrs={'id': 'id_audit'}),
         choices=CHOICES)
     document = forms.FileField(
-        widget=forms.ClearableFileInput(attrs={'id': 'id_file'}))
+        widget=forms.ClearableFileInput(attrs={'id': 'id_document'}))
 
 
     def save(self):

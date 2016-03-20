@@ -48,6 +48,7 @@ class SqueezeTest(FunctionalTest):
 
         # an email form
         email_form = self.browser.find_element_by_id('id_email_form')
+
         # audit selection radio inputs
         audit_selection = self.browser.find_elements_by_css_selector(
             'input[type="radio"]')
@@ -55,21 +56,24 @@ class SqueezeTest(FunctionalTest):
         submit_button = self.browser.find_element_by_css_selector(
             'input[type="submit"]')
 
+
         # The user fills and submits the form
-        self.fill('id_name_field', 'John Doe')
-        self.fill('id_email_field', 'testtitan@mailinator.com')
+        user_name, user_email = ('John Doe', 'test@user.com')
+        self.fill('id_name', user_name)
+        self.fill('id_email', user_email)
         self.browser.find_element_by_css_selector('input[type="radio"]').click()
 
         # Use this file as a dummy for upload
-        self.fill('id_upload', os.path.abspath(__file__))
+        self.fill('id_document', os.path.abspath(__file__))
 
         submit_button.click()
 
         # After submitting the valid form, the user is taken to a confirmation
-        # page.
+        # page, which shows his name and email on a confirmation text.
         confirmation_text = self.browser.find_element_by_id('id_confirmation_text')
-        for keyword in ['sucesso', 'email', 'breve']:
+        for keyword in ['sucesso', 'email', 'breve', user_email, user_name]:
             self.assertIn(keyword.lower(), confirmation_text.lower())
+
 
     def test_can_visit_a_valid_download_link(self):
         """Valid links should point to a page with a download link.
