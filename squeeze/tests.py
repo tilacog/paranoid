@@ -4,13 +4,10 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-
 from audits.factories import AuditFactory
-
 from jobs.models import Job
 from squeeze.forms import OptInForm
 from squeeze.models import SqueezeJob
-
 
 
 class SqueezePageTest(TestCase):

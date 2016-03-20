@@ -20,8 +20,9 @@ class SqueezeTest(FunctionalTest):
         self.admin_user = UserFactory(password=self.password)
         self.admin_user.save()
 
-        # Create audit models
-        AuditFactory(num_doctypes=1)
+        # Create audit instance
+        self.audit_value = 'EcfDump'
+        AuditFactory(num_doctypes=1, runner=self.audit_value)
 
     def fill(self, field_id, value):
         """Helper method to fill values on form fields."""
@@ -47,7 +48,7 @@ class SqueezeTest(FunctionalTest):
         self.assertIn('titan', about_text.text.lower())
 
         # an email form
-        email_form = self.browser.find_element_by_id('id_email_form')
+        email_form = self.browser.find_element_by_id('id_optin_form')
 
         # audit selection radio inputs
         audit_selection = self.browser.find_elements_by_css_selector(
@@ -61,7 +62,9 @@ class SqueezeTest(FunctionalTest):
         user_name, user_email = ('John Doe', 'test@user.com')
         self.fill('id_name', user_name)
         self.fill('id_email', user_email)
-        self.browser.find_element_by_css_selector('input[type="radio"]').click()
+        self.browser.find_element_by_css_selector(
+            'input[type="radio"][value="%s"]' % self.audit_value
+        ).click()
 
         # Use this file as a dummy for upload
         self.fill('id_document', os.path.abspath(__file__))
@@ -70,6 +73,7 @@ class SqueezeTest(FunctionalTest):
 
         # After submitting the valid form, the user is taken to a confirmation
         # page, which shows his name and email on a confirmation text.
+        self.wait_for(lambda: self.assertIn('success', self.browser.current_url))
         confirmation_text = self.browser.find_element_by_id('id_confirmation_text')
         for keyword in ['sucesso', 'email', 'breve', user_email, user_name]:
             self.assertIn(keyword.lower(), confirmation_text.lower())
