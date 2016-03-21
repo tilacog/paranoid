@@ -75,8 +75,8 @@ class SqueezeTest(FunctionalTest):
         # page, which shows his name and email on a confirmation text.
         self.wait_for(lambda: self.assertIn('success', self.browser.current_url))
         confirmation_text = self.browser.find_element_by_id('id_confirmation_text')
-        for keyword in ['sucesso', 'email', 'breve', user_email, user_name]:
-            self.assertIn(keyword.lower(), confirmation_text.lower())
+        for keyword in [user_email, user_name]:
+            self.assertIn(keyword.lower(), confirmation_text.text.lower())
 
 
     def test_can_visit_a_valid_download_link(self):

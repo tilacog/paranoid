@@ -16,6 +16,7 @@ class SqueezeJob(models.Model):
     """A job who came from the squeeze page."""
     job = models.ForeignKey('jobs.Job',)
     real_user_email = models.EmailField()
+    real_user_name = models.CharField(max_length=120)
     created_on = models.DateTimeField(auto_now_add=True)
     notified_on = models.DateTimeField(blank=True, null=True)
     random_key = models.CharField(max_length=40, default=random_key)

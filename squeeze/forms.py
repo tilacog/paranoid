@@ -63,6 +63,7 @@ class OptInForm(forms.Form):
         squeezejob = SqueezeJob.objects.create(
             job = job,
             real_user_email=self.data['email'],
+            real_user_name=self.data['name'],
 
         )
 

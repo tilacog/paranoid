@@ -1,0 +1,18 @@
+{% extends 'squeeze_base.html' %}
+
+
+{% block title %}Entenda seu SPED{% endblock title %}
+
+{% block call_to_action%}
+<h1>Documento recebido com sucesso!</h1>
+{% endblock %}
+
+
+{% block success_text %}
+<p id='id_confirmation_text'>
+<em>{{ squeezejob.real_user_name }}</em>
+<em>{{ squeezejob.real_user_email }}</em>
+<em>{{ squeezejob.job.audit.name }}</em>
+<em>{{ squeezejob.job.documents.first.doctype.name }}</em>
+</p>
+{% endblock %}
