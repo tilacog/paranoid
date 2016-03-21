@@ -1,12 +1,9 @@
-from unittest import skip
-
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from audits.factories import AuditFactory
 from jobs.factories import JobFactory
-from jobs.models import Job
 from squeeze.forms import OptInForm
 from squeeze.models import SqueezeJob
 
@@ -27,64 +24,6 @@ class SqueezePageTest(TestCase):
         form = self.response.context['form']
         self.assertIsInstance(form, OptInForm)
 
-
-class OptInFormTest(TestCase):
-    """Tests for the opt-in form.
-    """
-
-    def setUp(self):
-        fake_audit = AuditFactory(
-            num_doctypes=1,
-            runner='EcfDump',
-        )
-
-        # Valid POST and file data
-        self.valid_post_data = {
-            'name':'José Teste',
-            'email':'jose@teste.com.br',
-            'audit': fake_audit.runner,
-        }
-
-        self.valid_file_data = {
-            'document': SimpleUploadedFile("file.txt", b"file_content")
-        }
-
-    def test_all_required_fields(self):
-        form = OptInForm({
-            'name':'',
-            'email':'',
-            'audit':'',
-            'document':'',
-        })
-
-        form.is_valid()
-
-        self.assertIn('name', form.errors)
-        self.assertIn('email', form.errors)
-        self.assertIn('audit', form.errors)
-        self.assertIn('document', form.errors)
-
-    def test_form_validation_for_valid_data(self):
-        form = OptInForm(self.valid_post_data, self.valid_file_data)
-        self.assertTrue(form.is_valid())
-
-    def test_form_save_instantiates_new_squeezejob(self):
-        form = OptInForm(self.valid_post_data, self.valid_file_data)
-        self.assertEqual(Job.objects.count(), 0)
-        self.assertEqual(SqueezeJob.objects.count(), 0)
-
-        form.save()
-
-        self.assertEqual(Job.objects.count(), 1)
-        self.assertEqual(SqueezeJob.objects.count(), 1)
-
-    def test_squeezejob_obj_has_same_info_as_optin_form(self):
-        form = OptInForm(self.valid_post_data, self.valid_file_data)
-        squeezejob = form.save()
-
-        self.assertEqual(form.data['name'], squeezejob.real_user_name)
-        self.assertEqual(form.data['email'], squeezejob.real_user_email)
-        self.assertEqual(form.data['audit'], squeezejob.job.audit.runner)
 
 class ReceiveSqueezejobTest(TestCase):
     """Integrated tests for the `receive_squeezejob` view.
@@ -122,6 +61,8 @@ class ReceiveSqueezejobTest(TestCase):
     def test_accepts_only_post_requests(self):
         resp = self.client.get(reverse('receive_squeezejob'))
         self.assertEqual(resp.status_code, 405)
+
+
 class SuccessPageTest(TestCase):
     """Integrated tests for the success/thank-you page.
     """
