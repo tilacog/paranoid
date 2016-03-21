@@ -7,13 +7,15 @@ from jobs.models import Job
 from squeeze.models import SqueezeJob, random_key
 
 
-# Define a default beta user for all the squeezejobs.
-User = get_user_model()
-BETA_USER, created = User.objects.get_or_create(
-    email='beta@paranoidlabs.com.br',
-    defaults={
-        'password': random_key(),
-    })
+def get_beta_user():
+    User = get_user_model()
+    beta_user, created = User.objects.get_or_create(
+        email='beta@paranoidlabs.com.br',
+        defaults={
+            'password': random_key(),
+        })
+
+    return beta_user
 
 
 CHOICES = (
@@ -52,11 +54,11 @@ class OptInForm(forms.Form):
         document = Document.objects.create(
             doctype = audit.required_doctypes.first(),
             file = self.files['document'],
-            user = BETA_USER,
+            user = get_beta_user(),
         )
 
         # Instantiate jobs.Job and pass document id to it
-        job = Job.objects.create(audit=audit, user=BETA_USER)
+        job = Job.objects.create(audit=audit, user=get_beta_user())
         job.documents.add(document.pk)
 
         # Instantiate squeeze.SqueezeJob
