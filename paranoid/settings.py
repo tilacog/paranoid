@@ -119,26 +119,36 @@ FINISHED_REPORTS = os.path.join(MEDIA_ROOT, 'reports')
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'logging.StreamHandler',
         },
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': 'site_logfile.log',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
         },
         'accounts': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
         },
         'jobs': {
-            'handlers': ['console'],
+            'handlers': ['console', 'file'],
         },
     },
     'root': {'level': 'INFO'},
