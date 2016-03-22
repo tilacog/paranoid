@@ -1,5 +1,6 @@
 from celery import group, shared_task, task
 from django.core.mail import send_mail
+from django.utils import timezone
 
 from squeeze.models import SqueezeJob
 from jobs.models import Job
@@ -13,4 +14,8 @@ MAIL_MESSAGES = {
 
 @task
 def notify_beta_users():
-    pass
+    qs = SqueezeJob.objects.filter(notified_at='')
+    for squeezejob in qs:
+        # Update notification timestamp
+        squeezejob.notified_at = timezone.now()
+        squeezejob.save()

@@ -1,8 +1,9 @@
+import datetime
 from unittest import TestCase, skip
 from unittest.mock import Mock, patch
 
 from jobs.models import Job
-from squeeze.tasks import notify_beta_users, MAIL_MESSAGES
+from squeeze.tasks import MAIL_MESSAGES, notify_beta_users
 
 
 class BetaUserNotificationTestCase(TestCase):
@@ -39,8 +40,8 @@ class BetaUserNotificationTestCase(TestCase):
 
         notify_beta_users()
 
-        self.fail('Write this test!')
-
+        self.assertIsInstance(mock_squeezejob.notified_at, datetime.datetime)
+        mock_squeezejob.save.assert_called_once_with()
 
     def test_notifier_sends_correct_msg_to_successful_squeezejobs(self):
         # Mock a successfull squeezejob instance.
@@ -70,7 +71,7 @@ class BetaUserNotificationTestCase(TestCase):
         # Mock an unsuccessful squeezejob intance.
         mock_squeezejob = Mock(
             real_user_email='mock@user.com',
-            job=mock_job
+            job=Mock(state=Job.FAILURE_STATE),
         )
 
         self.patched_squeezejob_cls.objects.filter.return_value = [
