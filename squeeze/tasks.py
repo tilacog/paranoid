@@ -10,7 +10,7 @@ MAIL_MESSAGES = {
         'SUCCESS_SUBJECT': 'Sua análise SPED está pronta!',
         'SUCCESS_TEMPLATE': 'success_email_body.html',
         'FAILURE_SUBJECT': '',
-        'FAILURE_TEMPLATE': '',
+        'FAILURE_TEMPLATE': 'failure_email_body.html',
 }
 
 @task
@@ -21,13 +21,26 @@ def notify_beta_users():
         squeezejob.notified_at = timezone.now()
         squeezejob.save()
 
+        if squeezejob.job.state == Job.SUCCESS_STATE:
+            template = 'SUCCESS_TEMPLATE'
+            subject = 'SUCCESS_SUBJECT'
+
+        elif squeezejob.job.state == Job.FAILURE_STATE:
+            template = 'FAILURE_TEMPLATE'
+            subject = 'FAILURE_SUBJECT'
+
+        else:
+            return
+
+        # Build message
         html_message = render_to_string(
-            template_name=MAIL_MESSAGES['SUCCESS_TEMPLATE'],
+            template_name=MAIL_MESSAGES[template],
             context={'squeezejob': squeezejob},
         )
 
+        # Dispatch mail
         send_mail(
             to=[squeezejob.real_user_email],
-            subject=MAIL_MESSAGES['SUCCESS_SUBJECT'],
+            subject=MAIL_MESSAGES[subject],
             html_message=html_message,
         )

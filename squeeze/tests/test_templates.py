@@ -32,4 +32,3 @@ class SuccessfulEmailTest(TestCase):
 
         # Check for real user name
         self.assertIn(self.squeezejob.real_user_name, self.rendered_email)
-

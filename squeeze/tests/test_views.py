@@ -107,5 +107,5 @@ class SuccessPageTest(TestCase):
 class DownloadSqueezejobTest(TestCase):
     """Integrated tests for the download_squeezejob view.
     """
-    def setUp(self):
+    def test_something(self):
         self.fail('Write this TestCase')

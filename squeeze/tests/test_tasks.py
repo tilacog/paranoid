@@ -56,13 +56,13 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
         # Get call arguments for the mailer function.
         args, kwargs = self.patched_mailer.call_args
 
-        self.assertEqual(
+        self.assertIn(
+            self.mock_squeezejob.real_user_email,
             kwargs['to'],
-            [self.mock_squeezejob.real_user_email],
         )
 
     def test_used_successful_msg_subject(self):
-        """The mail must use the
+        """The mail must use the successful squeezejob template.
         """
         args, kwargs = self.patched_mailer.call_args
 
@@ -107,9 +107,18 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
             patched_render_to_string.return_value,
         )
 
+    @patch('squeeze.tasks.render_to_string')
+    def test_failed_squeezejobs_have_different_msg(self, patched_render_to_string):
+        self.mock_squeezejob.configure_mock(job=Mock(state=Job.FAILURE_STATE))
+        self.patched_mailer.reset_mock()
 
-    def test_failed_squeezejobs_have_different_msg(self):
-        self.fail('Write thist test!')
+        notify_beta_users()  # Call again to use patched objects
+
+        args, kwargs = patched_render_to_string.call_args
+        self.assertEqual(
+            kwargs['template_name'],
+            'failure_email_body.html',
+        )
 
     def test_sends_correct_msg_to_failed_squeezejobs(self):
         # Mock an unsuccessful squeezejob intance.
