@@ -28,3 +28,6 @@ def receive_squeezejob(request):
 def success_optin(request, uid):
     squeezejob = get_object_or_404(SqueezeJob, random_key=uid)
     return render(request, 'success.html', {'squeezejob': squeezejob})
+
+def download_squeezejob(request, uid):
+    pass

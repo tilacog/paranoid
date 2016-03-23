@@ -1,6 +1,7 @@
 import random
 import string
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 
@@ -26,3 +27,7 @@ class SqueezeJob(models.Model):
     @property
     def download_link(self):
         return reverse('download_squeezejob', args=[self.random_key])
+
+    @property
+    def absolute_download_link(self):
+        return 'http://' + settings.DOMAIN + self.download_link
