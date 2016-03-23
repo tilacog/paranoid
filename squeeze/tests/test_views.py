@@ -9,7 +9,7 @@ from squeeze.models import SqueezeJob
 
 
 class SqueezePageTest(TestCase):
-    """Tests for the landing page view.
+    """Integrated tests for the landing page view.
     """
     def setUp(self):
         self.response = self.client.get(reverse('squeeze_page'))
@@ -102,3 +102,10 @@ class SuccessPageTest(TestCase):
             self.squeezejob.job.documents.first().doctype.name,
         ]:
             self.assertContains(self.response, info)
+
+
+class DownloadSqueezejobTest(TestCase):
+    """Integrated tests for the download_squeezejob view.
+    """
+    def setUp(self):
+        self.fail('Write this TestCase')
