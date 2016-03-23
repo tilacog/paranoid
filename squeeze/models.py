@@ -1,7 +1,9 @@
 import random
 import string
 
+from django.core.urlresolvers import reverse
 from django.db import models
+
 
 def random_key():
     """A random string for uniquely identify the squeeze page jobs.
@@ -20,3 +22,7 @@ class SqueezeJob(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     notified_on = models.DateTimeField(blank=True, null=True)
     random_key = models.CharField(max_length=40, default=random_key)
+
+    @property
+    def download_link(self):
+        return reverse('download_squeezejob', args=[self.random_key])
