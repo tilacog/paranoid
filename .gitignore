@@ -7,3 +7,4 @@ __pycache__
 *.log
 functional_tests/screendumps
 .coverage
+*.dump
