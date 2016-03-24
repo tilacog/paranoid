@@ -15,7 +15,7 @@ Titan ipsum dolor sit amet, consectetur adipiscing elit. Proin magna massa, blan
 {% block explainer %}{% endblock %}
 
 {% block form %}
-<form id="id_optin_form" method="POST" action="/squeeze/receive" enctype="multipart/form-data">
+<form id="id_optin_form" method="POST" action="{% url 'receive_squeezejob' %}" enctype="multipart/form-data">
   {% csrf_token %}
   {{ form }}
   <input type="submit" value="Analisar arquivo">
