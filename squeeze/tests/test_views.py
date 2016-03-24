@@ -1,11 +1,16 @@
+from unittest import skip
+
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from audits.factories import AuditFactory
 from jobs.factories import JobFactory
+from jobs.models import Job
+from squeeze.factories import SqueezejobFactory
 from squeeze.forms import OptInForm
 from squeeze.models import SqueezeJob
+from squeeze.forms import get_beta_user
 
 
 class SqueezePageTest(TestCase):
@@ -67,10 +72,7 @@ class SuccessPageTest(TestCase):
     """Integrated tests for the success/thank-you page.
     """
     def setUp(self):
-        self.squeezejob = SqueezeJob.objects.create(
-            job=JobFactory(num_documents=1),
-            real_user_email='test@user.com',
-        )
+        self.squeezejob = SqueezejobFactory()
 
         self.response = self.client.get(reverse(
             'success_optin',
@@ -95,17 +97,32 @@ class SuccessPageTest(TestCase):
         self.assertEqual(response_squeezejob, self.squeezejob)
 
     def test_renders_squeezejob_info(self):
-        for info in [
-            self.squeezejob.real_user_name,
-            self.squeezejob.real_user_email,
-            self.squeezejob.job.audit.name,
-            self.squeezejob.job.documents.first().doctype.name,
-        ]:
+        for info in [self.squeezejob.real_user_name,
+                     self.squeezejob.real_user_email,
+                     self.squeezejob.job.audit.name,
+                     self.squeezejob.job.documents.first().doctype.name]:
+
             self.assertContains(self.response, info)
 
 
 class DownloadSqueezejobTest(TestCase):
     """Integrated tests for the download_squeezejob view.
     """
-    def test_something(self):
-        self.fail('Write this TestCase')
+    def setUp(self):
+        # Create a finished squeezejob.
+        job = JobFactory(
+            has_report=True,
+            state=Job.SUCCESS_STATE,
+            user=get_beta_user())
+        squeezejob = SqueezejobFactory(job=job)
+
+        self.response = self.client.get(reverse(
+            'download_squeezejob', args=[squeezejob.random_key]
+        ))
+
+
+    def test_users_can_download_their_own_reports(self):
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_nginx_will_serve_report_files(self):
+        self.assertTrue(self.response.has_header('X-Accel-Redirect'))

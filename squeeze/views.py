@@ -1,8 +1,9 @@
-from django.shortcuts import redirect, render, get_object_or_404
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import OptInForm
-from .models import SqueezeJob
+from jobs.views import build_download_response
+from squeeze.forms import OptInForm, get_beta_user
+from squeeze.models import SqueezeJob
 
 
 def landing(request):
@@ -30,4 +31,9 @@ def success_optin(request, uid):
     return render(request, 'success.html', {'squeezejob': squeezejob})
 
 def download_squeezejob(request, uid):
-    pass
+    squeezejob = get_object_or_404(SqueezeJob, random_key=uid)
+    job = squeezejob.job
+    beta_user = get_beta_user()
+
+    response = build_download_response(job.pk, beta_user)
+    return response
