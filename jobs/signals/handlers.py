@@ -1,16 +1,15 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 
 from jobs.models import Job
 from jobs.tasks import process_job
 
 
-@receiver(post_save, sender=Job)
-def process_job_signal(sender, instance, created, *args, **kwargs):
-    "Starts job's document validation and audit runnig"
+@receiver(m2m_changed, sender=Job.documents.through)
+def process_job_signal(sender, **kwargs):
+    "Starts job's document validation and audit runnig."
 
-    # Only for created jobs
-    if not created:
-        return
-    # Lauch celery task
-    process_job.delay(instance.pk)
+    # Act only if new documents were added to the job.
+    if kwargs['action'] == 'post_add':
+        instance = kwargs['instance']
+        process_job.delay(instance.pk)
