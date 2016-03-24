@@ -20,9 +20,15 @@ def download_report(request, job_pk):
     """
     Let nginx Accell Redirect handle file downloads.
     """
+    response = build_download_response(job_pk, request.user)
+    return response
 
+def build_download_response(job_pk, user):
+    """Sub-view, private.
+    Will build a response object with the report file as an attachment.
+    """
     # Someday this will change in order to enable group sharing of reports.
-    job = get_object_or_404(Job, pk=job_pk, user=request.user)
+    job = get_object_or_404(Job, pk=job_pk, user=user)
 
     # Let nginx handle file downloads
     response = HttpResponse()
