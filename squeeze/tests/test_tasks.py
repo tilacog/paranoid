@@ -2,8 +2,6 @@ import datetime
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from django.core.urlresolvers import reverse
-
 from jobs.models import Job
 from squeeze.tasks import MAIL_MESSAGES, notify_beta_users
 
@@ -108,33 +106,19 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
         )
 
     @patch('squeeze.tasks.render_to_string')
-    def test_failed_squeezejobs_have_different_msg(self, patched_render_to_string):
+    def test_failed_squeezejobs_have_different_msg(
+        self,
+        patched_render_to_string
+    ):
+        """Failed squeezejobs must send failure email messages.
+        """
         self.mock_squeezejob.configure_mock(job=Mock(state=Job.FAILURE_STATE))
         self.patched_mailer.reset_mock()
 
-        notify_beta_users()  # Call again to use patched objects
+        notify_beta_users()  # Call again to use patched object.
 
         args, kwargs = patched_render_to_string.call_args
         self.assertEqual(
             kwargs['template_name'],
             'failure_email_body.html',
         )
-
-    def test_sends_correct_msg_to_failed_squeezejobs(self):
-        # Mock an unsuccessful squeezejob intance.
-        mock_squeezejob = Mock(
-            real_user_email='mock@user.com',
-            job=Mock(state=Job.FAILURE_STATE),
-        )
-
-        self.patched_squeezejob_cls.objects.filter.return_value = [
-            mock_squeezejob,
-        ]
-
-        notify_beta_users()
-
-        self.fail('Write this test!')
-        # assertions:
-        # 1.  sent to real user email
-        # 2.  used failure msg subject
-        # 3.  used failure template (patch render_to_string)
