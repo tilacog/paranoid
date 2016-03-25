@@ -20,8 +20,8 @@ class SqueezeJob(models.Model):
     job = models.ForeignKey('jobs.Job',)
     real_user_email = models.EmailField()
     real_user_name = models.CharField(max_length=120)
-    created_on = models.DateTimeField(auto_now_add=True)
-    notified_on = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    notified_at = models.DateTimeField(blank=True, null=True)
     random_key = models.CharField(max_length=40, default=random_key)
 
     @property
