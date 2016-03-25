@@ -5,7 +5,7 @@ Django settings for paranoid project.
 import os
 import sys
 import logging
-
+from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -169,6 +169,15 @@ if 'test' in sys.argv:
 BROKER_URL = 'amqp://'  # TODO: Put broker url on supervisord.conf file
 CELERY_RESULT_BACKEND = 'amqp'
 CELERY_TASK_SERIALIZER = 'json'
+
+CELERYBEAT_SCHEDULE = {
+    'notify-beta-users': {
+        'task': 'squeeze.tasks.notify_beta_users',
+        'schedule': timedelta(seconds=30),
+    },
+}
+
+
 
 # Add external plugins directory to PATH as a namespace package under "runner"
 # module
