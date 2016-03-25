@@ -15,7 +15,7 @@ MAIL_MESSAGES = {
 
 @task
 def notify_beta_users():
-    qs = SqueezeJob.objects.filter(notified_at='')
+    qs = SqueezeJob.objects.filter(notified_at__isnull=False)
     for squeezejob in qs:
         # Update notification timestamp
         squeezejob.notified_at = timezone.now()
