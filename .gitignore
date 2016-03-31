@@ -9,3 +9,4 @@ functional_tests/screendumps
 .coverage
 *.dump
 celerybeat-schedule
+*.json
