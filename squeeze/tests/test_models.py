@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.utils.timezone import now, timedelta
 
 from squeeze.factories import SqueezejobFactory
-from squeeze.models import SqueezeJob
 
 
 class SqueezejobTestCase(TestCase):
@@ -23,3 +23,15 @@ class SqueezejobTestCase(TestCase):
             expected_url,
             self.squeezejob.absolute_download_link,
         )
+
+    def test_can_resolve_expiry_dates(self):
+        """Instances can infer if they're expired.
+        """
+        # Recently created instance isn't expired
+        self.assertFalse(self.squeezejob.is_expired)
+
+        # Create an expired instance
+        expired_sj = SqueezejobFactory()
+        expired_sj.created_at = now() - timedelta(days=360)
+
+        self.assertTrue(expired_sj.is_expired)

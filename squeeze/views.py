@@ -31,9 +31,17 @@ def success_optin(request, uid):
     return render(request, 'success.html', {'squeezejob': squeezejob})
 
 def download_squeezejob(request, uid):
+    """Downloads file or redirects if download link is expired.
+    """
     squeezejob = get_object_or_404(SqueezeJob, random_key=uid)
+    if squeezejob.is_expired:
+        return redirect('expired_download_link')
+
     job = squeezejob.job
     beta_user = get_beta_user()
-
     response = build_download_response(job.pk, beta_user)
+
     return response
+
+def expired_download_link(request):
+    return render(request, 'expired.html')

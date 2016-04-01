@@ -3,6 +3,7 @@ from unittest import skip
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.utils import timezone
 
 from audits.factories import AuditFactory
 from jobs.factories import JobFactory
@@ -110,19 +111,46 @@ class DownloadSqueezejobTest(TestCase):
     """
     def setUp(self):
         # Create a finished squeezejob.
-        job = JobFactory(
+        self.job = JobFactory(
             has_report=True,
             state=Job.SUCCESS_STATE,
             user=get_beta_user())
-        squeezejob = SqueezejobFactory(job=job)
+        squeezejob = SqueezejobFactory(job=self.job)
 
         self.response = self.client.get(reverse(
             'download_squeezejob', args=[squeezejob.random_key]
         ))
 
-
     def test_users_can_download_their_own_reports(self):
         self.assertEqual(self.response.status_code, 200)
 
     def test_nginx_will_serve_report_files(self):
+        # This means that Nginx will serve the file
         self.assertTrue(self.response.has_header('X-Accel-Redirect'))
+
+    def test_redirect_expired_download_links(self):
+        """Expired download links should be redirected to a try-again page.
+        """
+        expired_squeezejob = SqueezejobFactory(job=self.job)
+        expired_squeezejob.created_at = (
+            timezone.now() - timezone.timedelta(days=360)
+        )
+        expired_squeezejob.save()
+        assert expired_squeezejob.is_expired  # just checking
+
+        response = self.client.get(reverse(
+            'download_squeezejob', args=[expired_squeezejob.random_key]
+        ))
+        self.assertRedirects(response, reverse('expired_download_link'))
+
+class ExpiredDownloadLinkPageTest(TestCase):
+    """Integrated tests for the expired-download-link page.
+    """
+    def setUp(self):
+        self.response = self.client.get(reverse('expired_download_link'))
+
+    def test_page_exists(self):
+        self.assertEqual(self.response.status_code, 200)
+
+    def test_uses_correct_template(self):
+        self.assertTemplateUsed(self.response, 'expired.html')
