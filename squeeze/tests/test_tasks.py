@@ -35,7 +35,7 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
         """Notifier function must query for unnotified jobs.
         """
         self.patched_squeezejob_cls.objects.filter.assert_called_with(
-            notified_at='',
+            notified_at__isnull=True,
         )
 
     def test_updates_squeezejobs_timestamp(self):
@@ -56,7 +56,7 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
 
         self.assertIn(
             self.mock_squeezejob.real_user_email,
-            kwargs['to'],
+            kwargs['recipient_list'],
         )
 
     def test_used_successful_msg_subject(self):

@@ -15,7 +15,7 @@ MAIL_MESSAGES = {
 
 @task
 def notify_beta_users():
-    qs = SqueezeJob.objects.filter(notified_at__isnull=False)
+    qs = SqueezeJob.objects.filter(notified_at__isnull=True)
     for squeezejob in qs:
         # Update notification timestamp
         squeezejob.notified_at = timezone.now()
@@ -40,7 +40,8 @@ def notify_beta_users():
 
         # Dispatch mail
         send_mail(
-            to=[squeezejob.real_user_email],
+            recipient_list=[squeezejob.real_user_email],
             subject=MAIL_MESSAGES[subject],
             html_message=html_message,
+            from_email='titan@paranoidlabs.com.br',
         )
