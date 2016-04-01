@@ -6,12 +6,40 @@ from django.utils import timezone
 from jobs.models import Job
 from squeeze.models import SqueezeJob
 
+
 MAIL_MESSAGES = {
-        'SUCCESS_SUBJECT': 'Sua análise SPED está pronta!',
-        'SUCCESS_TEMPLATE': 'success_email_body.html',
-        'FAILURE_SUBJECT': '',
-        'FAILURE_TEMPLATE': 'failure_email_body.html',
+        'SUCCESS_SUBJECT': 'Seu aqruivo SPED foi convertido com sucesso',
+        'SUCCESS_TEXT_TEMPLATE': 'success_email_body.txt',
+        'SUCCESS_HTML_TEMPLATE': 'success_email_body.html',
+        'FAILURE_SUBJECT': 'Não conseguimos converter seu arquivo',
+        'FAILURE_TEXT_TEMPLATE': 'failure_email_body.txt',
+        'FAILURE_HTML_TEMPLATE': 'failure_email_body.html',
 }
+
+def build_messages(state, context):
+    """Build and return a text and an html message.
+    The state argument must be either "success" or "failure".
+    """
+
+    assert state in ('failure', 'success')
+
+    if state == 'success':
+        templates = ('SUCCESS_HTML_TEMPLATE', 'SUCCESS_TEXT_TEMPLATE')
+    elif state == 'failure':
+        templates = ('FAILURE_HTML_TEMPLATE', 'FAILURE_TEXT_TEMPLATE')
+
+    text_message = render_to_string(
+        template_name=MAIL_MESSAGES[templates[0]],
+        context=context,
+    )
+
+    html_message = render_to_string(
+        template_name=MAIL_MESSAGES[templates[1]],
+        context=context,
+    )
+
+    return (text_message, html_message)
+
 
 @task
 def notify_beta_users():
@@ -22,24 +50,24 @@ def notify_beta_users():
         squeezejob.save()
 
         if squeezejob.job.state == Job.SUCCESS_STATE:
-            template = 'SUCCESS_TEMPLATE'
             subject = 'SUCCESS_SUBJECT'
+            state = 'success'
 
         elif squeezejob.job.state == Job.FAILURE_STATE:
-            template = 'FAILURE_TEMPLATE'
             subject = 'FAILURE_SUBJECT'
+            state = 'failure'
 
         else:
             return
 
-        # Build message
-        html_message = render_to_string(
-            template_name=MAIL_MESSAGES[template],
-            context={'squeezejob': squeezejob},
+        # Build messages
+        text_message, html_message = build_messages(
+            state, context={'squeezejob': squeezejob}
         )
 
         # Dispatch mail
         send_mail(
+            message=text_message,
             recipient_list=[squeezejob.real_user_email],
             subject=MAIL_MESSAGES[subject],
             html_message=html_message,

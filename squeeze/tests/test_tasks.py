@@ -1,9 +1,9 @@
 import datetime
-from unittest import TestCase
+from unittest import TestCase, skip
 from unittest.mock import Mock, patch
 
 from jobs.models import Job
-from squeeze.tasks import MAIL_MESSAGES, notify_beta_users
+from squeeze.tasks import MAIL_MESSAGES, notify_beta_users, build_messages
 
 
 class BetaUserSuccessfulNotificationTestCase(TestCase):
@@ -18,6 +18,11 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
         self.addCleanup(squeezejob_patcher.stop)
         self.patched_squeezejob_cls = squeezejob_patcher.start()
 
+        message_builder_patcher = patch('squeeze.tasks.build_messages')
+        self.addCleanup(message_builder_patcher.stop)
+        self.patched_message_builder = message_builder_patcher.start()
+        self.patched_message_builder.return_value = ('text', 'html')
+
         self.mock_squeezejob = Mock(
             job=Mock(state=Job.SUCCESS_STATE),
             notified_at='',
@@ -27,6 +32,7 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
 
         self.patched_squeezejob_cls.objects.filter.return_value = [
             self.mock_squeezejob,
+
         ]
 
         notify_beta_users()
@@ -69,56 +75,85 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
             MAIL_MESSAGES['SUCCESS_SUBJECT'],
         )
 
-    @patch('squeeze.tasks.render_to_string')
-    def test_used_successful_msg_template(self, patched_render_to_string):
-        """Assert that render_to_string uses correct template.
-        """
-        notify_beta_users()  # Call again to use patched objects
-        args, kwargs = patched_render_to_string.call_args
+    def test_calls_message_builder_with_correct_arguments(self):
+        args, kwargs = self.patched_message_builder.call_args
+
+        self.assertEqual(args, ('success',))
 
         self.assertEqual(
-            kwargs['template_name'],
-            'success_email_body.html',
+            kwargs['context'],
+            {'squeezejob':self.mock_squeezejob}
         )
 
-    @patch('squeeze.tasks.render_to_string')
-    def test_used_correct_context_object(self, patched_render_to_string):
-        """Assert that the context used by render_to_string contains
-        squeezejob instance.
-        """
-        notify_beta_users()  # Call again to use patched objects
-        args, kwargs = patched_render_to_string.call_args
-
-        context = kwargs['context']
-
-        self.assertEqual(context['squeezejob'], self.mock_squeezejob)
-
-    @patch('squeeze.tasks.render_to_string')
-    def test_used_successful_msg_content(self, patched_render_to_string):
-        """Assert that the result of reder_to_string is used as the email body.
-        """
-        notify_beta_users()  # Call again to use patched objects
+    def test_uses_messages_from_message_builder(self):
         args, kwargs = self.patched_mailer.call_args
 
-        self.assertEqual(
-            kwargs['html_message'],
-            patched_render_to_string.return_value,
+        self.assertTupleEqual(
+            (kwargs['message'], kwargs['html_message']),
+            self.patched_message_builder.return_value
         )
 
-    @patch('squeeze.tasks.render_to_string')
-    def test_failed_squeezejobs_have_different_msg(
-        self,
-        patched_render_to_string
-    ):
-        """Failed squeezejobs must send failure email messages.
+
+class MessageBuilderTestCase(TestCase):
+    """Unit tests for the build_message function.
+    """
+    def setUp(self):
+        render_to_string_patcher = patch('squeeze.tasks.render_to_string')
+        self.addCleanup(render_to_string_patcher.stop)
+        self.patched_render = render_to_string_patcher.start()
+
+    def test_uses_correct_success_msg_templates(self):
+        """Assert that render_to_string uses correct messages templates for
+        successful calls.
         """
-        self.mock_squeezejob.configure_mock(job=Mock(state=Job.FAILURE_STATE))
-        self.patched_mailer.reset_mock()
+        build_messages(state='success', context=None)
 
-        notify_beta_users()  # Call again to use patched object.
+        templates_used = {
+            kwarg['template_name'] for kwarg in [
+                call[1] for call in self.patched_render.call_args_list
+            ]
+        }
 
-        args, kwargs = patched_render_to_string.call_args
-        self.assertEqual(
-            kwargs['template_name'],
-            'failure_email_body.html',
-        )
+        expected_templates = {
+            'success_email_body.txt',
+            'success_email_body.html'
+        }
+
+        self.assertSetEqual(templates_used, expected_templates)
+
+    def test_uses_correct_failure_msg_templates(self):
+        """Assert that render_to_string uses correct messages templates for
+        failed calls.
+        """
+        build_messages(state='failure', context=None)
+
+        templates_used = {
+            kwarg['template_name'] for kwarg in [
+                call[1] for call in self.patched_render.call_args_list
+            ]
+        }
+
+        expected_templates = {
+            'failure_email_body.txt',
+            'failure_email_body.html'
+        }
+
+        self.assertSetEqual(templates_used, expected_templates)
+
+    def test_passes_context_forward(self):
+        """Message builder must pass the given context to render_to_string.
+        """
+        # Call build_message twice
+        mock_context = Mock()
+        build_messages('success', mock_context)
+        build_messages('failure', mock_context)
+
+        contexts_used = {
+            kwarg['context'] for kwarg in [
+                call[1] for call in self.patched_render.call_args_list
+            ]
+        }
+
+        # All the context objects are the same
+        self.assertEqual(len(contexts_used), 1)
+        self.assertIn(mock_context, contexts_used)
