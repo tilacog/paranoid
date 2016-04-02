@@ -17,6 +17,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 config =  configparser.ConfigParser()
 config.read(os.path.join(BASE_DIR, 'secrets.ini'))
 
+SECRET_KEY =  config.get('django', 'SECRET_KEY', raw=True)
+
+# CELERY SETTINGS
+CELERY_RESULT_BACKEND = 'amqp'
+BROKER_URL = config.get('celery', 'BROKER_URL')
+CELERY_TASK_SERIALIZER = 'json'
+
+# TRACKING
+GOOGLE_ANALYTICS_PROPERTY_ID = config.get(
+    'tracking',
+    'GOOGLE_ANALYTICS_PROPERTY_ID',
+    fallback=None
+)
 
 TEMPLATES = [
     {
