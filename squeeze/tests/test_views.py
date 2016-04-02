@@ -9,9 +9,8 @@ from audits.factories import AuditFactory
 from jobs.factories import JobFactory
 from jobs.models import Job
 from squeeze.factories import SqueezejobFactory
-from squeeze.forms import OptInForm
+from squeeze.forms import OptInForm, get_beta_user
 from squeeze.models import SqueezeJob
-from squeeze.forms import get_beta_user
 
 
 class SqueezePageTest(TestCase):
@@ -30,6 +29,16 @@ class SqueezePageTest(TestCase):
         form = self.response.context['form']
         self.assertIsInstance(form, OptInForm)
 
+    def test_tracking_code_present(self):
+        """Tracking code must be present in context and in the rendered
+        template.
+        """
+        tracking_code = 'some-random-tracking-code-string'
+        with self.settings(GOOGLE_ANALYTICS_PROPERTY_ID=tracking_code,
+                           DEBUG=False):
+            response = self.client.get(reverse('squeeze_page'))
+            self.assertIn('GOOGLE_ANALYTICS_PROPERTY_ID', response.context)
+            self.assertContains(response, tracking_code)
 
 class ReceiveSqueezejobTest(TestCase):
     """Integrated tests for the `receive_squeezejob` view.
