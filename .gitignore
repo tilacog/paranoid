@@ -8,5 +8,6 @@ __pycache__
 functional_tests/screendumps
 .coverage
 *.dump
-celerybeat-schedule
+celerybeat*
 *.json
+secrets*.ini

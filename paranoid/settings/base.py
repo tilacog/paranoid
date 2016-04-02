@@ -2,21 +2,21 @@
 Django settings for paranoid project.
 """
 
+import configparser
+import logging
 import os
 import sys
-import logging
 from datetime import timedelta
+
 
 logger = logging.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '&*j6py4zmaemppv%#q1tf@&*ii1@riw41#*3i)7qjz1&r2(e+s'
+config =  configparser.ConfigParser()
+config.read(os.path.join(BASE_DIR, 'secrets.ini'))
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 TEMPLATES = [
     {
@@ -36,6 +36,7 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
+                'squeeze.context_processors.google_analytics',
             ],
         },
     },
@@ -47,9 +48,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-# This setting is changed by the deploy script
-DOMAIN = "localhost"
-ALLOWED_HOSTS = [DOMAIN]
 
 # Application definition
 INSTALLED_APPS = (
@@ -165,10 +163,6 @@ if 'test' in sys.argv:
         lineno=53
     )
 
-# CELERY SETTINGS
-BROKER_URL = 'amqp://'  # TODO: Put broker url on supervisord.conf file
-CELERY_RESULT_BACKEND = 'amqp'
-CELERY_TASK_SERIALIZER = 'json'
 
 CELERYBEAT_SCHEDULE = {
     'notify-beta-users': {
@@ -176,8 +170,6 @@ CELERYBEAT_SCHEDULE = {
         'schedule': timedelta(seconds=30),
     },
 }
-
-
 
 # Add external plugins directory to PATH as a namespace package under "runner"
 # module
