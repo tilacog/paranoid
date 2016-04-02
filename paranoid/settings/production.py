@@ -2,7 +2,8 @@ from .base import *
 
 
 DEBUG = False
-ALLOWED_HOSTS = 'paranoidlabs.com.br'
+DOMAIN = 'paranoidlabs.com.br'
+ALLOWED_HOSTS = [DOMAIN]
 
 # MAIL SETTINGS
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
