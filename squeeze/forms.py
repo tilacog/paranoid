@@ -29,14 +29,14 @@ CHOICES = (
 
 class OptInForm(forms.Form):
     name = forms.CharField(
+        label='Seu nome',
         widget=forms.TextInput(attrs={
             'id': 'id_name',
-            'placeholder': 'Seu nome'
         }))
     email = forms.EmailField(
+        label='Seu email',
         widget=forms.EmailInput(attrs={
             'id': 'id_email',
-            'placeholder': 'Email'
         }))
     audit = forms.ChoiceField(
         widget=forms.RadioSelect(attrs={'id': 'id_audit'}),
