@@ -22,7 +22,6 @@ def deploy():
     _create_directory_structure_if_necessary(site_folder)
     _get_latest_source(source_folder)
     _get_latest_plugin_source(source_folder)
-    _update_settings(source_folder, env.host)
     _update_virtualenv(source_folder)
     _update_static_files(source_folder)
     _update_database(source_folder)
@@ -52,30 +51,6 @@ def _get_latest_plugin_source(source_folder):
         'git -C ../plugins log -n 1 --format=%H', capture=True
     )
     run('cd %s && git reset --hard %s' % (plugin_folder, current_commit))
-
-
-def _update_settings(source_folder, site_name):
-    settings_path = source_folder + '/paranoid/settings.py'
-
-    # Let DEBUG=True on staging server
-    if not 'staging' in env.host:
-        sed(settings_path, 'DEBUG = True', 'DEBUG = False')
-
-    # Update DOMAIN to match site_name
-    sed(settings_path, 'DOMAIN = "localhost"', 'DOMAIN = "%s"' % (site_name,))
-
-    # Import a new SECRET_KEY name with a randomly generated value
-    secret_key_file = source_folder + '/paranoid/secret_key.py'
-    if not exists(secret_key_file):
-        chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
-        key = ''.join(random.SystemRandom().choice(chars) for _ in range(50))
-        append(secret_key_file, "SECRET_KEY = '%s'" % (key,))
-    append(settings_path, '\nfrom .secret_key import SECRET_KEY')
-
-    # Update BROKER_URL to point to the correct (rabbitmq) v_host
-    v_host = '/staging' if 'staging' in env.host else '/main'
-    broker_url = 'amqp://guest@localhost:5672/' + v_host
-    sed(settings_path, 'amqp://', broker_url)
 
 
 def _update_virtualenv(source_folder):
