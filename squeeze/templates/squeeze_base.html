@@ -5,22 +5,43 @@
 <head>
     {% block stylesheets %}{% endblock stylesheets %}
     <title>{% block title %}Titan{% endblock title %}</title>
-    <meta name="viewport"
-    content="width=device-width, initial-scale=1.0">
-    <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet"
-    media="screen">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel='stylesheet' type='text/css' media="screen">
+    <link href="{% static "bootstrap/css/carousel.css" %}" rel='stylesheet' type='text/css' media="screen">
+    <link href="{% static "squeeze-base.css" %}" rel='stylesheet' type='text/css' media="screen">
     {% include 'google_analytics.html' %}
 </head>
 
 <body>
-    <div class="container">
-
-        {% block call_to_action%}{% endblock %}
-        <p id="id_about_text">{% block about_text %}{% endblock %}</p>
-        {% block explainer %}{% endblock %}
-        {% block form %}{% endblock %}
-        {% block success_text %}{% endblock %}
-        {% block contact %}{% endblock %}
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <p class="navbar-brand">Paranoid Labs</p>
+            </div>
+        </div>
+    </nav>
+    <div class="jumbotron">
+        <div class="container">
+            {% block call_to_action%}{% endblock %}
+            <p id="id_about_text">{% block about_text %}{% endblock %}</p>
+        </div>
     </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-8">
+                    {% block explainer %}{% endblock %}
+                </div>
+                <div class="col-sm-4">
+                    {% block form %}{% endblock %}
+                </div>
+            </div>
+        </div>
+            {% block steps %}{% endblock steps %}
+        <div class="container marketing">
+        <div class="row">
+            {% block features %}{% endblock features %}
+        </div>
+            {% block contact %}{% endblock %}
+        </div>
 </body>
 </html>

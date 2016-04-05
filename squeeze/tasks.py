@@ -1,10 +1,13 @@
 from celery import group, shared_task, task
+from celery.utils.log import get_task_logger
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils import timezone
 
 from jobs.models import Job
 from squeeze.models import SqueezeJob
+
+logger = get_task_logger(__name__)
 
 
 MAIL_MESSAGES = {
@@ -64,6 +67,12 @@ def notify_beta_users():
         text_message, html_message = build_messages(
             state, context={'squeezejob': squeezejob}
         )
+
+
+        logger.info('Sending squeezejob {} mail to {}.'.format(
+            state,
+            squeezejob.real_user_email
+        ))
 
         # Dispatch mail
         send_mail(
