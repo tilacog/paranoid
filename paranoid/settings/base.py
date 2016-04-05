@@ -23,6 +23,7 @@ SECRET_KEY =  config.get('django', 'SECRET_KEY', raw=True)
 CELERY_RESULT_BACKEND = 'amqp'
 BROKER_URL = config.get('celery', 'BROKER_URL')
 CELERY_TASK_SERIALIZER = 'json'
+CELERY_IGNORE_RESULT = True
 
 # TRACKING
 GOOGLE_ANALYTICS_PROPERTY_ID = config.get(
