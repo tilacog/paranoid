@@ -8,3 +8,4 @@ tables==3.2.2
 openpyxl==2.3.0
 Markdown==2.6.4
 selenium==2.48.0
+Unipath==1.1
