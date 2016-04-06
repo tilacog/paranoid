@@ -17,14 +17,18 @@ PLUGIN_REPO_URL = 'git@bitbucket.org:tilacog/titan_plugins.git'
     # Restart Celery
 
 def deploy():
+    settings_file = 'paranoid.settings.' + (
+        'staging' if 'staging' in env.host else 'production'
+    )
     site_folder = '/home/%s/sites/%s' % (env.user, env.host)
     source_folder = site_folder + '/source'
+
     _create_directory_structure_if_necessary(site_folder)
     _get_latest_source(source_folder)
     _get_latest_plugin_source(source_folder)
     _update_virtualenv(source_folder)
-    _update_static_files(source_folder)
-    _update_database(source_folder)
+    _update_static_files(source_folder, settings_file)
+    _update_database(source_folder, settings_file)
 
 
 def _create_directory_structure_if_necessary(site_folder):
@@ -62,13 +66,13 @@ def _update_virtualenv(source_folder):
     ))
 
 
-def _update_static_files(source_folder):
-    run('cd %s && ../virtualenv/bin/python3 manage.py collectstatic --noinput' %(
-        source_folder,
-    ))
+def _update_static_files(source_folder, settings_file):
+    command = ('cd {dir} && ../virtualenv/bin/python3 manage.py collectstatic'
+               ' --noinput --settings={settings}')
+    run(command.format(dir=source_folder, settings=settings_file))
 
 
-def _update_database(source_folder):
-    run('cd %s && ../virtualenv/bin/python3 manage.py migrate --noinput' % (
-        source_folder,
-    ))
+def _update_database(source_folder, settings_file):
+    command = ('cd {dir} && ../virtualenv/bin/python3 manage.py migrate'
+               ' --noinput --settings={settings}')
+    run(command.format(dir=source_folder, settings=settings_file))
