@@ -8,7 +8,7 @@ from squeeze.models import SqueezeJob
 
 def landing(request):
     form = OptInForm()
-    return render(request, 'landing.html', {'form': form})
+    return render(request, 'index.html', {'form': form})
 
 
 def receive_squeezejob(request):
