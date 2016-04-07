@@ -23,3 +23,20 @@ legend {
 header .header-content .header-content-inner {
     max-width: 1200px;
 }
+
+aside#upload-form {
+    font-family: "Open Sans","Helvetica Neue",Arial,sans-serif;
+}
+
+/* Contact section imported from agency.css */
+
+
+section#contact {
+  background-color: #222222;
+  background-image: url('./squeeze/img/map-image.png');
+  background-position: center;
+  background-repeat: no-repeat;
+}
+section#contact .section-heading {
+  color: white;
+}
