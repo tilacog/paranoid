@@ -1,0 +1,21 @@
+.bg-gray{
+    background-color: #E0E0E0;
+    color: #ff2d00;
+}
+
+legend {
+    color: gray;
+    font-size: 16px;
+    font-family: "Open Sans","Helvetica Neue",Arial,sans-serif;
+}
+
+#sub-button-text {
+    margin: 10px;
+    color: black;
+    font-size: 12px;
+    font-family: "Open Sans","Helvetica Neue",Arial,sans-serif;
+}
+
+header .header-content .header-content-inner {
+    max-width: 1200px;
+}

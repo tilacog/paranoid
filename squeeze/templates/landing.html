@@ -1,108 +1,55 @@
 {% extends 'squeeze_base.html' %}
+{% load widget_tweaks %}
 
-{% block stylesheets %}
-
-{% endblock stylesheets %}
 
 {% block title %}Entenda seu SPED{% endblock title %}
+{% block navbar-brand %}Paranoid Labs{% endblock %}
 
-{% block call_to_action%}
-<h1>Converta seu SPED para Excel</h1>
-{% endblock %}
-
-
-{% block about_text %}
-<p>Converta seu arquivo SPED em uma planilha Excel, gratuitamente.</p>
-{% endblock %}
-
-{% block explainer %}
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi iaculis, dui id bibendum tempus, enim magna consectetur quam, vitae scelerisque orci purus vitae odio. In consequat mattis eleifend. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Praesent laoreet enim nec suscipit gravida. Vestibulum vel nulla quam. Nam ut mollis nisl. Quisque metus enim, varius ut facilisis nec, egestas ultricies neque. Sed eu augue a risus commodo pretium quis eget mi. Sed elit orci, rhoncus at vulputate ut, posuere vel augue. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. In scelerisque magna id massa posuere placerat. Integer eget dictum orci. Aliquam posuere turpis vitae sem auctor pulvinar. Etiam commodo arcu felis, vel faucibus tortor ultricies ac. Nam viverra rhoncus odio sed blandit.</p>
-
-<p>Curabitur faucibus nulla in suscipit placerat. Ut turpis dolor, tincidunt quis dictum a, fringilla et turpis. Etiam varius fermentum tortor eget fermentum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Pellentesque luctus lacus elit, non eleifend elit sodales ac. Phasellus quis ornare nulla, ac blandit odio. Nunc in magna non ex elementum fringilla. Mauris bibendum mattis urna. Ut scelerisque, elit quis mattis mollis, eros nibh posuere erat, ac vehicula sapien dui id tortor. Ut non ante sollicitudin, placerat quam in, placerat tortor. Nunc maximus odio a lorem tristique, vel facilisis tellus tincidunt. Suspendisse mollis turpis at metus pulvinar bibendum.</p>
-{% endblock %}
 
 {% block form %}
-<form class="form-horizontal" role="form" id="id_optin_form"
+<form class="form-horizontal" role="form"
     method="POST" action="{% url 'receive_squeezejob' %}"
     enctype="multipart/form-data">
 
-  {% csrf_token %}
-
-  <div class="form-group">
-    <label for={{form.name.id_for_label}}>{{form.name.label}}</label>
-    {{form.name}}
-  </div>
-
-  <div class="form-group">
-    <label for={{form.email.id_for_label}}>{{form.email.label}}</label>
-    {{form.email}}
-  </div>
-  <label for={{form.audit.id_for_label}}>Escolha o tipo do seu arquivo SPED:</label>
-  {% for radio in form.audit %}
-    <div class="radio">
-        {{ radio }}
+  <legend>Converta seu arquivo SPED numa planilha Excel em instantes.</legend>
+  <fieldset>
+    {% csrf_token %}
+    <!-- Name Input -->
+    <div class="form-group">
+      <label class="col-md-4 control-label" for={{form.name.id_for_label}}>{{form.name.label}}</label>
+      <div class="col-md-4">
+          {{ form.name|add_class:"form-control input-md" }}
+      </div>
     </div>
-  {% endfor %}
 
-  <label class="file">
-    {{ form.document }}
-    <span class="file-custom"></span>
-  </label>
+    <!-- Email Input -->
+    <div class="form-group">
+      <label class="col-md-4 control-label" for={{form.email.id_for_label}}>{{form.email.label}}</label>
+      <div class="col-md-4">
+          {{form.email|add_class:"form-control input-md"}}
+      </div>
+    </div>
 
-  <div class="form-actions">
-    <button class="btn btn-primary" type="submit">Converter</button>
-  </div>
+    <!-- Audit Select-->
+    <div class="form-group">
+      <label class="col-md-4 control-label" for={{form.audit.id_for_label}}>Escolha o tipo do seu arquivo SPED:</label>
+      <div class="col-md-4">
+          {{ form.audit|add_class:"form-control" }}
+      </div>
+    </div>
 
+    <!-- File Select-->
+    <div class="form-group">
+      <label class="col-md-4 control-label" for="{{ form.document.id_for_label }}">Arquivo SPED</label>
+      <div class="col-md-4">
+        {{ form.document|add_class:"form-control"|attr:"style:height:auto;" }}
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Converter em Excel</button>
+    </div>
+  </fieldset>
 </form>
 {% endblock %}
-
-{% block contact %}{% endblock %}
-
-{% block features %}
-<div class="col-lg-3">
-  <h2>Heading</h2>
-  <hr class="step-hr">
-  <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.</p>
-  <hr class="step-hr">
-</div>
-<div class="col-lg-3">
-  <h2>Heading</h2>
-  <hr class="step-hr">
-  <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.</p>
-  <hr class="step-hr">
-</div>
-<div class="col-lg-3">
-  <h2>Heading</h2>
-  <hr class="step-hr">
-  <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.</p>
-  <hr class="step-hr">
-</div>
-<div class="col-lg-3">
-  <h2>Heading</h2>
-  <hr class="step-hr">
-  <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.</p>
-  <hr class="step-hr">
-</div>
-{% endblock features %}
-
-{% block steps %}
-<div class="container marketing" id="steps-container">
-<div class="row" id="steps-row">
-<div class="col-lg-4">
-  <img width="140" height="140" alt="Generic placeholder image" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" class="img-circle">
-  <h2>Heading</h2>
-  <p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod. Nullam id dolor id nibh ultricies vehicula ut id elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna.</p>
-</div><!-- /.col-lg-4 -->
-<div class="col-lg-4">
-  <img width="140" height="140" alt="Generic placeholder image" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" class="img-circle">
-  <h2>Heading</h2>
-  <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh.</p>
-</div><!-- /.col-lg-4 -->
-<div class="col-lg-4">
-  <img width="140" height="140" alt="Generic placeholder image" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" class="img-circle">
-  <h2>Heading</h2>
-  <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-</div><!-- /.col-lg-4 -->
-</div>
-</div>
-{% endblock steps%}

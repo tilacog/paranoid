@@ -3,45 +3,197 @@
 <html lang="en">
 
 <head>
-    {% block stylesheets %}{% endblock stylesheets %}
-    <title>{% block title %}Titan{% endblock title %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel='stylesheet' type='text/css' media="screen">
-    <link href="{% static "bootstrap/css/carousel.css" %}" rel='stylesheet' type='text/css' media="screen">
-    <link href="{% static "squeeze-base.css" %}" rel='stylesheet' type='text/css' media="screen">
-    {% include 'google_analytics.html' %}
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="{% static "squeeze/css/bootstrap.min.css" %}" type="text/css">
+
+    <!-- Custom Fonts -->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{% static "squeeze/font-awesome/css/font-awesome.min.css" %}" type="text/css">
+
+    <!-- Plugin CSS -->
+    <link rel="stylesheet" href="{% static "squeeze/css/animate.min.css" %}" type="text/css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static "squeeze/css/creative.css" %}" type="text/css">
+    <link rel="stylesheet" href="{% static "squeeze-custom.css" %}" type="text/css">
+    <link rel="stylesheet" href="{% static "squeeze/css/typed-js.css" %}" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="{% static "squeeze/https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js" %}"></script>
+        <script src="{% static "squeeze/https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js" %}"></script>
+    <![endif]-->
+
 </head>
 
-<body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
+<body id="page-top">
+
+    <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
-                <p class="navbar-brand">Paranoid Labs</p>
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top">{% block navbar-brand %}Start Bootstrap{% endblock %}</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a class="page-scroll" href="#about">About</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#services">Services</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#portfolio">Portfolio</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+
+    <header>
+        <div class="header-content">
+            <div class="header-content-inner">
+                <h1><span class="typed"></span>seu SPED no Excel</h1>
+                <hr>
+                <p>A maneira mais fácil, rápida e inteligente de analisar seus arquivos SPED.</p>
+                <a href="#about" class="btn btn-primary btn-xl page-scroll">Como assim?</a>
             </div>
         </div>
-    </nav>
-    <div class="jumbotron">
-        <div class="container">
-            {% block call_to_action%}{% endblock %}
-            <p id="id_about_text">{% block about_text %}{% endblock %}</p>
-        </div>
-    </div>
+    </header>
+
+    <section class="bg-primary" id="about">
         <div class="container">
             <div class="row">
-                <div class="col-sm-8">
-                    {% block explainer %}{% endblock %}
-                </div>
-                <div class="col-sm-4">
-                    {% block form %}{% endblock %}
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">Chega de Dúvidas</h2>
+                    <hr class="light">
+                    <p class="text-faded">
+                    Agora você pode analisar e conferir todas as informações de seus arquivos SPED com total segurança, privacidade e agilidade.
+                    Nosso conversor de arquivos SPED <strong><u>gratuito</u></strong> é capaz de gerar um arquivo Excel com todos os blocos dos dos arquivos
+                    sped.
+                    </p>
+
+                    <p><strong>Fique tranquilo, seus dados estão protegidos.</strong>
+                    <br><i class="fa fa-3x fa-lock" ></i></p>
+
+                    <a href="#" class="btn btn-default btn-xl wow tada">Analisar SPED Agora!</a>
                 </div>
             </div>
         </div>
-            {% block steps %}{% endblock steps %}
-        <div class="container marketing">
-        <div class="row">
-            {% block features %}{% endblock features %}
+    </section>
+
+    <section id="services">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2 class="section-heading">Veja como é fácil</h2>
+                    <hr class="primary">
+                </div>
+            </div>
         </div>
-            {% block contact %}{% endblock %}
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="fa fa-4x fa-paper-plane wow bounceIn text-primary" data-wow-delay=".3s"></i>
+                        <h3>1. Upload</h3>
+                        <p class="text-muted">Envie seu documento SPED com segurança através do formulário.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="fa fa-4x fa-inbox wow bounceIn text-primary" data-wow-delay=".6s"></i>
+                        <h3>2. Receba no seu e-mail</h3>
+                        <p class="text-muted">Você receberá uma notificação por email assim que a conversão ficar pronta.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="fa fa-4x fa-cloud-download wow bounceIn text-primary" data-wow-delay=".9s"></i>
+                        <h3>3. Download</h3>
+                        <p class="text-muted">Abra o link recebido via email para fazer o download do seu arquivo Excel.</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 text-center">
+                    <div class="service-box">
+                        <i class="fa fa-4x fa-trash wow bounceIn text-primary" data-wow-delay="1.2s"></i>
+                        <h3>4. Dados Destruídos</h3>
+                        <p class="text-muted">Depois de 72 horas <u>todas</u> as informações dos seus arquivos serão destruídas.</p>
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
+
+
+    <aside class="bg-gray">
+        <div class="container text-center">
+            <div class="call-to-action">
+                <h2>Envie seu Arquivo Sped</h2>
+                {% block form %}{% endblock %}
+                <p id="sub-button-text">Conversão 100% segura e privada.</p>
+            </div>
+        </div>
+    </aside>
+
+    <section id="contact" class="bg-dark">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">Entre em Contato!</h2>
+                    <hr class="primary">
+                    <p>Ficou com alguma dúvida? Sem problemas! Envie um email para gente com seus questionamentos ou sugestões e responderemos o mais rápido possível!</p>
+                </div>
+                <div class="col-lg-12 text-center">
+                    <i class="fa fa-envelope-o fa-3x wow bounceIn" data-wow-delay=".3s"></i>
+                    <p><a href="mailto:feedback@paranoidlabs.com.br">feedback@paranoidlabs.com.br</a></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- jQuery -->
+    <script src="{% static "squeeze/js/jquery.js" %}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{% static "squeeze/js/bootstrap.min.js" %}"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="{% static "squeeze/js/jquery.easing.min.js" %}"></script>
+    <script src="{% static "squeeze/js/jquery.fittext.js" %}"></script>
+    <script src="{% static "squeeze/js/wow.min.js" %}"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="{% static "squeeze/js/creative.js" %}"></script>
+
+    <!-- typed.js-->
+    <script src="{% static "squeeze/js/typed.js" %}"></script>
+    {% include "typed-js.html" %}
+
 </body>
+
 </html>
