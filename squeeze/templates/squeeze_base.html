@@ -100,7 +100,7 @@
                     <p><strong>Fique tranquilo, seus dados estão protegidos.</strong>
                     <br><i class="fa fa-3x fa-lock" ></i></p>
 
-                    <a href="#" class="btn btn-default btn-xl wow tada">Analisar SPED Agora!</a>
+                    <a href="#upload-form" class="btn btn-default btn-xl wow tada">Analisar SPED Agora!</a>
                 </div>
             </div>
         </div>
@@ -150,12 +150,14 @@
     </section>
 
 
-    <aside class="bg-gray">
+    <aside class="bg-gray" id="upload-form">
         <div class="container text-center">
             <div class="call-to-action">
                 <h2>Envie seu Arquivo Sped</h2>
                 {% block form %}{% endblock %}
                 <p id="sub-button-text">Conversão 100% segura e privada.</p>
+                <p><i class="fa fa-2x fa-lock" ></i></p>
+
             </div>
         </div>
     </aside>
