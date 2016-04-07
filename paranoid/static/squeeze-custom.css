@@ -3,6 +3,10 @@
     color: #ff2d00;
 }
 
+.bg-gray i {
+    color: gray;
+}
+
 legend {
     color: gray;
     font-size: 16px;
