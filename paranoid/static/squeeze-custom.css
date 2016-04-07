@@ -1,24 +1,17 @@
-#steps-container {
-    background-color: #eee;
-    width: 100% ;
-}
-#steps-row {
-    margin: 0px 5%;
-    padding: 15px 15px;
+.bg-gray{
+    background-color: #E0E0E0;
+    color: #ff2d00;
 }
 
-hr.step-hr{
-    border-color: black;
+legend {
+    color: gray;
+    font-size: 16px;
+    font-family: "Open Sans","Helvetica Neue",Arial,sans-serif;
 }
 
-.marketing .col-lg-4 {
-  margin-bottom: 20px;
-  /* text-align: center; */
-}
-.marketing h2 {
-  font-weight: normal;
-}
-.marketing .col-lg-4 p {
-  margin-right: 10px;
-  margin-left: 10px;
+#sub-button-text {
+    margin: 10px;
+    color: black;
+    font-size: 12px;
+    font-family: "Open Sans","Helvetica Neue",Arial,sans-serif;
 }

@@ -39,7 +39,7 @@ class OptInForm(forms.Form):
             'id': 'id_email',
         }))
     audit = forms.ChoiceField(
-        widget=forms.RadioSelect(attrs={'id': 'id_audit'}),
+        widget=forms.Select(attrs={'id': 'id_audit'}),
         choices=CHOICES)
     document = forms.FileField(
         widget=forms.ClearableFileInput(attrs={'id': 'id_document'}))
