@@ -38,4 +38,8 @@ class SqueezeJob(models.Model):
 
     @property
     def is_expired(self):
-        return now() > self.created_at + self.DEFAULT_TIMEOUT
+        return now() > self.expires_at
+
+    @property
+    def expires_at(self):
+        return self.created_at + self.DEFAULT_TIMEOUT

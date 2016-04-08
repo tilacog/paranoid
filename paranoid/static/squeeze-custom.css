@@ -28,9 +28,8 @@ aside#upload-form {
     font-family: "Open Sans","Helvetica Neue",Arial,sans-serif;
 }
 
+
 /* Contact section imported from agency.css */
-
-
 section#contact {
   background-color: #222222;
   background-image: url('./squeeze/img/map-image.png');
@@ -39,4 +38,68 @@ section#contact {
 }
 section#contact .section-heading {
   color: white;
+}
+
+
+/* ========================================================
+ * Styles for the success page 
+ * ========================================================*/
+#job-container {
+    padding: 0;
+}
+
+.job-info {
+    font-family: "Open Sans","Helvetica Neue",Arial,sans-serif;
+    text-align: left;
+    -moz-border-radius:10px;
+    -webkit-border-radius:10px;
+    border-radius:10px;
+    background-color: rgba(105,100,100,0.8);
+    padding: 10px;
+    min-height: 250px; 
+}
+
+div.job-info > p.schedule-info{
+    color: white;
+    font-weight: bold;
+    margin: 10px 0 20px 0; 
+
+    border-style:  solid;
+    border-width: 0px 0px 1px 0px;
+    border-color: #999999;
+}
+
+div.job-info > p.explainer {
+    color: #fff;
+    margin: 10px 0 10px 0;
+}
+
+p.explainer > em {
+    font-weight: bold;
+    font-style: normal;
+}
+
+a.contact {
+    margin-top: 50px;
+}
+
+dl {
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  margin: 0
+}
+dt {
+  float: left;
+  width: 35%;
+  /* adjust the width; make sure the total of both is 100% */
+  padding: 0;
+  margin: 0
+}
+dd {
+  float: left;
+  width: 65%;
+  /* adjust the width; make sure the total of both is 100% */
+  padding: 0;
+  margin: 0
 }
