@@ -21,9 +21,9 @@ def get_beta_user():
 CHOICES = (
     # Those should map with audits.Audit.runner_choices for all the
     # "dump-to-excel" runners. First items must match the runner class names.
-    ('SefipToExcel', 'GFIP (arquivo .SFP)'),
-    ('EfdDump', 'EFD Contribuições'),
-    ('EcfDump', 'ECF'),
+    ('SefipToExcel', 'GFIP (extensão .SFP)'),
+    ('EfdDump', 'EFD Contribuições (extensão .sped)'),
+    ('EcfDump', 'ECF (extensão .sped)'),
 )
 
 
