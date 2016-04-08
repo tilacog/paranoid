@@ -11,14 +11,15 @@
     method="POST" action="{% url 'receive_squeezejob' %}"
     enctype="multipart/form-data">
 
-  <legend>Converta seu arquivo SPED numa planilha Excel em instantes.</legend>
+  <legend>Converta seu arquivo SPED em uma planilha Excel em instantes.</legend>
+  <hr class="primary">
   <fieldset>
     {% csrf_token %}
     <!-- Name Input -->
     <div class="form-group">
       <label class="col-md-4 control-label" for={{form.name.id_for_label}}>{{form.name.label}}</label>
       <div class="col-md-4">
-          {{ form.name|add_class:"form-control input-md" }}
+          {{ form.name|add_class:"form-control input-md"|attr:"required:true" }}
       </div>
     </div>
 
@@ -26,7 +27,7 @@
     <div class="form-group">
       <label class="col-md-4 control-label" for={{form.email.id_for_label}}>{{form.email.label}}</label>
       <div class="col-md-4">
-          {{form.email|add_class:"form-control input-md"}}
+          {{form.email|add_class:"form-control input-md"|attr:"required:true"}}
       </div>
     </div>
 
@@ -34,7 +35,7 @@
     <div class="form-group">
       <label class="col-md-4 control-label" for={{form.audit.id_for_label}}>Escolha o tipo do seu arquivo SPED:</label>
       <div class="col-md-4">
-          {{ form.audit|add_class:"form-control" }}
+          {{ form.audit|add_class:"form-control"|attr:"required:true" }}
       </div>
     </div>
 
@@ -42,7 +43,7 @@
     <div class="form-group">
       <label class="col-md-4 control-label" for="{{ form.document.id_for_label }}">Arquivo SPED</label>
       <div class="col-md-4">
-        {{ form.document|add_class:"form-control"|attr:"style:height:auto;" }}
+        {{ form.document|add_class:"form-control"|attr:"style:height:auto;"|attr:"required:true"}}
       </div>
     </div>
 
