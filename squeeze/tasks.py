@@ -82,3 +82,7 @@ def notify_beta_users():
             html_message=html_message,
             from_email='titan@paranoidlabs.com.br',
         )
+
+@task
+def notify_admins():
+    pass

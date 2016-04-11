@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from jobs.views import build_download_response
 from squeeze.forms import OptInForm, get_beta_user
 from squeeze.models import SqueezeJob
+from squeeze.tasks import notify_admins
 
 
 def landing(request):
@@ -20,6 +21,7 @@ def receive_squeezejob(request):
     form = OptInForm(request.POST, request.FILES)
     if form.is_valid():
         squeezejob = form.save()
+        notify_admins.delay(request)
         return redirect('success_optin', squeezejob.random_key)
     else:
         # TODO: Return to landing page with errors
