@@ -1,6 +1,6 @@
 import random
 
-from fabric.api import env, local, run, settings
+from fabric.api import env, local, run, settings, sudo
 from fabric.contrib.files import append, exists, sed
 
 
@@ -29,6 +29,7 @@ def deploy():
     _update_virtualenv(source_folder)
     _update_static_files(source_folder, settings_file)
     _update_database(source_folder, settings_file)
+    _supervisorctl_restart()
 
 
 def _create_directory_structure_if_necessary(site_folder):
@@ -76,3 +77,9 @@ def _update_database(source_folder, settings_file):
     command = ('cd {dir} && ../virtualenv/bin/python3 manage.py migrate'
                ' --noinput --settings={settings}')
     run(command.format(dir=source_folder, settings=settings_file))
+
+def _supervisorctl_restart():
+    program_group = (
+        'staging' if 'staging' in env.host else 'production'
+    )
+    sudo("supervisorctl restart %s:" % (program_group,))
