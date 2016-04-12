@@ -12,8 +12,7 @@ def landing(request):
 
 
 def receive_squeezejob(request):
-
-    # Olny answers to POST requests
+    # Only answers to POST requests
     if request.method == 'GET':
         return HttpResponse(status=405)
 
