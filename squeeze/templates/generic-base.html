@@ -15,10 +15,11 @@
     <header>
       <div class="header-content">
         <div class="header-content-inner">
-          <h1>Arquivos Enviados com Sucesso!</h1>
+          <h1>{% block big-text %}Arquivos Enviados com Sucesso!{% endblock %}</h1>
+
           <hr>
           <div class="row">
-            {% block job-info %}{% endblock %}
+            {% block featured-content %}{% endblock %}
           </div>
           <a href="#contact" class="btn btn-default btn-xl contact page-scroll">Dúvidas?</a>
         </div>
