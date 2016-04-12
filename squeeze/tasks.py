@@ -12,11 +12,11 @@ logger = get_task_logger(__name__)
 
 MAIL_MESSAGES = {
         'SUCCESS_SUBJECT': 'Seu aqruivo SPED foi convertido com sucesso',
-        'SUCCESS_TEXT_TEMPLATE': 'success_email_body.txt',
-        'SUCCESS_HTML_TEMPLATE': 'success_email_body.html',
+        'SUCCESS_TEXT_TEMPLATE': 'success-email-body.txt',
+        'SUCCESS_HTML_TEMPLATE': 'success-email-body.html',
         'FAILURE_SUBJECT': 'Não conseguimos converter seu arquivo',
-        'FAILURE_TEXT_TEMPLATE': 'failure_email_body.txt',
-        'FAILURE_HTML_TEMPLATE': 'failure_email_body.html',
+        'FAILURE_TEXT_TEMPLATE': 'failure-email-body.txt',
+        'FAILURE_HTML_TEMPLATE': 'failure-email-body.html',
 }
 
 def build_messages(state, context):

@@ -3,7 +3,8 @@ from unittest import TestCase, skip
 from unittest.mock import Mock, patch
 
 from jobs.models import Job
-from squeeze.tasks import MAIL_MESSAGES, notify_beta_users, build_messages
+from squeeze.tasks import (MAIL_MESSAGES, build_messages, notify_admins,
+                           notify_beta_users)
 
 
 class BetaUserSuccessfulNotificationTestCase(TestCase):
@@ -115,8 +116,8 @@ class MessageBuilderTestCase(TestCase):
         }
 
         expected_templates = {
-            'success_email_body.txt',
-            'success_email_body.html'
+            'success-email-body.txt',
+            'success-email-body.html'
         }
 
         self.assertSetEqual(templates_used, expected_templates)
@@ -134,8 +135,8 @@ class MessageBuilderTestCase(TestCase):
         }
 
         expected_templates = {
-            'failure_email_body.txt',
-            'failure_email_body.html'
+            'failure-email-body.txt',
+            'failure-email-body.html'
         }
 
         self.assertSetEqual(templates_used, expected_templates)
@@ -157,3 +158,21 @@ class MessageBuilderTestCase(TestCase):
         # All the context objects are the same
         self.assertEqual(len(contexts_used), 1)
         self.assertIn(mock_context, contexts_used)
+
+
+class NotifyAdminsTestCase(TestCase):
+    """Unit tests for the notify_admin task.
+    """
+
+    def setUp(self):
+        email_patcher = patch('squeeze.tasks.send_mail')
+        self.addCleanup(email_patcher.stop)
+        self.patched_mailer = email_patcher.start()
+
+
+    def test_sends_email_to_admins(self):
+        mock_request = Mock()
+
+        notify_admins()
+
+        self.patched_mailer.assert_any_calls()

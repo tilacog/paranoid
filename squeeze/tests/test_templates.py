@@ -12,7 +12,7 @@ class SuccessfulEmailTest(TestCase):
     def setUp(self):
         self.squeezejob = SqueezejobFactory()
         self.rendered_email = render_to_string(
-            'success_email_body.html',
+            'success-email-body.html',
             {'squeezejob': self.squeezejob},
         )
 
