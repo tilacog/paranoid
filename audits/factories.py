@@ -26,7 +26,7 @@ class AuditFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'audits.Audit'
 
-    name = factory.Sequence(lambda n: 'Audit #%s' % (n,))
+    name = factory.fuzzy.FuzzyText()
     description = factory.Faker('text', locale='pt_BR')
     runner = factory.fuzzy.FuzzyChoice(
         # Must pick the first element as Django choices come in pairs
@@ -51,7 +51,7 @@ class DoctypeFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'audits.Doctype'
 
-    name = factory.Sequence(lambda n: 'Doctype #%s' % (n,))
+    name = factory.fuzzy.FuzzyText()
     validator  = factory.fuzzy.FuzzyChoice(
         # Must pick the first element as Django choices come in pairs
         [i[0] for i in Doctype.validator_choices]
