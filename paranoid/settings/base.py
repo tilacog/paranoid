@@ -40,7 +40,7 @@ GOOGLE_ANALYTICS_PROPERTY_ID = config.get(
 
 # DJANGO
 SECRET_KEY = config.get('django', 'SECRET_KEY', raw=True)
-ADMINS = config.get('django', 'ADMINS')
+ADMINS = [config.get('django', 'ADMINS')]
 
 TEMPLATES = [
     {

@@ -1,7 +1,7 @@
-from celery import group, shared_task, task
+from celery import task
 from celery.utils.log import get_task_logger
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils import timezone
 
@@ -13,13 +13,14 @@ logger = get_task_logger(__name__)
 
 ADMINS = settings.ADMINS
 MAIL_MESSAGES = {
-        'SUCCESS_SUBJECT': 'Seu aqruivo SPED foi convertido com sucesso',
-        'SUCCESS_TEXT_TEMPLATE': 'success-email-body.txt',
-        'SUCCESS_HTML_TEMPLATE': 'success-email-body.html',
-        'FAILURE_SUBJECT': 'Não conseguimos converter seu arquivo',
-        'FAILURE_TEXT_TEMPLATE': 'failure-email-body.txt',
-        'FAILURE_HTML_TEMPLATE': 'failure-email-body.html',
+    'SUCCESS_SUBJECT': 'Seu arquivo SPED foi convertido com sucesso',
+    'SUCCESS_TEXT_TEMPLATE': 'success-email-body.txt',
+    'SUCCESS_HTML_TEMPLATE': 'success-email-body.html',
+    'FAILURE_SUBJECT': 'Não conseguimos converter seu arquivo',
+    'FAILURE_TEXT_TEMPLATE': 'failure-email-body.txt',
+    'FAILURE_HTML_TEMPLATE': 'failure-email-body.html',
 }
+
 
 def build_messages(state, context):
     """Build and return a text and an html message.
@@ -70,18 +71,18 @@ def notify_beta_users():
             state, context={'squeezejob': squeezejob}
         )
 
-
         logger.info('Sending squeezejob {} mail to {}.'.format(
             state,
             squeezejob.real_user_email
         ))
 
         # Dispatch mail
-        send_mail(
-            message=text_message,
-            recipient_list=[squeezejob.real_user_email],
-            bcc=ADMINS,
+        msg = EmailMultiAlternatives(
             subject=MAIL_MESSAGES[subject],
-            html_message=html_message,
-            from_email='titan@paranoidlabs.com.br',
+            body=text_message,
+            to=[squeezejob.real_user_email],
+            bcc=ADMINS,
+            from_email='Conversor Excel <conversor-excel@paranoidlabs.com.br>',
         )
+        msg.attach_alternative(html_message, "text/html")
+        msg.send()

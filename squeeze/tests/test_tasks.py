@@ -1,5 +1,5 @@
 import datetime
-from unittest import TestCase, skip
+from unittest import TestCase
 from unittest.mock import Mock, patch
 
 from jobs.models import Job
@@ -10,7 +10,7 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
     """Unit tests for the notifier function.
     """
     def setUp(self):
-        email_patcher = patch('squeeze.tasks.send_mail')
+        email_patcher = patch('squeeze.tasks.EmailMultiAlternatives')
         self.addCleanup(email_patcher.stop)
         self.patched_mailer = email_patcher.start()
 
@@ -66,7 +66,7 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
 
         self.assertIn(
             self.mock_squeezejob.real_user_email,
-            kwargs['recipient_list'],
+            kwargs['to'],
         )
 
         self.assertEqual(
@@ -91,16 +91,20 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
 
         self.assertEqual(
             kwargs['context'],
-            {'squeezejob':self.mock_squeezejob}
+            {'squeezejob': self.mock_squeezejob}
         )
 
     def test_uses_messages_from_message_builder(self):
-        args, kwargs = self.patched_mailer.call_args
+        _, expected_html_content = self.patched_message_builder.return_value
+        mailer_instance = self.patched_mailer.return_value
 
-        self.assertTupleEqual(
-            (kwargs['message'], kwargs['html_message']),
-            self.patched_message_builder.return_value
+        mailer_instance.attach_alternative.assert_called_once_with(
+            expected_html_content, "text/html"
         )
+
+    def test_message_sent(self):
+        mailer_instance = self.patched_mailer.return_value
+        mailer_instance.send.assert_called_once_with()
 
 
 class MessageBuilderTestCase(TestCase):
