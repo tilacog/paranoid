@@ -3,6 +3,7 @@ from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.core.urlresolvers import reverse
 from django.utils import timezone
 
 from jobs.models import Job
@@ -11,6 +12,7 @@ from squeeze.models import SqueezeJob
 
 logger = get_task_logger(__name__)
 
+SQUEEZE_PAGE_URL= 'http://' + settings.DOMAIN + reverse('squeeze_page')
 ADMINS = settings.ADMINS
 MAIL_MESSAGES = {
     'SUCCESS_SUBJECT': 'Seu arquivo SPED foi convertido com sucesso',
@@ -30,9 +32,9 @@ def build_messages(state, context):
     assert state in ('failure', 'success')
 
     if state == 'success':
-        templates = ('SUCCESS_HTML_TEMPLATE', 'SUCCESS_TEXT_TEMPLATE')
+        templates = ('SUCCESS_TEXT_TEMPLATE', 'SUCCESS_HTML_TEMPLATE')
     elif state == 'failure':
-        templates = ('FAILURE_HTML_TEMPLATE', 'FAILURE_TEXT_TEMPLATE')
+        templates = ('FAILURE_TEXT_TEMPLATE', 'FAILURE_HTML_TEMPLATE')
 
     text_message = render_to_string(
         template_name=MAIL_MESSAGES[templates[0]],
@@ -68,7 +70,11 @@ def notify_beta_users():
 
         # Build messages
         text_message, html_message = build_messages(
-            state, context={'squeezejob': squeezejob}
+            state,
+            context={
+                'squeezejob': squeezejob,
+                'squeeze_page_url': SQUEEZE_PAGE_URL,
+            }
         )
 
         logger.info('Sending squeezejob {} mail to {}.'.format(

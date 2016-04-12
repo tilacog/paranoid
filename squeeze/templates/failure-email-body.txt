@@ -1,5 +1,6 @@
 {{ squeezejob.real_user_name }},
 infelizmente a conversão de seu arquivo SPED não pode ser processada.
 
+
 Certifique-se de que o arquivo enviado é de fato um arquivo SPED válido, e o envie novamente a partir do endereço:
-{% url "squeeze_page" %}
+{{ squeeze_page_url }}

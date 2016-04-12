@@ -9,7 +9,7 @@ from jobs.models import Job
 from squeeze.factories import SqueezejobFactory
 from squeeze.models import SqueezeJob
 from squeeze.tasks import (MAIL_MESSAGES, build_messages, notify_beta_users,
-                           delete_expired_files)
+                           delete_expired_files, SQUEEZE_PAGE_URL)
 
 
 class BetaUserSuccessfulNotificationTestCase(TestCase):
@@ -97,7 +97,11 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
 
         self.assertEqual(
             kwargs['context'],
-            {'squeezejob': self.mock_squeezejob}
+            {
+                'squeezejob': self.mock_squeezejob,
+                'squeeze_page_url': SQUEEZE_PAGE_URL,
+            }
+
         )
 
     def test_uses_messages_from_message_builder(self):
