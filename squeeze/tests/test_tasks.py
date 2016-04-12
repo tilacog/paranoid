@@ -3,8 +3,7 @@ from unittest import TestCase, skip
 from unittest.mock import Mock, patch
 
 from jobs.models import Job
-from squeeze.tasks import (MAIL_MESSAGES, build_messages, notify_admins,
-                           notify_beta_users)
+from squeeze.tasks import MAIL_MESSAGES, build_messages, notify_beta_users
 
 
 class BetaUserSuccessfulNotificationTestCase(TestCase):
@@ -23,6 +22,10 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
         self.addCleanup(message_builder_patcher.stop)
         self.patched_message_builder = message_builder_patcher.start()
         self.patched_message_builder.return_value = ('text', 'html')
+
+        admin_patcher = patch('squeeze.tasks.ADMINS')
+        self.addCleanup(admin_patcher.stop)
+        self.patched_admins = admin_patcher.start()
 
         self.mock_squeezejob = Mock(
             job=Mock(state=Job.SUCCESS_STATE),
@@ -55,8 +58,8 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
         )
         self.mock_squeezejob.save.assert_called_once_with()
 
-    def test_sent_mail_to_real_user_email(self):
-        """The mail must be sent to the real user email.
+    def test_sent_mail_to_correct_recipients(self):
+        """The mail must be sent to the real user email and to all admins.
         """
         # Get call arguments for the mailer function.
         args, kwargs = self.patched_mailer.call_args
@@ -64,6 +67,11 @@ class BetaUserSuccessfulNotificationTestCase(TestCase):
         self.assertIn(
             self.mock_squeezejob.real_user_email,
             kwargs['recipient_list'],
+        )
+
+        self.assertEqual(
+            self.patched_admins,
+            kwargs['bcc']
         )
 
     def test_used_successful_msg_subject(self):
@@ -158,21 +166,3 @@ class MessageBuilderTestCase(TestCase):
         # All the context objects are the same
         self.assertEqual(len(contexts_used), 1)
         self.assertIn(mock_context, contexts_used)
-
-
-class NotifyAdminsTestCase(TestCase):
-    """Unit tests for the notify_admin task.
-    """
-
-    def setUp(self):
-        email_patcher = patch('squeeze.tasks.send_mail')
-        self.addCleanup(email_patcher.stop)
-        self.patched_mailer = email_patcher.start()
-
-
-    def test_sends_email_to_admins(self):
-        mock_request = Mock()
-
-        notify_admins()
-
-        self.patched_mailer.assert_any_calls()

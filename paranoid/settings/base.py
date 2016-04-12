@@ -15,10 +15,9 @@ logger = logging.getLogger(__name__)
 THIS_DIR = unipath.Path(__file__).parent
 BASE_DIR = THIS_DIR.ancestor(2)
 
+# Config parser
 config = configparser.ConfigParser()
 config.read(THIS_DIR.child('secrets.ini'))
-
-SECRET_KEY = config.get('django', 'SECRET_KEY', raw=True)
 
 # CELERY SETTINGS
 CELERY_RESULT_BACKEND = 'amqp'
@@ -38,6 +37,10 @@ GOOGLE_ANALYTICS_PROPERTY_ID = config.get(
     'tracking',
     'GOOGLE_ANALYTICS_PROPERTY_ID',
 )
+
+# DJANGO
+SECRET_KEY = config.get('django', 'SECRET_KEY', raw=True)
+ADMINS = config.get('django', 'ADMINS')
 
 TEMPLATES = [
     {

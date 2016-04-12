@@ -1,5 +1,6 @@
 from celery import group, shared_task, task
 from celery.utils.log import get_task_logger
+from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils import timezone
@@ -7,9 +8,10 @@ from django.utils import timezone
 from jobs.models import Job
 from squeeze.models import SqueezeJob
 
+
 logger = get_task_logger(__name__)
 
-
+ADMINS = settings.ADMINS
 MAIL_MESSAGES = {
         'SUCCESS_SUBJECT': 'Seu aqruivo SPED foi convertido com sucesso',
         'SUCCESS_TEXT_TEMPLATE': 'success-email-body.txt',
@@ -78,11 +80,8 @@ def notify_beta_users():
         send_mail(
             message=text_message,
             recipient_list=[squeezejob.real_user_email],
+            bcc=ADMINS,
             subject=MAIL_MESSAGES[subject],
             html_message=html_message,
             from_email='titan@paranoidlabs.com.br',
         )
-
-@task
-def notify_admins():
-    pass

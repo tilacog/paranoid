@@ -54,10 +54,6 @@ class ReceiveSqueezejobTest(TestCase):
             runner='EcfDump',
         )
 
-        # Patch admin notifier task
-        patcher = patch('squeeze.views.notify_admins')
-        self.addCleanup(patcher.stop)
-        self.patched_notifier = patcher.start()
 
         # Process a valid request
         self.post_data = {
@@ -85,31 +81,6 @@ class ReceiveSqueezejobTest(TestCase):
     def test_accepts_only_post_requests(self):
         resp = self.client.get(reverse('receive_squeezejob'))
         self.assertEqual(resp.status_code, 405)
-
-    def test_dispatches_notify_admins_task(self):
-        """When a user uploads a file, the view should call the notify_admins
-        task.
-        """
-
-        # I had to manually build a request because django test client doesn't
-        # store request.POST data inside its response.request object.
-        factory = RequestFactory()
-        request = factory.post(
-            reverse('receive_squeezejob'),
-            data=self.post_data
-        )
-
-        receive_squeezejob(request)
-
-        # Oddly, the request passed to the view is different than the request
-        # captured by the patched object.
-        captured_request = self.patched_notifier.delay.call_args[0][0]
-
-        # So we compare if their POST attributes are equal.
-        self.assertEqual(request.POST, captured_request.POST)
-
-        # Strangely, request's FILES attributes seems to differ.
-        # self.assertEqual(request.FILES, observed_request.FILES)
 
 
 class SuccessPageTest(TestCase):
