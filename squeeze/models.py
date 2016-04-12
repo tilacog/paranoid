@@ -19,7 +19,7 @@ class SqueezeJob(models.Model):
     """A job who came from the squeeze page.
     """
 
-    DEFAULT_TIMEOUT = timedelta(days=3)
+    DEFAULT_TIMEOUT = timedelta(days=2)
 
     job = models.ForeignKey('jobs.Job',)
     real_user_email = models.EmailField()
