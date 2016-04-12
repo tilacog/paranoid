@@ -86,3 +86,16 @@ def notify_beta_users():
         )
         msg.attach_alternative(html_message, "text/html")
         msg.send()
+
+
+@task
+def delete_expired_files():
+    date_limit = timezone.now() - SqueezeJob.DEFAULT_TIMEOUT
+
+
+    expired_squeezejobs = SqueezeJob.objects.filter(created_at__lte=date_limit)
+    for squeezejob in expired_squeezejobs:
+            for document in squeezejob.job.documents.all():
+                document.file.delete()
+            squeezejob.job.report_file.delete()
+            squeezejob.save()

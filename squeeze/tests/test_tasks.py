@@ -1,9 +1,15 @@
 import datetime
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, MagicMock
+
+from django.test import TestCase as djangoTestCase
+from django.utils import timezone
 
 from jobs.models import Job
-from squeeze.tasks import MAIL_MESSAGES, build_messages, notify_beta_users
+from squeeze.factories import SqueezejobFactory
+from squeeze.models import SqueezeJob
+from squeeze.tasks import (MAIL_MESSAGES, build_messages, notify_beta_users,
+                           delete_expired_files)
 
 
 class BetaUserSuccessfulNotificationTestCase(TestCase):
@@ -170,3 +176,71 @@ class MessageBuilderTestCase(TestCase):
         # All the context objects are the same
         self.assertEqual(len(contexts_used), 1)
         self.assertIn(mock_context, contexts_used)
+
+
+class RemoveExpiredDocumentsUnitTests(TestCase):
+    """Unit tests for the delete_expired_files task.
+    """
+
+    @patch('squeeze.tasks.SqueezeJob')
+    def test_calls_squeezejob_remove_files_method(self, squeezejob_cls):
+        mock_sj = MagicMock()
+        squeezejob_cls.objects.filter.return_value = [mock_sj]
+
+        mock_doc = Mock()
+        mock_sj.job.documents.all.return_value = [mock_doc]
+
+        delete_expired_files()
+
+        mock_sj.job.report_file.delete.assert_called_once_with()
+        mock_doc.file.delete.assert_called_once_with()
+
+
+class RemoveExpiredDocumentsIntegratedTests(djangoTestCase):
+    """Integrated tests for the remove_expired_douments task.
+    """
+    def test_remove_files_from_correct_squeezejobs(self):
+        """Upon expiry, squeezejobs must have some of their files deleted:
+         - job.report_file
+         - job.documents.all()
+        """
+        # Create a fresh squeezejob
+        new_sj = SqueezejobFactory(job__has_report=True)
+        # Take a snapshot of document list and report file for future asserts
+        documents_snapshot = [doc.file for doc in new_sj.job.documents.all()]
+        report_snapshot = new_sj.job.report_file
+
+        # Create a squeezejob which just expired
+        limit_sj = SqueezejobFactory(job__has_report=True)
+        limit_sj.created_at = timezone.now() - SqueezeJob.DEFAULT_TIMEOUT
+        limit_sj.save()
+
+        # Create a really old squeezejob
+        old_sj = SqueezejobFactory(job__has_report=True)
+        old_sj.created_at = timezone.now() - timezone.timedelta(days=900)
+        old_sj.save()
+
+        # Call the tested funciton
+        delete_expired_files()
+
+        # Refresh current session objects from db
+        for sj in (new_sj, limit_sj, old_sj):
+            sj.job.refresh_from_db()
+
+        # Check if expired documents are gone
+        self.assertFalse(any(doc.file for doc in limit_sj.job.documents.all()))
+        self.assertFalse(any(doc.file for doc in old_sj.job.documents.all()))
+
+        # Check if report files are gone too
+        assert_msg = "Report file should be deleted, but still exists."
+        self.assertFalse(bool(limit_sj.job.report_file), assert_msg)
+        self.assertFalse(bool(old_sj.job.report_file), assert_msg)
+
+        # Check if fresh  documents are still there
+        self.assertListEqual(
+            [doc.file for doc in new_sj.job.documents.all()],
+            documents_snapshot
+        )
+
+        # Check if fresh repoorts are still there too
+        self.assertEqual(new_sj.job.report_file, report_snapshot)
