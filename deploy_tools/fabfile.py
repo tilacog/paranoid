@@ -24,9 +24,9 @@ def deploy():
     _get_latest_source(source_folder)
     _get_latest_plugin_source(source_folder)
     _update_virtualenv(source_folder)
+    _send_secrets_file(source_folder)
     _update_static_files(source_folder, settings_file)
     _update_database(source_folder, settings_file)
-    _send_secrets_file(source_folder)
     _supervisorctl_restart()
 
 
