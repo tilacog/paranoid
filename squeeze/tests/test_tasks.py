@@ -214,15 +214,13 @@ class RemoveExpiredDocumentsIntegratedTests(djangoTestCase):
         documents_snapshot = [doc.file for doc in new_sj.job.documents.all()]
         report_snapshot = new_sj.job.report_file
 
+        # Create an expired squeezejob
+        old_sj = SqueezejobFactory(job__has_report=True, expired=True)
+
         # Create a squeezejob which just expired
         limit_sj = SqueezejobFactory(job__has_report=True)
         limit_sj.created_at = timezone.now() - SqueezeJob.DEFAULT_TIMEOUT
         limit_sj.save()
-
-        # Create a really old squeezejob
-        old_sj = SqueezejobFactory(job__has_report=True)
-        old_sj.created_at = timezone.now() - timezone.timedelta(days=900)
-        old_sj.save()
 
         # Call the tested funciton
         delete_expired_files()
