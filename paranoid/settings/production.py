@@ -6,7 +6,7 @@ DOMAIN = 'paranoidlabs.com.br'
 ALLOWED_HOSTS = [DOMAIN]
 
 # CELERY
-BROKER_URL += '/staging'
+BROKER_URL += '/main'
 
 # MAIL SETTINGS
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
