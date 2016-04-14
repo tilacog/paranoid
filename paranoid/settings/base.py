@@ -151,8 +151,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': ('%(levelname)s %(asctime)s %(module)s %(process)d'
-                       '%(thread)d %(message)s')
+            'format': ('%(levelname)s %(asctime)s %(process)d '
+                       '%(pathname)s %(message)s')
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -165,9 +165,11 @@ LOGGING = {
         },
         'file': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': 'site_logfile.log',
             'formatter': 'verbose',
+            'maxBytes': 1024*1025*10,  # 10 MB
+            'backupCount': 10,
         },
     },
     'loggers': {
@@ -177,7 +179,13 @@ LOGGING = {
         'accounts': {
             'handlers': ['console', 'file'],
         },
+        'audits': {
+            'handlers': ['console', 'file'],
+        },
         'jobs': {
+            'handlers': ['console', 'file'],
+        },
+        'squeeze': {
             'handlers': ['console', 'file'],
         },
     },
