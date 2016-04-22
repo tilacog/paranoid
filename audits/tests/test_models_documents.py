@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 
-from audits.factories import DocumentFactory
+from audits.factories import DocumentFactory, DoctypeFactory
 from audits.models import Doctype, Document
 
 User = get_user_model()
@@ -15,7 +15,7 @@ class DocumentTest(TestCase):
 
     def test_can_create_a_minimal_document(self):
         "Document should be created with only the required fields"
-        doctype = Doctype.objects.create(name='manad')
+        doctype = DoctypeFactory()
 
         user = User.objects.create_user(email='test@user.com', password='123')
         test_file = SimpleUploadedFile('test_file.txt', b'test file contents')

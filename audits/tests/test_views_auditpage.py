@@ -79,7 +79,7 @@ class AuditPageGETTest(TestCase):
         self.assertSetEqual(formset_doctype_ids, expected_doctype_ids)
 
     def test_response_context_forms_labels_are_named_after_doctype_names(self):
-        doctype_names = {d.name for d in self.audit.required_doctypes.all()}
+        doctype_names = {d.verbose_name for d in self.audit.required_doctypes.all()}
 
         formset = self.response.context['formset']
         form_labels = {form.fields['file'].label for form in formset}
@@ -121,7 +121,6 @@ class AuditPageGETTest(TestCase):
 class AuditPagePOSTTest(TestCase):
 
     def setUp(self):
-
         # Fixtures
         self.audit = AuditFactory(num_doctypes=1)
         self.user = UserFactory(password='123')
@@ -225,7 +224,6 @@ class FileUploadsIsolatedTests(TestCase):
     """
 
     def setUp(self):
-
         # Patch django storage system
         storage_patcher = patch(
             'django.core.files.storage.default_storage._wrapped',
