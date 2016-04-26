@@ -8,6 +8,8 @@ import factory
 import factory.fuzzy
 from accounts.factories import UserFactory
 from audits.models import Audit, Doctype
+from runner.data_processing import AuditRunnerProvider
+from runner.document_validation import DocumentValidatorProvider
 
 
 def random_string(length=10):
@@ -26,12 +28,9 @@ class AuditFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'audits.Audit'
 
-    name = factory.Sequence(lambda n: 'Audit #%s' % (n,))
+    name = factory.fuzzy.FuzzyText()
     description = factory.Faker('text', locale='pt_BR')
-    runner = factory.fuzzy.FuzzyChoice(
-        # Must pick the first element as Django choices come in pairs
-        [i[0] for i in Audit.runner_choices]
-    )
+    runner = factory.fuzzy.FuzzyChoice(AuditRunnerProvider.plugins)
     package = factory.SubFactory(PackageFactory)
 
     ## Many to Many fields ##
@@ -51,11 +50,8 @@ class DoctypeFactory(factory.DjangoModelFactory):
     class Meta:
         model = 'audits.Doctype'
 
-    name = factory.Sequence(lambda n: 'Doctype #%s' % (n,))
-    validator  = factory.fuzzy.FuzzyChoice(
-        # Must pick the first element as Django choices come in pairs
-        [i[0] for i in Doctype.validator_choices]
-    )
+    name = factory.fuzzy.FuzzyText()
+    validator  = factory.fuzzy.FuzzyChoice(DocumentValidatorProvider.plugins)
 
 
 class DocumentFactory(factory.DjangoModelFactory):

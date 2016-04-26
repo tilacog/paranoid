@@ -1,3 +1,5 @@
+import logging
+
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -6,14 +8,15 @@ from squeeze.forms import OptInForm, get_beta_user
 from squeeze.models import SqueezeJob
 
 
+logger = logging.getLogger(__name__)
+
 def landing(request):
     form = OptInForm()
     return render(request, 'landing.html', {'form': form})
 
 
 def receive_squeezejob(request):
-
-    # Olny answers to POST requests
+    # Only answers to POST requests
     if request.method == 'GET':
         return HttpResponse(status=405)
 
@@ -35,11 +38,18 @@ def download_squeezejob(request, uid):
     """
     squeezejob = get_object_or_404(SqueezeJob, random_key=uid)
     if squeezejob.is_expired:
+        logger.info('Download attempt for expired link [pk={}]'.format(
+            squeezejob.pk
+        ))
         return redirect('expired_download_link')
 
     job = squeezejob.job
     beta_user = get_beta_user()
     response = build_download_response(job.pk, beta_user)
+
+    logger.info('Download attempt for valid link [pk={}]'.format(
+        squeezejob.pk
+    ))
 
     return response
 

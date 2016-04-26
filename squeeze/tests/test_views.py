@@ -1,8 +1,9 @@
 from unittest import skip
+from unittest.mock import patch
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.utils import timezone
 
 from audits.factories import AuditFactory
@@ -11,6 +12,7 @@ from jobs.models import Job
 from squeeze.factories import SqueezejobFactory
 from squeeze.forms import OptInForm, get_beta_user
 from squeeze.models import SqueezeJob
+from squeeze.views import receive_squeezejob
 
 
 class SqueezePageTest(TestCase):
@@ -40,6 +42,7 @@ class SqueezePageTest(TestCase):
             self.assertIn('GOOGLE_ANALYTICS_PROPERTY_ID', response.context)
             self.assertContains(response, tracking_code)
 
+
 class ReceiveSqueezejobTest(TestCase):
     """Integrated tests for the `receive_squeezejob` view.
     """
@@ -51,16 +54,17 @@ class ReceiveSqueezejobTest(TestCase):
             runner='EcfDump',
         )
 
-        # A valid request
-        self.response = self.client.post(
-            reverse('receive_squeezejob'),
-            data={
+        # Process a valid request
+        self.post_data = {
                 'name': 'Test User',
                 'audit': fake_audit.runner,
                 'email': 'test@user.com',
                 'document': fake_file,
-            },
-        )
+            }
+        self.response = self.client.post(
+            reverse('receive_squeezejob'),
+            data=self.post_data,
+         )
 
     def test_redirects_to_success_page(self):
         squeezejob = SqueezeJob.objects.first()
@@ -109,8 +113,7 @@ class SuccessPageTest(TestCase):
     def test_renders_squeezejob_info(self):
         for info in [self.squeezejob.real_user_name,
                      self.squeezejob.real_user_email,
-                     self.squeezejob.job.audit.name,
-                     self.squeezejob.job.documents.first().doctype.name]:
+                     ]:
 
             self.assertContains(self.response, info)
 
@@ -120,14 +123,16 @@ class DownloadSqueezejobTest(TestCase):
     """
     def setUp(self):
         # Create a finished squeezejob.
-        self.job = JobFactory(
-            has_report=True,
-            state=Job.SUCCESS_STATE,
-            user=get_beta_user())
-        squeezejob = SqueezejobFactory(job=self.job)
+        self.squeezejob = SqueezejobFactory(job__has_report=True)
 
+        # Patch logger
+        log_patcher = patch('squeeze.views.logger')
+        self.addCleanup(log_patcher.stop)
+        self.patched_logger = log_patcher.start()
+
+        # Run view
         self.response = self.client.get(reverse(
-            'download_squeezejob', args=[squeezejob.random_key]
+            'download_squeezejob', args=[self.squeezejob.random_key]
         ))
 
     def test_users_can_download_their_own_reports(self):
@@ -140,26 +145,55 @@ class DownloadSqueezejobTest(TestCase):
     def test_redirect_expired_download_links(self):
         """Expired download links should be redirected to a try-again page.
         """
-        expired_squeezejob = SqueezejobFactory(job=self.job)
-        expired_squeezejob.created_at = (
-            timezone.now() - timezone.timedelta(days=360)
-        )
-        expired_squeezejob.save()
-        assert expired_squeezejob.is_expired  # just checking
+        expired_squeezejob = SqueezejobFactory(expired=True)
 
         response = self.client.get(reverse(
             'download_squeezejob', args=[expired_squeezejob.random_key]
         ))
         self.assertRedirects(response, reverse('expired_download_link'))
 
+    def test_logs_download_attempt(self):
+        self.assertTrue(self.patched_logger.info.called)
+
+        args, kwargs = self.patched_logger.info.call_args
+        logged_msg, = args
+
+        self.assertIn(
+            str(self.squeezejob.pk),
+            logged_msg,
+        )
+
 class ExpiredDownloadLinkPageTest(TestCase):
     """Integrated tests for the expired-download-link page.
     """
     def setUp(self):
-        self.response = self.client.get(reverse('expired_download_link'))
+        # Create an expired squeezejob
+        self.expired_squeezejob = SqueezejobFactory(expired=True)
+
+        # Patch logger
+        log_patcher = patch('squeeze.views.logger')
+        self.addCleanup(log_patcher.stop)
+        self.patched_logger = log_patcher.start()
+
+        # Run the view
+        self.response = self.client.get(
+            self.expired_squeezejob.absolute_download_link,
+            follow=True
+        )
 
     def test_page_exists(self):
-        self.assertEqual(self.response.status_code, 200)
+        self.assertRedirects(self.response, reverse('expired_download_link'))
 
     def test_uses_correct_template(self):
         self.assertTemplateUsed(self.response, 'expired.html')
+
+    def test_logs_download_attempt(self):
+        self.assertTrue(self.patched_logger.info.called)
+
+        args, kwargs = self.patched_logger.info.call_args
+        logged_msg, = args
+
+        self.assertIn(
+            str(self.expired_squeezejob.pk),
+            logged_msg,
+        )

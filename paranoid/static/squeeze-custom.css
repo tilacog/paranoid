@@ -74,9 +74,11 @@ div.job-info > p.explainer {
     margin: 10px 0 10px 0;
 }
 
-p.explainer > em {
+p.explainer > em, p.explainer > a {
     font-weight: bold;
     font-style: normal;
+    text-decoration: underline;
+    color: white;
 }
 
 a.contact {

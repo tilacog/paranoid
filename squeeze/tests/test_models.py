@@ -31,7 +31,6 @@ class SqueezejobTestCase(TestCase):
         self.assertFalse(self.squeezejob.is_expired)
 
         # Create an expired instance
-        expired_sj = SqueezejobFactory()
-        expired_sj.created_at = now() - timedelta(days=360)
+        expired_sj = SqueezejobFactory(expired=True)
 
         self.assertTrue(expired_sj.is_expired)

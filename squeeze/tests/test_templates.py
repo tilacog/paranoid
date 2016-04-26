@@ -1,18 +1,20 @@
-from unittest import TestCase
-
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.template.loader import render_to_string
+from django.test import TestCase
+from django.utils.html import escape
 
 from squeeze.factories import SqueezejobFactory
 
 
 class SuccessfulEmailTest(TestCase):
+    """Integrated tests for the successful email template.
+    """
 
     def setUp(self):
         self.squeezejob = SqueezejobFactory()
         self.rendered_email = render_to_string(
-            'success_email_body.html',
+            'success-email-body.html',
             {'squeezejob': self.squeezejob},
         )
 
@@ -31,4 +33,16 @@ class SuccessfulEmailTest(TestCase):
         self.assertIn(download_link, self.rendered_email)
 
         # Check for real user name
-        self.assertIn(self.squeezejob.real_user_name, self.rendered_email)
+        self.assertIn(escape(self.squeezejob.real_user_name), self.rendered_email)
+
+class SqueezejobExpiredTest(TestCase):
+    """Integrated tests for the `expired.html` template.
+    """
+
+    def test_extends_base_template(self):
+        response = self.client.get(reverse('expired_download_link'))
+        self.assertTemplateUsed(response, 'generic-base.html')
+
+    def test_contains_link_to_squeeze_page(self):
+        response = self.client.get(reverse('expired_download_link'))
+        self.assertContains(response, reverse('squeeze_page'))

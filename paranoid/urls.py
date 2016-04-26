@@ -10,6 +10,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^audits/', include('audits.urls')),
     url(r'^jobs/', include('jobs.urls')),
-    url(r'^beta/', include('squeeze.urls')),
+    url(r'^excel/', include('squeeze.urls')),
     url(r'^logout$', logout, {'next_page': '/'}, name='logout'),
 ]

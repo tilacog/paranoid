@@ -1,1 +1,11 @@
+{% extends 'generic-base.html' %}
 
+{% block big-text %}Documentos Expirados{% endblock %}
+
+{% block featured-content %}
+<div class="col-md-12">
+    <p class="explainer">Por motivos de segurança, todos arquivos relacionados à este link foram deletados de nossos servidores depois de 48 horas..</p>
+    <p class="explainer">Para gerar uma nova conversão, envie seu arquivo novamente através <a href="{% url 'squeeze_page'%}#upload-form">deste link</a>.</p>
+</div>
+
+{% endblock %}

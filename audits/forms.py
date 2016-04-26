@@ -48,7 +48,7 @@ class DocumentBaseFormSet(BaseFormSet):
         """Update each form labels to match doctype's name."""
         for form in self.forms:
             doctype_pk = form.initial['doctype']
-            doctype_name = self.audit.required_doctypes.get(pk=doctype_pk).name
+            doctype_name = self.audit.required_doctypes.get(pk=doctype_pk).verbose_name
             form.fields['file'].label = doctype_name
 
     def save(self, user):

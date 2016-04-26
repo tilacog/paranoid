@@ -1,18 +1,33 @@
-from unittest import skip
+from unittest.mock import Mock, patch
 
 from django.core.exceptions import ValidationError
-from django.forms import Form
 from django.test import TestCase
 
-from audits.factories import AuditFactory, DoctypeFactory, PackageFactory
-from audits.models import Audit, Doctype, Package
-
-from runner.data_processing import AuditRunnerProvider
+from audits.factories import AuditFactory
 
 
 class AuditTestCase(TestCase):
 
-    def test_audits_must_associate_with_installed_runners(self):
-        choices = [p[0] for p in Audit.runner_choices]
-        plugins = [p for p in AuditRunnerProvider.plugins.keys()]
-        self.assertEqual(choices, plugins)
+    @patch('audits.models.AuditRunnerProvider')
+    def test_runner_field_validation(self, patched_provider):
+        patched_provider.plugins = ['foo']
+
+        # Bad audit, should raise ValidationEror.
+        with self.assertRaises(ValidationError):
+            bad_audit = AuditFactory(runner='bar')
+
+        # Good audit, should not raise.
+        good_audit = AuditFactory(runner='foo')
+        good_audit.clean()
+
+
+
+    @patch('audits.models.Audit.clean')
+    def test_clean_is_called_on_save(self, patched_clean):
+        audit = AuditFactory()
+
+        # Reset mock call count, because Factoryboy already called it before.
+        patched_clean.reset_mock()
+
+        audit.save()
+        patched_clean.assert_called_once_with()

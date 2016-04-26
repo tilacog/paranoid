@@ -15,10 +15,9 @@ logger = logging.getLogger(__name__)
 THIS_DIR = unipath.Path(__file__).parent
 BASE_DIR = THIS_DIR.ancestor(2)
 
+# Config parser
 config = configparser.ConfigParser()
 config.read(THIS_DIR.child('secrets.ini'))
-
-SECRET_KEY = config.get('django', 'SECRET_KEY', raw=True)
 
 # CELERY SETTINGS
 CELERY_RESULT_BACKEND = 'amqp'
@@ -31,6 +30,10 @@ CELERYBEAT_SCHEDULE = {
         'task': 'squeeze.tasks.notify_beta_users',
         'schedule': timedelta(seconds=30),
     },
+    'delete_expired_files': {
+        'task': 'squeeze.tasks.notify_beta_users',
+        'schedule': timedelta(hours=12),
+    },
 }
 
 # TRACKING
@@ -38,6 +41,10 @@ GOOGLE_ANALYTICS_PROPERTY_ID = config.get(
     'tracking',
     'GOOGLE_ANALYTICS_PROPERTY_ID',
 )
+
+# DJANGO
+SECRET_KEY = config.get('django', 'SECRET_KEY', raw=True)
+ADMINS = [config.get('django', 'ADMINS')]
 
 TEMPLATES = [
     {
@@ -144,8 +151,8 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': ('%(levelname)s %(asctime)s %(module)s %(process)d'
-                       '%(thread)d %(message)s')
+            'format': ('%(levelname)s %(asctime)s %(process)d '
+                       '%(pathname)s %(message)s')
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -158,9 +165,11 @@ LOGGING = {
         },
         'file': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': 'site_logfile.log',
             'formatter': 'verbose',
+            'maxBytes': 1024*1025*10,  # 10 MB
+            'backupCount': 10,
         },
     },
     'loggers': {
@@ -170,7 +179,13 @@ LOGGING = {
         'accounts': {
             'handlers': ['console', 'file'],
         },
+        'audits': {
+            'handlers': ['console', 'file'],
+        },
         'jobs': {
+            'handlers': ['console', 'file'],
+        },
+        'squeeze': {
             'handlers': ['console', 'file'],
         },
     },

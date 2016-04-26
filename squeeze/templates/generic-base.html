@@ -1,0 +1,50 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    {% include "head-squeeze.html" %}
+    {% include "google-analytics.html" %}
+    <title>{% block title %}{% endblock %}</title>
+
+</head>
+
+<body id="page-top">
+
+    {% include "navbar-squeeze.html" %}
+    <header>
+      <div class="header-content">
+        <div class="header-content-inner">
+          <h1>{% block big-text %}Arquivos Enviados com Sucesso!{% endblock %}</h1>
+
+          <hr>
+          <div class="row">
+            {% block featured-content %}{% endblock %}
+          </div>
+          <a href="#contact" class="btn btn-default btn-xl contact page-scroll">Dúvidas?</a>
+        </div>
+      </div>
+    </header>
+
+    {% include "contact-squeeze.html" %}
+
+    <!-- jQuery -->
+    <script src="{% static "squeeze/js/jquery.js" %}"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{% static "squeeze/js/bootstrap.min.js" %}"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="{% static "squeeze/js/jquery.easing.min.js" %}"></script>
+    <script src="{% static "squeeze/js/jquery.fittext.js" %}"></script>
+    <script src="{% static "squeeze/js/wow.min.js" %}"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="{% static "squeeze/js/creative.js" %}"></script>
+
+    <!-- typed.js-->
+    <script src="{% static "squeeze/js/typed.js" %}"></script>
+    {% include "typed-js.html" %}
+
+</body>
+</html>

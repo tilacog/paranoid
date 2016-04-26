@@ -54,7 +54,7 @@ class DocumentFormsetTest(TestCase):
 
         formset = DocumentFormSet(audit_pk=audit.pk)
 
-        expected_labels = {dt.name for dt in audit.required_doctypes.all()}
+        expected_labels = {dt.verbose_name for dt in audit.required_doctypes.all()}
         forms_labels = {form.fields['file'].label for form in formset}
         self.assertSetEqual(expected_labels, forms_labels)
 

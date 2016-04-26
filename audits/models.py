@@ -1,6 +1,7 @@
 import os.path
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from runner.data_processing import AuditRunnerProvider
@@ -17,20 +18,26 @@ class Package(models.Model):
 
 class Audit(models.Model):
 
-    runner_choices = [
-        # Django choices come in pairs
-        (plugin,)*2 for plugin in AuditRunnerProvider.plugins.keys()
-    ]
-
-    name = models.CharField(max_length=30, blank=False, null=False, unique=True)
+    name = models.CharField(max_length=30, unique=True)
     description = models.TextField(blank=False, null=False)
     package = models.ForeignKey('Package')
     required_doctypes = models.ManyToManyField('Doctype')
-    runner = models.CharField(max_length=120, choices=runner_choices)
+    runner = models.CharField(max_length=120)
 
 
     def get_runner(self):
         return AuditRunnerProvider.plugins[self.runner]
+
+    def clean(self):
+        """Check if self.runner is a registered audit runner plugin.
+        """
+        if self.runner not in AuditRunnerProvider.plugins:
+            msg = "Runner '{}' is not a registered plugin.".format(self.runner)
+            raise ValidationError({'runner': msg})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -51,8 +58,9 @@ class Doctype(models.Model):
         ('cp850', 'cp850'),
     )
 
-    name = models.CharField(max_length=30, primary_key=True)
-    validator = models.CharField(max_length=120, choices=validator_choices)
+    name = models.CharField(max_length=30, unique=True)
+    verbose_name = models.CharField(max_length=60, blank=True, null=True)
+    validator = models.CharField(max_length=120)
     mime = models.CharField(max_length=60, default='text/plain')
     encoding = models.CharField(
         blank=True,
@@ -63,6 +71,19 @@ class Doctype(models.Model):
 
     def get_validator(self):
         return DocumentValidatorProvider.plugins[self.validator]
+
+    def clean(self):
+        """Check if self.validator is a registered document validator plugin.
+        """
+        if self.validator not in DocumentValidatorProvider.plugins:
+            msg = "Validator '{}' is not a registered plugin.".format(
+                    self.validator
+            )
+            raise ValidationError({'validator': msg})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -86,4 +107,4 @@ class Document(models.Model):
         return self.file.file.name
 
     def __str__(self):
-        return "{} Document (pk={})".format(self.doctype, self.pk)
+        return "{} (pk={})".format(self.doctype, self.pk)
