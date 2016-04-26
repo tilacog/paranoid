@@ -18,12 +18,12 @@ def get_beta_user():
     return beta_user
 
 
+# First items must match Audit.pk for each audit.
 CHOICES = (
-    # Those should map with audits.Audit.runner_choices for all the
-    # "dump-to-excel" runners. First items must match the runner class names.
-    ('SefipToExcel', 'GFIP (extensão .SFP)'),
-    ('EfdDump', 'EFD Contribuições (extensão .sped)'),
-    ('EcfDump', 'ECF (extensão .sped)'),
+    ('1', 'ECF (extensão .sped)'),
+    ('4', 'EFD/Sped Fiscal (extensão .sped)'),
+    ('2', 'EFD Contribuições (extensão .sped)'),
+    ('3', 'GFIP (extensão .SFP)'),
 )
 
 
@@ -50,7 +50,7 @@ class OptInForm(forms.Form):
             raise ValidationError("Can't save a form with invalid data.")
 
         # Get audit.Audit instance
-        audit = Audit.objects.get(runner=self.data['audit'])
+        audit = Audit.objects.get(pk=int(self.data['audit']))
         document = Document.objects.create(
             doctype = audit.required_doctypes.first(),
             file = self.files['document'],
