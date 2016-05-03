@@ -10,3 +10,4 @@ Markdown==2.6.4
 selenium==2.48.0
 Unipath==1.1
 django-widget-tweaks==1.4.1
+PyYAML==3.11
