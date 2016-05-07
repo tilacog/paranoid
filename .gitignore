@@ -10,3 +10,4 @@ functional_tests/screendumps
 celerybeat*
 *.json
 secrets*.ini
+prof.py
