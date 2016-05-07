@@ -8,3 +8,9 @@ def google_analytics(request):
             'GOOGLE_ANALYTICS_PROPERTY_ID': ga_prop_id,
         }
     return {}
+
+def domain(request):
+    current_domain = getattr(settings, 'DOMAIN', False)
+    if current_domain:
+        return {'DOMAIN': current_domain}
+    return {}
