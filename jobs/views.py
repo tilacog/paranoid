@@ -35,8 +35,9 @@ def build_download_response(job_pk, user):
     response['Content-Type'] = ''
 
     file_extension = job.report_file.name.split('.')[-1]
-    file_name = "Report #{num}.{ext}".format(
-        num=job.pk,
+    # TODO: Use a function to determine the file name based on some context:
+    #       if it's a squeezejob, or it's audit name, etc.
+    file_name = "Conversão SPED.{ext}".format(
         ext=file_extension,
     )
 
