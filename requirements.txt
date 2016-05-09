@@ -7,7 +7,7 @@ python-magic==0.4.6
 tables==3.2.2
 openpyxl==2.3.0
 Markdown==2.6.4
-selenium==2.48.0
+selenium==2.53.2
 Unipath==1.1
 django-widget-tweaks==1.4.1
 PyYAML==3.11
