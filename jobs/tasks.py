@@ -48,7 +48,7 @@ def process_job(job_pk):
     except:
         # TODO: Update job.STATE on FAILURE (like SystemFailure)
         update_job(job_pk, invalid_documents=True)
-        logger.info('Failed job (pk=%d)' % (job_pk))
+        logger.exception('Failed job (pk=%d)' % (job_pk))
     else:
         # Update the job on success
         update_job(job_pk, success=True, report_path=report_path)
