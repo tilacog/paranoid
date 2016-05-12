@@ -43,6 +43,10 @@ def _get_latest_source(source_folder):
     current_commit = local('git log -n 1 --format=%H', capture=True)
     run('cd %s && git reset --hard %s' % (source_folder, current_commit))
 
+    # TAG
+    tagname = 'LIVE-%s' % ('STAGING' if 'staging' in env.host else 'PRODUCTION')
+    local('git tag -f %s' % tagname)
+
 def _get_latest_plugin_source(source_folder):
     plugin_folder = source_folder.replace('source', 'plugins')
     if exists(plugin_folder+ '/.git'):
@@ -82,3 +86,4 @@ def _supervisorctl_restart():
         'staging' if 'staging' in env.host else 'production'
     )
     sudo("supervisorctl restart %s:" % (program_group,))
+
