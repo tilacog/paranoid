@@ -51,20 +51,24 @@ class ReceiveSqueezejobTest(TestCase):
         fake_file = SimpleUploadedFile("file.txt", b"file_content")
         fake_audit = AuditFactory(
             num_doctypes=1,
-            runner='EcfDump',
         )
 
         # Process a valid request
         self.post_data = {
                 'name': 'Test User',
-                'audit': fake_audit.runner,
+                'audit': '1',  # magic number, because first object has pk==1
                 'email': 'test@user.com',
                 'document': fake_file,
             }
+
         self.response = self.client.post(
             reverse('receive_squeezejob'),
             data=self.post_data,
          )
+
+    def test_squeezejob_instance_is_created(self):
+        num_objects = SqueezeJob.objects.count()
+        self.assertEqual(num_objects, 1)
 
     def test_redirects_to_success_page(self):
         squeezejob = SqueezeJob.objects.first()
@@ -72,10 +76,6 @@ class ReceiveSqueezejobTest(TestCase):
             self.response,
             reverse('success_optin', args=[squeezejob.random_key])
         )
-
-    def test_squeezejob_instance_is_created(self):
-        num_objects = SqueezeJob.objects.count()
-        self.assertEqual(num_objects, 1)
 
     def test_accepts_only_post_requests(self):
         resp = self.client.get(reverse('receive_squeezejob'))

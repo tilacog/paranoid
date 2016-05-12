@@ -20,10 +20,12 @@ def get_beta_user():
 
 # First items must match Audit.pk for each audit.
 CHOICES = (
-    ('1', 'ECF (extensão .sped)'),
-    ('4', 'EFD/Sped Fiscal (extensão .sped)'),
-    ('2', 'EFD Contribuições (extensão .sped)'),
+    ('1', 'ECF (arquivo texto)'),
+    ('2', 'EFD Contribuições (arquivo texto)'),
+    ('4', 'EFD/Sped Fiscal (arquivo texto)'),
+    ('5', 'ECD (arquivo texto)'),
     ('3', 'GFIP (extensão .SFP)'),
+
 )
 
 

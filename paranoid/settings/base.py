@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
                 'squeeze.context_processors.google_analytics',
+                'squeeze.context_processors.domain',
             ],
         },
     },

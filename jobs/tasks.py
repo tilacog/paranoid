@@ -1,6 +1,7 @@
 import os.path
 
 from celery import group, shared_task, task
+from celery.utils.log import get_task_logger
 from django.conf import settings
 
 from audits.models import Audit, Document
@@ -8,13 +9,20 @@ from jobs.models import Job
 from runner.document_validation import ValidationError
 
 
+logger = get_task_logger(__name__)
+
 @task
 def process_job(job_pk):
     """
     Main task to process a created job.
     """
-    # Validate documents
+    logger.info('Started job (pk=%d)' % (job_pk))
+
     job = Job.objects.get(pk=job_pk)
+    job.state = Job.STARTED_STATE
+    job.save()
+
+    # Validate documents
     validation = [
         validate_document(doc.pk)
         for doc in job.documents.all()
@@ -40,9 +48,11 @@ def process_job(job_pk):
     except:
         # TODO: Update job.STATE on FAILURE (like SystemFailure)
         update_job(job_pk, invalid_documents=True)
+        logger.exception('Failed job (pk=%d)' % (job_pk))
     else:
         # Update the job on success
         update_job(job_pk, success=True, report_path=report_path)
+        logger.info('Finished job (pk=%d)' % (job_pk))
 
 
 def validate_document(document_pk):
