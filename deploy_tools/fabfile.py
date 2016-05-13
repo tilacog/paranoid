@@ -86,4 +86,3 @@ def _supervisorctl_restart():
         'staging' if 'staging' in env.host else 'production'
     )
     sudo("supervisorctl restart %s:" % (program_group,))
-

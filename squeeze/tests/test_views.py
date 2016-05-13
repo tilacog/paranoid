@@ -106,16 +106,9 @@ class SuccessPageTest(TestCase):
     def test_view_renders_right_template(self):
         self.assertTemplateUsed(self.response, 'success.html')
 
-    def test_view_context_has_correct_form(self):
+    def test_view_context_has_correct_squeezejob(self):
         response_squeezejob = self.response.context['squeezejob']
         self.assertEqual(response_squeezejob, self.squeezejob)
-
-    def test_renders_squeezejob_info(self):
-        for info in [self.squeezejob.real_user_name,
-                     self.squeezejob.real_user_email,
-                     ]:
-
-            self.assertContains(self.response, info)
 
 
 class DownloadSqueezejobTest(TestCase):

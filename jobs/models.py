@@ -45,3 +45,11 @@ class Job(models.Model):
         self.state = Job.SUCCESS_STATE
         self.full_clean()
         self.save()
+
+    @property
+    def succeded(self):
+        return self.state == self.SUCCESS_STATE
+
+    @property
+    def failed(self):
+        return self.state == self.FAILURE_STATE
