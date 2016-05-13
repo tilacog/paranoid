@@ -30,10 +30,11 @@ CELERYBEAT_SCHEDULE = {
         'task': 'squeeze.tasks.notify_beta_users',
         'schedule': timedelta(seconds=30),
     },
-    'delete_expired_files': {
-        'task': 'squeeze.tasks.notify_beta_users',
-        'schedule': timedelta(hours=12),
-    },
+
+   # 'delete_expired_files': {
+   #     'task': 'squeeze.tasks.notify_beta_users',
+   #     'schedule': timedelta(hours=12),
+   # },
 }
 
 # TRACKING
