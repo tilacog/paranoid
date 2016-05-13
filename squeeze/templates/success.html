@@ -15,8 +15,20 @@
       <dt>Email de envio</dt>
       <dd>{{ squeezejob.real_user_email }}</dd>
 
-      <dt>Recebido em </dt>
+      <dt>Início</dt>
       <dd>{{ squeezejob.created_at|date:"d/m/Y - H:i"}}</dd>
+
+      <dt>Status do Processamento</dt>
+      <dd id="task-status">{{ squeezejob.job.get_state_display }}</dd>
+
+      <dt>Link para Download</dt>
+      {% if squeezejob.job.succeded %}
+          <dd><a href="{{ squeezejob.download_link}}">Download da Conversão</a></dd>
+      {% elif squeezejob.job.failed %}
+          <dd>Indisponível. Verifique se o formato do seu arquivo corresponde ao que foi solicitado.</dd>
+      {% else %}
+      <dd>Aguarde mais alguns instantes... </br><strong>(pressione a tecla F5 para recarregar)</strong></dd>
+      {% endif %}
     </dl>
   </div>
 </div>
@@ -25,5 +37,6 @@
   <div class="job-info">
     <p class="schedule-info">Próximos passos:</p>
     <p class="explainer">Nos próximos minutos você receberá um <em>email</em> com o link para download de sua planilha.</p>
+    <p class="explainer">Se preferir, atualize esta página (F5) para obter o link de download assim que o processamento for concluído.</p>
 </div>
 {% endblock %}
