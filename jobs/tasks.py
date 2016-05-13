@@ -1,3 +1,4 @@
+import hashlib
 import os.path
 
 from celery import group, shared_task, task
@@ -12,6 +13,14 @@ from runner.deserializers.common import tag_store
 
 
 logger = get_task_logger(__name__)
+
+
+def hashfile(afile, hasher, blocksize=65536):
+    buf = afile.read(blocksize)
+    while len(buf) > 0:
+        hasher.update(buf)
+        buf = afile.read(blocksize)
+    return hasher.hexdigest()
 
 @task
 def process_job(job_pk):
@@ -131,6 +140,9 @@ def run_audit(job_pk):
     except AttributeError:
         user_email = job.user.email
 
-    tag_store(runner.store_path, {'user_email': user_email})
+
+    # Metadata
+    md5sum = hashfile(job.documents.first().file, hashlib.md5())
+    tag_store(runner.store_path, {'user_email': user_email, 'md5': md5sum})
 
     return runner.report_path
