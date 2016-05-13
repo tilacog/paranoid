@@ -21,7 +21,7 @@ class SqueezeJob(models.Model):
 
     DEFAULT_TIMEOUT = timedelta(days=2)
 
-    job = models.ForeignKey('jobs.Job',)
+    job = models.OneToOneField('jobs.Job',)
     real_user_email = models.EmailField()
     real_user_name = models.CharField(max_length=120)
     created_at = models.DateTimeField(auto_now_add=True)

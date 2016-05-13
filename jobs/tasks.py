@@ -6,7 +6,9 @@ from django.conf import settings
 
 from audits.models import Audit, Document
 from jobs.models import Job
+
 from runner.document_validation import ValidationError
+from runner.deserializers.common import tag_store
 
 
 logger = get_task_logger(__name__)
@@ -124,5 +126,12 @@ def run_audit(job_pk):
     documents = prepare_documents(job_pk)
     runner = runner_cls(documents)
     runner.run()
+
+    try:  # if it's a squeezejob, use real_user_email
+        user_email = job.squeezejob.real_user_email
+    except AttributeError:
+        user_email = job.user.email
+
+    tag_store(runner.store_path, {'user_email': user_email})
 
     return runner.report_path
