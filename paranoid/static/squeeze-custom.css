@@ -105,3 +105,8 @@ dd {
   padding: 0;
   margin: 0
 }
+
+dd > a {
+  color: lightblue;
+  text-decoration: underline;
+}
