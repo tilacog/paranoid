@@ -125,8 +125,9 @@ class AuditRunnerProvider(metaclass=PluginMount):
             shutil.move(src=self.output, dst=self.report_path)
 
             # TODO:
-            # Preserve datastore using the same unique report name plus ".h5"
-            shutil.move(src=self.files, dst=self.report_path+'.h5')
+            # Preserve datastore using report (swap extension to '.h5')
+            self.store_path = self.report_path.rsplit('.', 1)[0] + '.h5'
+            shutil.move(src=self.files, dst=self.store_path)
 
             # Revert to avoid confusion
             self.workspace = None
