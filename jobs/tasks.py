@@ -36,11 +36,10 @@ def process_job(job_pk):
         if result['error']
     ]
 
-    # Update documents and job in case of validation errors
+    # Just log them and let runner decide if they're valid or not
     if validation_errors:
-        update_documents(errors=validation_errors)
-        update_job(job_pk, invalid_documents=True)
-        return
+        logger.warning('Job (pk=%d) has invalid documents!' % job_pk)
+
 
     # If documents are ok, run the audit task
     # TODO: Refactor this!!!
