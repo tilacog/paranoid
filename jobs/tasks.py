@@ -142,7 +142,11 @@ def run_audit(job_pk):
 
 
     # Metadata
-    md5sum = hashfile(job.documents.first().file, hashlib.md5())
-    tag_store(runner.store_path, {'user_email': user_email, 'md5': md5sum})
+    metadata = {
+            'user_email': user_email,
+            'md5': hashfile(job.documents.first().file, hashlib.md5()),
+            'doctype': job.documents.first().doctype.name
+    }
+    tag_store(runner.store_path, metadata)
 
     return runner.report_path
