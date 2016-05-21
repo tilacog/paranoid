@@ -2,7 +2,7 @@ from .base import *
 
 
 DEBUG = False
-DOMAIN = 'paranoidlabs.com.br'
+DOMAIN = 'spedauditor.com.br'
 ALLOWED_HOSTS = [DOMAIN]
 
 # CELERY

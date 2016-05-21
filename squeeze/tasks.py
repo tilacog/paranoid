@@ -88,7 +88,7 @@ def notify_beta_users():
             body=text_message,
             to=[squeezejob.real_user_email],
             bcc=ADMINS,
-            from_email='Conversor Excel <conversor-excel@paranoidlabs.com.br>',
+            from_email='Conversor Excel <conversor-excel@spedauditor.com.br>',
         )
         msg.attach_alternative(html_message, "text/html")
         msg.send()

@@ -10,7 +10,7 @@ from squeeze.models import SqueezeJob, random_key
 def get_beta_user():
     User = get_user_model()
     beta_user, created = User.objects.get_or_create(
-        email='beta@paranoidlabs.com.br',
+        email='beta@spedauditor.com.br',
         defaults={
             'password': random_key(),
         })

@@ -2,8 +2,8 @@ from .base import *
 
 
 DEBUG = True
-DOMAIN = 'staging.paranoidlabs.com.br'
-ALLOWED_HOSTS = [DOMAIN, 'staging.spedauditor.com.br']
+DOMAIN = 'staging.spedauditor.com.br'
+ALLOWED_HOSTS = [DOMAIN]
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # CELERY
