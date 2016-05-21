@@ -20,9 +20,12 @@ config = configparser.ConfigParser()
 config.read(THIS_DIR.child('secrets.ini'))
 
 # CELERY SETTINGS
-CELERY_RESULT_BACKEND = 'amqp'
-BROKER_URL = config.get('celery', 'BROKER_URL')
+
+# CELERY SETTINGS
+BROKER_URL = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 CELERY_IGNORE_RESULT = True
 
 CELERYBEAT_SCHEDULE = {

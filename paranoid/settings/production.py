@@ -6,7 +6,7 @@ DOMAIN = 'spedauditor.com.br'
 ALLOWED_HOSTS = [DOMAIN]
 
 # CELERY
-BROKER_URL += '/main'
+BROKER_URL += '/0'
 
 # MAIL SETTINGS
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
