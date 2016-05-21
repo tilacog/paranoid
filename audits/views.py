@@ -12,6 +12,7 @@ def home_page(request):
     audits = Audit.objects.all()
     return render(request, 'home.html', {'audits': audits})
 
+@login_required
 def audit_page(request, audit_pk):
     audit = Audit.objects.get(id=audit_pk)
 
