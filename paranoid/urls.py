@@ -5,11 +5,10 @@ from django.contrib.auth.views import logout
 import audits.views
 
 urlpatterns = [
-    url(r'^$', audits.views.home_page, name='home_page'),
+    url(r'^', include('squeeze.urls')),
     url(r'^accounts/', include('accounts.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^audits/', include('audits.urls')),
     url(r'^jobs/', include('jobs.urls')),
-    url(r'^excel/', include('squeeze.urls')),
     url(r'^logout$', logout, {'next_page': '/'}, name='logout'),
 ]
